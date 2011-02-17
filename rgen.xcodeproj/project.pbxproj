@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		8DD76F9A0486AA7600D96B5E /* rgen.m in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* rgen.m */; settings = {ATTRIBUTES = (); }; };
 		8DD76F9C0486AA7600D96B5E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08FB779EFE84155DC02AAC07 /* Foundation.framework */; };
+		CDF2D579130D93D20037E85E /* PBXProj.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2D578130D93D20037E85E /* PBXProj.m */; };
+		CDF2D584130D94430037E85E /* NSString+toCamelCase.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2D583130D94430037E85E /* NSString+toCamelCase.m */; };
+		CDF2D587130D94880037E85E /* NSString+stripSuffix.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2D586130D94880037E85E /* NSString+stripSuffix.m */; };
+		CDF2D594130D950C0037E85E /* ResourcesGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2D593130D950C0037E85E /* ResourcesGenerator.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -27,6 +31,14 @@
 		08FB7796FE84155DC02AAC07 /* rgen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = rgen.m; sourceTree = "<group>"; };
 		08FB779EFE84155DC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8DD76FA10486AA7600D96B5E /* rgen */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = rgen; sourceTree = BUILT_PRODUCTS_DIR; };
+		CDF2D577130D93D20037E85E /* PBXProj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBXProj.h; sourceTree = "<group>"; };
+		CDF2D578130D93D20037E85E /* PBXProj.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBXProj.m; sourceTree = "<group>"; };
+		CDF2D582130D94430037E85E /* NSString+toCamelCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+toCamelCase.h"; sourceTree = "<group>"; };
+		CDF2D583130D94430037E85E /* NSString+toCamelCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+toCamelCase.m"; sourceTree = "<group>"; };
+		CDF2D585130D94880037E85E /* NSString+stripSuffix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+stripSuffix.h"; sourceTree = "<group>"; };
+		CDF2D586130D94880037E85E /* NSString+stripSuffix.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+stripSuffix.m"; sourceTree = "<group>"; };
+		CDF2D592130D950C0037E85E /* ResourcesGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourcesGenerator.h; sourceTree = "<group>"; };
+		CDF2D593130D950C0037E85E /* ResourcesGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourcesGenerator.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +68,14 @@
 			isa = PBXGroup;
 			children = (
 				08FB7796FE84155DC02AAC07 /* rgen.m */,
+				CDF2D577130D93D20037E85E /* PBXProj.h */,
+				CDF2D578130D93D20037E85E /* PBXProj.m */,
+				CDF2D582130D94430037E85E /* NSString+toCamelCase.h */,
+				CDF2D583130D94430037E85E /* NSString+toCamelCase.m */,
+				CDF2D585130D94880037E85E /* NSString+stripSuffix.h */,
+				CDF2D586130D94880037E85E /* NSString+stripSuffix.m */,
+				CDF2D592130D950C0037E85E /* ResourcesGenerator.h */,
+				CDF2D593130D950C0037E85E /* ResourcesGenerator.m */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -134,6 +154,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				8DD76F9A0486AA7600D96B5E /* rgen.m in Sources */,
+				CDF2D579130D93D20037E85E /* PBXProj.m in Sources */,
+				CDF2D584130D94430037E85E /* NSString+toCamelCase.m in Sources */,
+				CDF2D587130D94880037E85E /* NSString+stripSuffix.m in Sources */,
+				CDF2D594130D950C0037E85E /* ResourcesGenerator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
