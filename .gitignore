@@ -1,0 +1,4 @@
+*.swp
+build/
+rgen.xcodeproj/*.mode1v3
+rgen.xcodeproj/*.pbxuser
