@@ -85,24 +85,42 @@
 		sourceTree:(NSString *)sourceTree {
   NSString *sourceRoot = [self.environment objectForKey:@"SOURCE_ROOT"];
   if (sourceRoot == nil) {
-    [[self.pbxFilePath stringByDeletingLastPathComponent]
-     stringByDeletingLastPathComponent];
+    sourceRoot = [[self.pbxFilePath stringByDeletingLastPathComponent]
+		  stringByDeletingLastPathComponent];
+  }
+  NSString *buildProductDir = [self.environment
+			       objectForKey:@"BUILT_PRODUCTS_DIR"];
+  if (buildProductDir == nil) {
+    buildProductDir = [NSString pathWithComponents:
+		       [NSArray arrayWithObjects:
+			sourceRoot, @"build", @"dummy", nil]];
+  }
+  NSString *developerDir = [self.environment objectForKey:@"DEVELOPER_DIR"];
+  if (developerDir == nil) {
+    developerDir = [NSString pathWithComponents:
+		    [NSArray arrayWithObjects:@"/", @"Developer", nil]];
+  }
+  NSString *sdkRoot = [self.environment objectForKey:@"DEVELOPER_DIR"];
+  if (sdkRoot == nil) {
+    // TODO: fallback to what?
+    sdkRoot = @"/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk";
   }
   
-  NSDictionary *trees = [NSDictionary dictionaryWithObjectsAndKeys:
-			 sourceRoot, @"<group>",
-			 sourceRoot, @"SOURCE_ROOT",
-			 @"/", @"<absolute>",			 
-			 [self.environment objectForKey:@"BUILT_PRODUCTS_DIR"],
-			 @"BUILT_PRODUCTS_DIR",
-			 [self.environment objectForKey:@"DEVELOPER_DIR"],
-			 @"DEVELOPER_DIR" ,
-			 [self.environment objectForKey:@"SDKROOT"],
-			 @"SDKROOT",
-			 nil];
+  NSString *tree = [[NSDictionary dictionaryWithObjectsAndKeys:
+		     sourceRoot, @"<group>",
+		     sourceRoot, @"SOURCE_ROOT",
+		     @"/", @"<absolute>",			 
+		     buildProductDir, @"BUILT_PRODUCTS_DIR",
+		     developerDir, @"DEVELOPER_DIR" ,
+		     sdkRoot, @"SDKROOT",
+		     nil]
+		    objectForKey:sourceTree];
   
-  return [[NSString pathWithComponents:
-	   [NSArray arrayWithObjects:[trees objectForKey:sourceTree], path, nil]]
+  if (tree == nil) {
+    return nil;
+  }
+  
+  return [[NSString pathWithComponents:[NSArray arrayWithObjects:tree, path, nil]]
 	  stringByStandardizingPath];
 }
 
@@ -110,6 +128,7 @@
   self.pbxFilePath = nil;
   self.objects = nil;
   self.rootDictionary = nil;
+  self.environment = nil;
   
   [super dealloc];
 }
