@@ -77,6 +77,7 @@ NSComparator filesSortBlock = ^(id a, id b) {
 	      @"const",
 	      @"copy",
 	      @"dealloc",
+	      @"default",
 	      @"double",
 	      @"float",
 	      @"id",
