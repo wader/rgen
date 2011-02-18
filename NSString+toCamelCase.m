@@ -8,9 +8,11 @@
 
 #import "NSString+toCamelCase.h"
 
+// based on http://stackoverflow.com/questions/1918972
 @implementation NSString (toCamelCase)
 - (NSString *)toCamelCase:(NSCharacterSet *)charSet {
   NSMutableString *output = [NSMutableString string];
+  
   BOOL makeNextCharacterUpperCase = NO;
   for (NSInteger idx = 0; idx < [self length]; idx += 1) {
     unichar c = [self characterAtIndex:idx];
@@ -25,8 +27,7 @@
 			    lowercaseString]];
     }
   }
+  
   return output;
 }
 @end
-
-

@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-// adapted from http://stackoverflow.com/questions/1918972
 @interface NSString (toCamelCase)
 - (NSString *)toCamelCase:(NSCharacterSet *)charSet;
 @end
