@@ -180,6 +180,7 @@ NSComparator filesSortBlock = ^(id a, id b) {
 }
 
 - (void)loadResources:(PBXProj *)pbxProj {
+  // TODO: nil check
   for (PBXProjDictionary *p in [pbxProj.rootDictionary arrayForKey:@"targets"]) {
     for (PBXProjDictionary *buildPhase in [p arrayForKey:@"buildPhases"]) {
       NSString *isa = [buildPhase objectForKey:@"isa"];
@@ -344,10 +345,10 @@ NSComparator filesSortBlock = ^(id a, id b) {
     }
     
     for (id key in [uniqImages keysSortedByValueUsingComparator:filesSortBlock]) {
-      File *imageFile = [uniqImages objectForKey:key];
+      //File *imageFile = [uniqImages objectForKey:key];
       
       NSString *properyName = [[self class] propertyName:
-			       [imageFile.name stringByDeletingPathExtension]];
+			       [key stringByDeletingPathExtension]];
       NSString *path = key;
       if ([dirComponents count] > 0) {
 	path = [[NSString pathWithComponents:dirComponents]

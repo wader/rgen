@@ -1,5 +1,4 @@
 // TODO:
-// sorted output, makes diffs nicer
 // Paths P
 // image types (from project file?)
 // comment outputcode (path refrences etc)
@@ -11,10 +10,13 @@
 // paths, add smart ones?
 // generate h/m per target
 // var starts with char
+// recursive loadImages
 //
 // DONE output filename
+// DONE sorted output, makes diffs nicer
 // NOPE $(SRCROOT)/Classes/Resources.h/m $(PROJECT_FILE_PATH) (does not work with updated folders)
 // NOPE depend on projectfile mtime?
+
 
 #import <Foundation/Foundation.h>
 #import "ResourcesGenerator.h"
