@@ -13,6 +13,7 @@
 		CDF2D584130D94430037E85E /* NSString+toCamelCase.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2D583130D94430037E85E /* NSString+toCamelCase.m */; };
 		CDF2D587130D94880037E85E /* NSString+stripSuffix.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2D586130D94880037E85E /* NSString+stripSuffix.m */; };
 		CDF2D594130D950C0037E85E /* ResourcesGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2D593130D950C0037E85E /* ResourcesGenerator.m */; };
+		CDF2D60F130D9F7E0037E85E /* NSString+charSetNormalize.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2D60E130D9F7E0037E85E /* NSString+charSetNormalize.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -39,6 +40,8 @@
 		CDF2D586130D94880037E85E /* NSString+stripSuffix.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+stripSuffix.m"; sourceTree = "<group>"; };
 		CDF2D592130D950C0037E85E /* ResourcesGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourcesGenerator.h; sourceTree = "<group>"; };
 		CDF2D593130D950C0037E85E /* ResourcesGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourcesGenerator.m; sourceTree = "<group>"; };
+		CDF2D60D130D9F7E0037E85E /* NSString+charSetNormalize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+charSetNormalize.h"; sourceTree = "<group>"; };
+		CDF2D60E130D9F7E0037E85E /* NSString+charSetNormalize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+charSetNormalize.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,6 +79,8 @@
 				CDF2D586130D94880037E85E /* NSString+stripSuffix.m */,
 				CDF2D592130D950C0037E85E /* ResourcesGenerator.h */,
 				CDF2D593130D950C0037E85E /* ResourcesGenerator.m */,
+				CDF2D60D130D9F7E0037E85E /* NSString+charSetNormalize.h */,
+				CDF2D60E130D9F7E0037E85E /* NSString+charSetNormalize.m */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -158,6 +163,7 @@
 				CDF2D584130D94430037E85E /* NSString+toCamelCase.m in Sources */,
 				CDF2D587130D94880037E85E /* NSString+stripSuffix.m in Sources */,
 				CDF2D594130D950C0037E85E /* ResourcesGenerator.m in Sources */,
+				CDF2D60F130D9F7E0037E85E /* NSString+charSetNormalize.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
