@@ -10,6 +10,7 @@
 #import "PBXProj.h"
 #import "NSString+stripSuffix.h"
 #import "NSString+toCamelCase.h"
+#import "NSString+charSetNormalize.h"
 
 @implementation File
 
@@ -50,12 +51,103 @@
   [super dealloc];
 }
 
+NSComparator filesSortBlock = ^(id a, id b) {
+  return [((NSString *)[a valueForKey:@"name"])
+	  compare:[b valueForKey:@"name"]];
+};
+
+
 @end
 
 @implementation ResourcesGenerator
 
 @synthesize pbxProjPath;
 @synthesize rootDir;
+
+// avoid c keywords and some objc stuff
++ (BOOL)shouldAvoidName:(NSString *)name {
+  static NSSet *names = nil;
+  if (names == nil) {
+    names = [[NSSet setWithObjects:
+	      @"alloc",
+	      @"autorelease",
+	      @"bycopy",
+	      @"byref",
+	      @"char",
+	      @"const",
+	      @"copy",
+	      @"dealloc",
+	      @"double",
+	      @"float",
+	      @"id",
+	      @"in",
+	      @"inout",
+	      @"int",
+	      @"long",
+	      @"new",
+	      @"nil",
+	      @"oneway",
+	      @"out",
+	      @"release",
+	      @"retain",
+	      @"self",
+	      @"short",
+	      @"signed",
+	      @"super",
+	      @"unsigned",
+	      @"void",
+	      @"volatile",
+	      nil]
+	     retain];
+  }
+  
+  return [names containsObject:name];  
+}
+
++ (NSCharacterSet *)allowedCharacterSet {
+  static NSCharacterSet *charSet = nil;
+  if (charSet == nil) {
+    charSet = [[NSCharacterSet characterSetWithCharactersInString:
+		@"abcdefghijklmnopqrstuvwxyz"
+		@"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		@"_0123456789"]
+	       retain];
+  }
+  
+  return charSet;
+}
+
++ (NSString *)classNameForDirComponents:(NSArray *)dirComponents
+				   name:(NSString *)name {
+  NSMutableArray *parts = [NSMutableArray array];
+  
+  for (NSString *component in dirComponents) {
+    [parts addObject:[[component charSetNormalize:
+		       [[self class] allowedCharacterSet]]
+		      capitalizedString]];
+  }
+  
+  if (name != nil) {
+    [parts addObject:[[name charSetNormalize:
+		       [[self class] allowedCharacterSet]]
+		      capitalizedString]];
+  }
+  
+  return [parts componentsJoinedByString:@""];
+}
+
++ (NSString *)propertyName:(NSString *)name {
+  name = [[name toCamelCase:
+	   [NSCharacterSet characterSetWithCharactersInString:@"._-"]]
+	  charSetNormalize:
+	  [[self class] allowedCharacterSet]];
+  
+  if ([[self class] shouldAvoidName:name]) {
+    name = [name stringByAppendingString:@"_"];
+  }
+  
+  return name;
+}
 
 - (id)initWithProjectFile:(NSString *)aPath {
   self = [super init];
@@ -106,6 +198,7 @@
 	  name = [path lastPathComponent];
 	}
 	
+	// TODO: check for errors and nils
 	NSString *absPath = [pbxProj absolutePath:path sourceTree:sourceTree];
 	if ([lastKnownFileType isEqualToString:@"folder"]) {
 	  for (NSString *subpath in [[NSFileManager defaultManager]
@@ -147,7 +240,9 @@
   
   block(dirComponents, dir);
   
-  for (id file in [dir.files allValues]) {
+  for (id key in [dir.files keysSortedByValueUsingComparator:filesSortBlock]) {
+    id file = [dir.files objectForKey:key];
+    
     NSString *subdir = @"";
     if ([dirComponents count] > 0) {
       subdir = [[NSString pathWithComponents:dirComponents]
@@ -175,75 +270,10 @@
 - (void)writeResoucesTo:(NSString *)outputDir
 	      className:(NSString *)className {
   NSMutableString *header = [NSMutableString string];
+  NSMutableString *definition = [NSMutableString string];
   
   [header appendFormat:@"// Generated from %@\n", self.pbxProjPath];
   [header appendFormat:@"#import <Foundation/Foundation.h>\n\n"];
-  
-  [self rescurseResoucesWithBlock:^(NSArray *dirComponents, id file) {
-    if (![file isKindOfClass:[Dir class]]) {
-      return;
-    }
-    [header appendFormat:@"@class %@%@;\n",
-     className,
-     [dirComponents componentsJoinedByString:@""]];
-  }];
-  
-  [header appendFormat:@"\n"];
-  
-  [self rescurseResoucesWithBlock:^(NSArray *dirComponents, id file) {
-    if (![file isKindOfClass:[Dir class]]) {
-      return;
-    }
-    Dir *dir = file;
-    [header appendFormat:@"@interface %@%@ : NSObject\n",
-     className,
-     [dirComponents componentsJoinedByString:@""]];
-    
-    
-    for (File *dirFile in [dir.files allValues]) {
-      if (![dirFile isKindOfClass:[Dir class]]) {
-	continue;
-      }
-      
-      [header appendFormat:@"@property(nonatomic, readonly) %@%@ *%@;\n",
-       className,
-       [dirComponents componentsJoinedByString:@""], dirFile.name, dirFile.name];
-    }
-    
-    
-    NSMutableSet *uniqImages = [NSMutableSet set];
-    
-    for (File *dirFile in [dir.files allValues]) {
-      if (![dirFile.name hasSuffix:@".png"]) {
-	continue;
-      }
-      
-      [uniqImages addObject:
-       [[[dirFile.name stringByDeletingPathExtension]
-	 stripSuffix:[NSArray arrayWithObjects:@"@2x", @"-ipad", nil]]
-	toCamelCase:[NSCharacterSet characterSetWithCharactersInString:@"._-"]]];
-    }
-    
-    for (NSString *imageName in uniqImages) {
-      [header appendFormat:@"@property(nonatomic, readonly) %@%@;\n",
-       @"id ", imageName];
-    }
-    
-    [header appendFormat:@"@end\n",
-     [dirComponents componentsJoinedByString:@""], dir.name];
-    
-  }];
-  
-  [header appendFormat:@"\n"];
-  
-  [header appendFormat:
-   @"@interface %@ (loadResources)\n"
-   @"- (void)loadResources;\n"
-   @"@end\n",
-   className];
-  
-  
-  NSMutableString *definition = [NSMutableString string];
   
   [definition appendFormat:@"// Generated from %@\n", self.pbxProjPath];
   [definition appendFormat:@"#import \"%@.h\"\n\n", className];
@@ -252,56 +282,101 @@
     if (![file isKindOfClass:[Dir class]]) {
       return;
     }
-    Dir *dir = file;
-    [definition appendFormat:@"@implementation %@%@\n",
+    [header appendFormat:@"@class %@%@;\n",
      className,
-     [dirComponents componentsJoinedByString:@""]];
-    
-    NSMutableSet *uniqImages = [NSMutableSet set];
-    
-    for (id dirObj in [dir.files allValues]) {
-      if (![dirObj isKindOfClass:[Dir class]]) {
-	continue;
-      }
-      
-      Dir *dirDir = dirObj;
-      
-      [definition appendFormat:@"@synthesize %@;\n", dirDir.name];
+     [[self class] classNameForDirComponents:dirComponents
+					name:nil]];
+  }];
+  [header appendFormat:@"\n"];
+  
+  [self rescurseResoucesWithBlock:^(NSArray *dirComponents, id file) {
+    Dir *dir = file;
+    if (![dir isKindOfClass:[Dir class]]) {
+      return;
     }
     
-    for (id dirObj in [dir.files allValues]) {
-      if (![dirObj isKindOfClass:[File class]]) {
+    [header appendFormat:@"@interface %@%@ : NSObject\n",
+     className,
+     [[self class] classNameForDirComponents:dirComponents
+					name:nil]];
+    [definition appendFormat:@"@implementation %@%@\n",
+     className,
+     [[self class] classNameForDirComponents:dirComponents
+					name:nil]];
+    
+    for (id key in [dir.files keysSortedByValueUsingComparator:filesSortBlock]) {
+      NSLog(@"key=%@", key);
+      
+      
+      Dir *subDir = [dir.files objectForKey:key];
+      if (![subDir isKindOfClass:[Dir class]]) {
 	continue;
       }
-      File *dirFile = dirObj;
+      
+      
+      [header appendFormat:@"@property(nonatomic, readonly) %@%@ *%@;\n",
+       className,
+       [[self class] classNameForDirComponents:dirComponents
+					  name:subDir.name],
+       [[self class] propertyName:subDir.name]];
+      
+      [definition appendFormat:@"@synthesize %@;\n",
+       [[self class] propertyName:subDir.name]];
+    }
+    
+    NSMutableDictionary *uniqImages = [NSMutableDictionary dictionary];
+    for (File *dirFile  in [dir.files allValues]) {
+      if (![dirFile isKindOfClass:[File class]]) {
+	continue;
+      }
       if (![dirFile.name hasSuffix:@".png"]) {
 	continue;
       }
       
-      [uniqImages addObject:
+      [uniqImages
+       setObject:
+       dirFile
+       forKey:
        [[[dirFile.name stringByDeletingPathExtension]
 	 stripSuffix:[NSArray arrayWithObjects:@"@2x", @"-ipad", nil]]
-	toCamelCase:[NSCharacterSet characterSetWithCharactersInString:@"._-"]]];
+	stringByAppendingPathExtension:[dirFile.name pathExtension]]];
     }
     
-    for (NSString *imageName in uniqImages) {
-      [definition appendFormat:@"@synthesize %@;\n", imageName];
+    for (id key in [uniqImages keysSortedByValueUsingComparator:filesSortBlock]) {
+      File *imageFile = [uniqImages objectForKey:key];
+      
+      NSString *properyName = [[self class] propertyName:
+			       [imageFile.name stringByDeletingPathExtension]];
+      NSString *path = key;
+      if ([dirComponents count] > 0) {
+	path = [[NSString pathWithComponents:dirComponents]
+		stringByAppendingPathComponent:key];
+      }
+      
+      [header appendFormat:@"@property(nonatomic, readonly) %@%@; // %@\n",
+       @"id ",
+       properyName,
+       path];
+      [definition appendFormat:@"@synthesize %@;\n", properyName];
     }
     
-    [definition appendFormat:@"@end\n",
-     [dirComponents componentsJoinedByString:@""], dir.name];
-    
+    [header appendFormat:@"@end\n\n"];
+    [definition appendFormat:@"@end\n\n"];
   }];
   
-  [definition appendFormat:@"%@ *R;\n", className];
+  [header appendFormat:
+   @"@interface %@ (loadResources)\n"
+   @"- (void)loadResources;\n"
+   @"@end\n",
+   className];
   
+  [definition appendFormat:@"%@ *R;\n\n", className];
   [definition appendFormat:
    @"@implementation %@ (loadResources)\n"
    @"- (void)loadResources {\n"
    @"}\n"
    @"@end\n",
    className];
-  
   
   [header writeToFile:[NSString pathWithComponents:
 		       [NSArray arrayWithObjects:

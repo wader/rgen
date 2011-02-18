@@ -20,12 +20,12 @@
 @property(nonatomic, retain) NSMutableDictionary *files;
 @end
 
-
 @interface ResourcesGenerator : NSObject
 
 @property(nonatomic, retain) NSString *pbxProjPath;
 @property(nonatomic, retain) Dir *rootDir;
 
+- (id)initWithProjectFile:(NSString *)aPath;
 - (void)loadResources:(PBXProj *)pbxProj;
 - (void)writeResoucesTo:(NSString *)outputDir
 	      className:(NSString *)className;
