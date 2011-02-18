@@ -78,6 +78,7 @@ NSComparator filesSortBlock = ^(id a, id b) {
 	      @"copy",
 	      @"dealloc",
 	      @"default",
+	      @"delete",
 	      @"double",
 	      @"float",
 	      @"id",
@@ -301,20 +302,17 @@ NSComparator filesSortBlock = ^(id a, id b) {
      className,
      [[self class] classNameForDirComponents:dirComponents
 					name:nil]];
+    
     [definition appendFormat:@"@implementation %@%@\n",
      className,
      [[self class] classNameForDirComponents:dirComponents
 					name:nil]];
     
     for (id key in [dir.files keysSortedByValueUsingComparator:filesSortBlock]) {
-      NSLog(@"key=%@", key);
-      
-      
       Dir *subDir = [dir.files objectForKey:key];
       if (![subDir isKindOfClass:[Dir class]]) {
 	continue;
       }
-      
       
       [header appendFormat:@"@property(nonatomic, readonly) %@%@ *%@;\n",
        className,
@@ -325,7 +323,7 @@ NSComparator filesSortBlock = ^(id a, id b) {
       [definition appendFormat:@"@synthesize %@;\n",
        [[self class] propertyName:subDir.name]];
     }
-    
+
     NSMutableDictionary *uniqImages = [NSMutableDictionary dictionary];
     for (File *dirFile  in [dir.files allValues]) {
       if (![dirFile isKindOfClass:[File class]]) {
@@ -356,29 +354,129 @@ NSComparator filesSortBlock = ^(id a, id b) {
       }
       
       [header appendFormat:@"@property(nonatomic, readonly) %@%@; // %@\n",
-       @"id ",
+       @"UIImage *",
        properyName,
        path];
       [definition appendFormat:@"@synthesize %@;\n", properyName];
     }
     
+    [definition appendFormat:@"\n"];
+    
+    if ([dirComponents count] == 0) {
+      [definition appendFormat:@"+ (void)load {\n"];
+      [definition appendFormat:@"  @synchronized(self) {\n"];
+      [definition appendFormat:@"    if (R == nil) {\n"];
+      [definition appendFormat:@"      R = [[%@ alloc] init];\n", className];
+      [definition appendFormat:@"    }\n"];
+      [definition appendFormat:@"  }\n"];
+      [definition appendFormat:@"}\n"];
+      [definition appendFormat:@"\n"];
+    }
+    
+    [definition appendFormat:@"- (id)init {\n"];
+    [definition appendFormat:@" self = [super init];\n"];
+    
+    for (id key in [dir.files keysSortedByValueUsingComparator:filesSortBlock]) {
+      Dir *subDir = [dir.files objectForKey:key];
+      if (![subDir isKindOfClass:[Dir class]]) {
+	continue;
+      }
+      
+      [definition appendFormat:@" self->%@ = [[%@%@ alloc] init];\n",
+       [[self class] propertyName:subDir.name],
+       className,
+       [[self class] classNameForDirComponents:dirComponents
+					  name:subDir.name]];
+    }
+    [definition appendFormat:@" return self;\n"];
+    [definition appendFormat:@"}\n"];
+    [definition appendFormat:@"\n"];
+    
+    for (id key in [uniqImages keysSortedByValueUsingComparator:filesSortBlock]) {
+      //File *imageFile = [uniqImages objectForKey:key];
+      
+      NSString *properyName = [[self class] propertyName:
+			       [key stringByDeletingPathExtension]];
+      NSString *path = key;
+      if ([dirComponents count] > 0) {
+	path = [[NSString pathWithComponents:dirComponents]
+		stringByAppendingPathComponent:key];
+      }
+      
+      [definition appendFormat:@"- (UIImage *)%@ {\n", properyName];
+      [definition appendFormat:@"  if (%@ == nil) {\n", properyName];
+      [definition appendFormat:@"    return [UIImage imageNamed:@\"%@\"];\n",
+       path];
+      [definition appendFormat:@"  } else {\n"];
+      [definition appendFormat:@"    return [[self->%@ retain] autorelease];\n",
+       properyName];
+      [definition appendFormat:@"  }\n"];
+      [definition appendFormat:@"}\n\n"];
+    }
+    
+    [header appendFormat:@"\n"];
+    [header appendFormat:@"- (void)loadImages;\n"];
+    [header appendFormat:@"- (void)releaseImages;\n"];
     [header appendFormat:@"@end\n\n"];
+    
+    [definition appendFormat:@"- (void)loadImages {\n"];
+    for (id key in [dir.files keysSortedByValueUsingComparator:filesSortBlock]) {
+      Dir *subDir = [dir.files objectForKey:key];
+      if (![subDir isKindOfClass:[Dir class]]) {
+	continue;
+      }
+      
+      [definition appendFormat:@"  [self->%@ loadImages];\n",
+       [[self class] propertyName:subDir.name]];
+      
+    }
+    
+    for (id key in [uniqImages keysSortedByValueUsingComparator:filesSortBlock]) {
+      NSString *properyName = [[self class] propertyName:
+			       [key stringByDeletingPathExtension]];
+      NSString *path = key;
+      if ([dirComponents count] > 0) {
+	path = [[NSString pathWithComponents:dirComponents]
+		stringByAppendingPathComponent:key];
+      }
+      
+      [definition appendFormat:@"  self->%@ = [[UIImage imageNamed:@\"%@\"] retain];\n",
+       properyName,
+       path];
+      
+    }
+    [definition appendFormat:@"}\n"];
+    [definition appendFormat:@"\n"];
+    [definition appendFormat:@"- (void)releaseImages {\n"];
+    for (id key in [dir.files keysSortedByValueUsingComparator:filesSortBlock]) {
+      Dir *subDir = [dir.files objectForKey:key];
+      if (![subDir isKindOfClass:[Dir class]]) {
+	continue;
+      }
+      
+      [definition appendFormat:@"  [self->%@ releaseImages];\n",
+       [[self class] propertyName:subDir.name]];
+      
+    }
+    
+    for (id key in [uniqImages keysSortedByValueUsingComparator:filesSortBlock]) {
+      NSString *properyName = [[self class] propertyName:
+			       [key stringByDeletingPathExtension]];
+      NSString *path = key;
+      if ([dirComponents count] > 0) {
+	path = [[NSString pathWithComponents:dirComponents]
+		stringByAppendingPathComponent:key];
+      }
+      
+      [definition appendFormat:@"  [self->%@ release];\n", properyName];
+      [definition appendFormat:@"  self->%@ = nil;\n", properyName];      
+    }
+    [definition appendFormat:@"}\n"];
     [definition appendFormat:@"@end\n\n"];
   }];
-  
-  [header appendFormat:
-   @"@interface %@ (loadResources)\n"
-   @"- (void)loadResources;\n"
-   @"@end\n",
-   className];
-  
-  [definition appendFormat:@"%@ *R;\n\n", className];
-  [definition appendFormat:
-   @"@implementation %@ (loadResources)\n"
-   @"- (void)loadResources {\n"
-   @"}\n"
-   @"@end\n",
-   className];
+      
+  [header appendFormat:@"%@ *R;\n", className];
+  [definition appendFormat:@"%@ *R;\n", className];
   
   [header writeToFile:[NSString pathWithComponents:
 		       [NSArray arrayWithObjects:
