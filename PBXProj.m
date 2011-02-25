@@ -22,20 +22,40 @@
 }
 
 - (PBXProjDictionary *)dictForKey:(NSString *)key {
+  NSString *objectId = [self.rootObject objectForKey:key];
+  if (objectId == nil) {
+    return nil;
+  }
+  NSDictionary *newRootObject = [self.pbxProj.objects objectForKey:objectId];
+  if (newRootObject == nil ||
+      ![newRootObject isKindOfClass:[NSDictionary class]]) {
+    return nil;
+  }
+  
   return [[[PBXProjDictionary alloc]
-	   initWithRoot:[self.pbxProj.objects objectForKey:
-			 [self.rootObject objectForKey:key]]
+	   initWithRoot:newRootObject
 	   PBXProj:self.pbxProj]
 	  autorelease];
 }
 
 - (NSArray *)arrayForKey:(NSString *)key {
-  NSMutableArray *pbxProjObjects = [NSMutableArray array];
+  NSArray *objectIdArray = [self.rootObject objectForKey:key];
+  if (objectIdArray == nil ||
+      ![objectIdArray isKindOfClass:[NSArray class]]) {
+    return nil;
+  }
   
-  for (NSString *objectId in [self.rootObject objectForKey:key]) {
+  NSMutableArray *pbxProjObjects = [NSMutableArray array];
+  for (NSString *objectId in objectIdArray) {
+    NSDictionary *newRootObject = [self.pbxProj.objects objectForKey:objectId];
+    if (newRootObject == nil ||
+	![newRootObject isKindOfClass:[NSDictionary class]]) {
+      return nil;
+    }
+    
     [pbxProjObjects addObject:
      [[[PBXProjDictionary alloc]
-       initWithRoot:[self.pbxProj.objects objectForKey:objectId]
+       initWithRoot:newRootObject
        PBXProj:self.pbxProj]
       autorelease]];
   }
