@@ -14,6 +14,7 @@
 		CDF2D587130D94880037E85E /* NSString+stripSuffix.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2D586130D94880037E85E /* NSString+stripSuffix.m */; };
 		CDF2D594130D950C0037E85E /* ResourcesGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2D593130D950C0037E85E /* ResourcesGenerator.m */; };
 		CDF2D60F130D9F7E0037E85E /* NSString+charSetNormalize.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2D60E130D9F7E0037E85E /* NSString+charSetNormalize.m */; };
+		CDF2DDF91317FE910037E85E /* ClassGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2DDF81317FE910037E85E /* ClassGenerator.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -42,6 +43,8 @@
 		CDF2D593130D950C0037E85E /* ResourcesGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourcesGenerator.m; sourceTree = "<group>"; };
 		CDF2D60D130D9F7E0037E85E /* NSString+charSetNormalize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+charSetNormalize.h"; sourceTree = "<group>"; };
 		CDF2D60E130D9F7E0037E85E /* NSString+charSetNormalize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+charSetNormalize.m"; sourceTree = "<group>"; };
+		CDF2DDF71317FE910037E85E /* ClassGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClassGenerator.h; sourceTree = "<group>"; };
+		CDF2DDF81317FE910037E85E /* ClassGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClassGenerator.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +84,8 @@
 				CDF2D593130D950C0037E85E /* ResourcesGenerator.m */,
 				CDF2D60D130D9F7E0037E85E /* NSString+charSetNormalize.h */,
 				CDF2D60E130D9F7E0037E85E /* NSString+charSetNormalize.m */,
+				CDF2DDF71317FE910037E85E /* ClassGenerator.h */,
+				CDF2DDF81317FE910037E85E /* ClassGenerator.m */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -164,6 +169,7 @@
 				CDF2D587130D94880037E85E /* NSString+stripSuffix.m in Sources */,
 				CDF2D594130D950C0037E85E /* ResourcesGenerator.m in Sources */,
 				CDF2D60F130D9F7E0037E85E /* NSString+charSetNormalize.m in Sources */,
+				CDF2DDF91317FE910037E85E /* ClassGenerator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

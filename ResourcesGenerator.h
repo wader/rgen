@@ -10,20 +10,10 @@
 
 #import "PBXProj.h"
 
-@interface File : NSObject
-@property(nonatomic, retain) NSString *name;
-@property(nonatomic, retain) NSString *path;
-@end
-
-@interface Dir : NSObject
-@property(nonatomic, retain) NSString *name;
-@property(nonatomic, retain) NSMutableDictionary *files;
-@end
 
 @interface ResourcesGenerator : NSObject
 
-@property(nonatomic, retain) NSString *pbxProjPath;
-@property(nonatomic, retain) Dir *rootDir;
++ (NSString *)propertyName:(NSString *)name;
 
 - (id)initWithProjectFile:(NSString *)aPath;
 - (void)loadResources:(PBXProj *)pbxProj;
