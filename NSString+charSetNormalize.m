@@ -12,8 +12,8 @@
 - (NSString *)charSetNormalize:(NSCharacterSet *)charSet {
   NSMutableString *output = [NSMutableString string];
   
-  for (NSInteger idx = 0; idx < [self length]; idx += 1) {
-    unichar c = [self characterAtIndex:idx];
+  for (NSInteger i = 0; i < [self length]; i++) {
+    unichar c = [self characterAtIndex:i];
     if (![charSet characterIsMember:c]) {
       continue;
     }
