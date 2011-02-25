@@ -4,26 +4,32 @@
 // comment outputcode (path refrences etc)
 // sanetize/normalize variable names
 // run script varaibles.. target?
-// preLoadImages (via path?)
-// /Users/mattias/src/rgen/build/Debug/rgen $PROJECT_FILE_PATH $SRCROOT/Classes/Resources
 // exit with error on conflicts?
 // paths, add smart ones?
-// generate h/m per target
+// generate h/m per target (argument?)
 // var starts with char
-// recursive loadImages
+// double loadImages?
+// generated from, relative path (so its not changed against scm)
+// 
+// RGEN=/Users/mattias/src/rgen/build/Debug/rgen
+// if which $RGEN > /dev/null; then
+//   $RGEN $PROJECT_FILE_PATH $SRCROOT/Classes/Resources
+// fi
 //
+// DONE rgen .. ... || true
+// DONE recursive loadImages
 // DONE output filename
 // DONE sorted output, makes diffs nicer
+// NOPE preLoadImages (via path?)
 // NOPE $(SRCROOT)/Classes/Resources.h/m $(PROJECT_FILE_PATH) (does not work with updated folders)
 // NOPE depend on projectfile mtime?
-
 
 #import <Foundation/Foundation.h>
 #import "ResourcesGenerator.h"
 
 int main (int argc, const char * argv[]) {
   NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-  
+    
   if (argc < 2) {
     printf("Usage: %s xcodeproject [Resources]\n", argv[0]);
     return EXIT_FAILURE;
