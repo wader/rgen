@@ -24,6 +24,16 @@
   return self;
 }
 
+- (void)appendString:(NSMutableString *)string
+	       lines:(NSArray *)lines {
+  if ([lines count] == 0) {
+    return;
+  }
+  
+  [string appendString:[lines componentsJoinedByString:@"\n"]];
+  [string appendString:@"\n"];
+}
+
 - (NSString *)generateHeader {
   NSMutableString *source = [NSMutableString string];
   
@@ -31,14 +41,11 @@
    @"@interface %@ : %@ {\n",
    self.className,
    self.inheritClassName];
-  [source appendString:[self.variables componentsJoinedByString:@"\n"]];
-  [source appendString:@"\n"];
+  [self appendString:source lines:self.variables];
   [source appendString:@"}\n"];
   [source appendString:@"\n"];
-  [source appendString:[self.properties componentsJoinedByString:@"\n"]];
-  [source appendString:@"\n"];
-  [source appendString:[self.declarations componentsJoinedByString:@"\n"]];
-  [source appendString:@"\n"];
+  [self appendString:source lines:self.properties];
+  [self appendString:source lines:self.declarations];
   [source appendString:@"@end\n"];
   
   return source;
@@ -48,11 +55,9 @@
   NSMutableString *source = [NSMutableString string];
   
   [source appendFormat:@"@implementation %@\n", self.className];
-  [source appendString:[self.synthesizes componentsJoinedByString:@"\n"]];
+  [self appendString:source lines:self.synthesizes];
   [source appendString:@"\n"];
-  [source appendString:@"\n"];
-  [source appendString:[self.implementations componentsJoinedByString:@"\n"]];
-  [source appendString:@"\n"];
+  [self appendString:source lines:self.implementations];
   [source appendString:@"@end\n"];
   
   return source;
