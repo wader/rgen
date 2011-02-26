@@ -29,9 +29,9 @@
 
 int main (int argc, const char * argv[]) {
   NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-    
+  
   if (argc < 2) {
-    printf("Usage: %s xcodeproject [Resources]\n", argv[0]);
+    printf("Usage: %s xcodeproject [Resources] [Target name]\n", argv[0]);
     return EXIT_FAILURE;
   }
   
@@ -52,10 +52,18 @@ int main (int argc, const char * argv[]) {
     outputDir = [outputBase stringByDeletingLastPathComponent];
   }
   
+  NSString *targetName = nil;
+  if (argc > 3) {
+    targetName = [NSString stringWithCString:argv[3]
+				    encoding:NSUTF8StringEncoding];
+  }
+  
   ResourcesGenerator *gen = [[[ResourcesGenerator alloc]
 			      initWithProjectFile:path]
 			     autorelease];
-  [gen writeResoucesTo:outputDir className:className];
+  [gen writeResoucesTo:outputDir
+	     className:className
+	     forTarget:targetName];
   
   [pool drain];
   

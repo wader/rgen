@@ -21,26 +21,29 @@ NSComparator propertySortBlock = ^(id a, id b) {
 
 @interface Property : NSObject
 @property(nonatomic, retain) NSString *name;
-
+@property(nonatomic, retain) NSString *path;
+- (id)initWithName:(NSString *)aName
+	      path:(NSString *)aPath;
 - (void)generate:(ClassGenerator *)classGenerator;
-
 @end
 
 @interface ImageProperty : Property
-@property(nonatomic, retain) NSString *path;
 @end
 
 @interface ResourcesProperty : Property
 @property(nonatomic, retain) NSMutableDictionary *properties;
 @end
 
+
 @implementation Property
-
 @synthesize name;
+@synthesize path;
 
-- (id)initWithName:(NSString *)aName {
+- (id)initWithName:(NSString *)aName
+	      path:(NSString *)aPath {
   self = [super init];
   self.name = aName;
+  self.path = aPath;
   return self;
 }
 
@@ -49,21 +52,14 @@ NSComparator propertySortBlock = ^(id a, id b) {
 
 - (void)dealloc {
   self.name = nil;
+  self.path = nil;
   [super dealloc];
 }
 
 @end
 
+
 @implementation ImageProperty : Property
-
-@synthesize path;
-
-- (id)initWithName:(NSString *)aName
-	      path:(NSString *)aPath {
-  self = [super initWithName:aName];
-  self.path = aPath;
-  return self;
-}
 
 - (void)generate:(ClassGenerator *)classGenerator {
   [classGenerator.variables addObject:
@@ -98,11 +94,6 @@ NSComparator propertySortBlock = ^(id a, id b) {
     ]];
 }
 
-- (void)dealloc {
-  self.path = nil;
-  [super dealloc];
-}
-
 @end
 
 // also used for root Resources class
@@ -110,8 +101,9 @@ NSComparator propertySortBlock = ^(id a, id b) {
 
 @synthesize properties;
 
-- (id)initWithName:(NSString *)aName {
-  self = [super initWithName:aName];
+- (id)initWithName:(NSString *)aName
+	      path:(NSString *)aPath {
+  self = [super initWithName:aName path:aPath];
   self.properties = [NSMutableDictionary dictionary];
   return self;
 }
@@ -239,6 +231,25 @@ NSComparator propertySortBlock = ^(id a, id b) {
 	     propertyPath:[NSArray array]];
 }
 
+- (Property *)findPropertyByPath:(NSArray *)propertyPath {
+  ResourcesProperty *current = self;
+  
+  for (NSString *propertyName in propertyPath) {    
+    ResourcesProperty *next = [current.properties objectForKey:propertyName];
+    if (next == nil) {
+      next = [[[ResourcesProperty alloc]
+	       initWithName:propertyName]
+	      autorelease];
+      [current.properties setObject:next
+			     forKey:propertyName];
+    }
+    
+    current = next;
+  }
+  
+  return current;
+}
+
 
 - (void)dealloc {
   self.properties = nil;
@@ -249,16 +260,28 @@ NSComparator propertySortBlock = ^(id a, id b) {
 
 
 @interface ResourcesGenerator ()
-@property(nonatomic, retain) ResourcesProperty *root;
 @property(nonatomic, retain) NSString *pbxProjPath;
+@property(nonatomic, retain) PBXProj *pbxProj;
+@property(nonatomic, retain) ResourcesProperty *root;
+
++ (BOOL)shouldAvoidName:(NSString *)name;
++ (NSCharacterSet *)allowedCharacterSet;
++ (NSSet *)supportedImageExtByIOSSet;
++ (NSString *)normalizPath:(NSString *)path;
++ (NSString *)propertyName:(NSString *)name
+		     isDir:(BOOL)isDir;
+
+- (void)loadResourcesForTarget:(NSString *)targetName;
+
 @end
 
 @implementation ResourcesGenerator
 
-@synthesize root;
 @synthesize pbxProjPath;
+@synthesize pbxProj;
+@synthesize root;
 
-// avoid c keywords and some objc stuff
+// avoid C keywords and some Objective-C stuff
 + (BOOL)shouldAvoidName:(NSString *)name {
   static NSSet *names = nil;
   if (names == nil) {
@@ -293,6 +316,9 @@ NSComparator propertySortBlock = ^(id a, id b) {
 	      @"unsigned",
 	      @"void",
 	      @"volatile",
+	      
+	      @"loadImages",
+	      @"releaseImages",
 	      nil]
 	     retain];
   }
@@ -311,6 +337,38 @@ NSComparator propertySortBlock = ^(id a, id b) {
   }
   
   return charSet;
+}
+
++ (NSSet *)supportedImageExtByIOSSet {
+  static NSSet *exts = nil;
+  if (exts == nil) {
+    // from UIImage class reference "Supported Image Formats"
+    exts = [[NSSet setWithObjects:
+	     @"tiff", @"tif",
+	     @"jpg", @"jpeg",
+	     @"gif",
+	     @"png",
+	     @"bmp", @"bmpf",
+	     @"ico",
+	     @"cur",
+	     @"xbm",
+	     nil]
+	    retain];
+  }
+  
+  return exts;
+}
+
++ (NSArray *)imageScaleSuffixArray {
+  static NSArray *suffixes = nil;
+  if (suffixes == nil) {
+    suffixes = [[NSArray arrayWithObjects:
+		 @"@2x",
+		 nil]
+		retain];
+  }
+  
+  return suffixes;
 }
 
 + (NSString *)classNameForDirComponents:(NSArray *)dirComponents
@@ -332,7 +390,28 @@ NSComparator propertySortBlock = ^(id a, id b) {
   return [parts componentsJoinedByString:@""];
 }
 
-+ (NSString *)propertyName:(NSString *)name {
++ (NSString *)normalizPath:(NSString *)path {
+  if ([[[self class] supportedImageExtByIOSSet] containsObject:
+       [[path pathExtension] lowercaseString]]) {
+    return [[[path stringByDeletingPathExtension]
+	     stripSuffix:[[self class] imageScaleSuffixArray]]
+	    stringByAppendingPathExtension:[path pathExtension]];
+  }
+  
+  return path;
+}
+
++ (NSString *)propertyName:(NSString *)name
+		     isDir:(BOOL)isDir {
+  if (!isDir) {
+    NSString *ext = [[name pathExtension] lowercaseString];
+    name = [name stringByDeletingPathExtension];
+    
+    if ([[[self class] supportedImageExtByIOSSet] containsObject:ext]) {
+      name = [name stripSuffix:[[self class] imageScaleSuffixArray]];
+    }
+  }
+  
   name = [[name toCamelCase:
 	   [NSCharacterSet characterSetWithCharactersInString:@"._-"]]
 	  charSetNormalize:
@@ -348,63 +427,114 @@ NSComparator propertySortBlock = ^(id a, id b) {
 - (id)initWithProjectFile:(NSString *)aPath {
   self = [super init];
   self.pbxProjPath = aPath;
-  self.root = [[[ResourcesProperty alloc] initWithName:@""] autorelease];
-  
-  [self loadResources:[[[PBXProj alloc]
-			initWithProjectFile:aPath
-			environment:[[NSProcessInfo processInfo] environment]]
-		       autorelease]];
-  
+  self.pbxProj = [[[PBXProj alloc]
+		   initWithProjectFile:aPath
+		   environment:[[NSProcessInfo processInfo] environment]]
+		  autorelease];
+  self.root = [[[ResourcesProperty alloc]
+		initWithName:@""
+		path:@""]
+	       autorelease];
   return self;
 }
 
-- (ResourcesProperty *)lookupResourcesProperty:(NSArray *)dirComponents {
-  ResourcesProperty *current = self.root;
+/*
+ - (ResourcesProperty *)lookupResourcesProperty:(NSArray *)dirComponents {
+ ResourcesProperty *current = self.root;
+ 
+ for (NSString *name in dirComponents) {
+ NSString *propertyName = [ResourcesGenerator propertyName:name];
+ 
+ ResourcesProperty *next = [current.properties objectForKey:propertyName];
+ if (next == nil) {
+ next = [[[ResourcesProperty alloc]
+ initWithName:propertyName]
+ autorelease];
+ [current.properties setObject:next
+ forKey:propertyName];
+ }
+ 
+ current = next;
+ }
+ 
+ return current;
+ }
+ */
+
+- (void)addResourceToDir:(NSArray *)dirComponents 
+		    name:(NSString *)name
+		    path:(NSString *)path {
+  NSString *propertyName = [[self class] propertyName:name isDir:NO];
   
-  for (NSString *name in dirComponents) {
-    NSString *propertyName = [ResourcesGenerator propertyName:name];
+  // strip image scale suffix
+  path = [[self class] normalizPath:path];
+  
+  ResourcesProperty *current = self.root;
+  for (NSString *dirName in dirComponents) {
+    NSString *nextPropertyName = [[self class] propertyName:dirName isDir:YES];
+    ResourcesProperty *next = [current.properties
+			       objectForKey:nextPropertyName];
     
-    ResourcesProperty *next = [current.properties objectForKey:propertyName];
     if (next == nil) {
       next = [[[ResourcesProperty alloc]
-	       initWithName:propertyName]
+	       initWithName:nextPropertyName
+	       path:path]
 	      autorelease];
-      [current.properties setObject:next
-			     forKey:propertyName];
+      [current.properties setObject:next forKey:nextPropertyName];
+    } else if (![next isKindOfClass:[ResourcesProperty class]]) {
+      NSLog(@"Property name collision for %@ between paths %@ and %@",
+	    nextPropertyName, ((Property *)next).path, path);
     }
     
     current = next;
   }
   
-  return current;
-}
-
-- (BOOL)addResourceToDir:(NSArray *)dirComponents 
-		    name:(NSString *)name
-		    path:(NSString *)path {
-  ResourcesProperty *resourcesProperty = [self lookupResourcesProperty:dirComponents];
-  
-  NSString *propertyName = [ResourcesGenerator propertyName:name];
-  Property *property = [resourcesProperty.properties objectForKey:propertyName];
-  
+  Property *property = [current.properties objectForKey:propertyName];
   if (property != nil) {
-    NSLog(@"property name collision for %@ %@",
-	  propertyName,
-	  path
-	  );
-    //return NO;
-  }
-  
-  [resourcesProperty.properties
-   setObject:[[[ImageProperty alloc] initWithName:propertyName path:path] autorelease]
-   forKey:propertyName];
-  
-  return YES;
+    if([path isEqualToString:property.path]) {
+      //NSLog(@"Ignoring duplicate for path %@", path);
+    } else {
+      NSLog(@"Property name collision for %@ between paths %@ and %@",
+	    propertyName, ((Property *)property).path, path);
+    }
+  } else {
+    
+    NSString *ext = [[path pathExtension] lowercaseString];
+    
+    if ([[[self class] supportedImageExtByIOSSet] containsObject:ext]) {
+      [current.properties
+       setObject:[[[ImageProperty alloc]
+		   initWithName:propertyName
+		   path:path]
+		  autorelease]
+       forKey:propertyName];
+      
+      /*
+       NSLog(@"Added image property name %@ for path %@",
+       propertyName, path);
+       */
+    } else {
+      /*
+       NSLog(@"Ignoring unknown type for path %@", path);
+       */
+    }
+  }	
 }
 
-- (void)loadResources:(PBXProj *)pbxProj {
+- (void)loadResourcesForTarget:(NSString *)targetName {
   // TODO: nil check
-  for (PBXProjDictionary *p in [pbxProj.rootDictionary arrayForKey:@"targets"]) {
+  for (PBXProjDictionary *p in [self.pbxProj.rootDictionary arrayForKey:@"targets"]) {    
+    NSString *pName = [p objectForKey:@"name"];
+    if (pName == nil || ![pName isKindOfClass:[NSString class]]) {
+      continue;
+    }
+    
+    if (targetName != nil && ![targetName isEqualToString:pName]) {
+      continue;
+    }
+    
+    NSLog(@"BLA %@ %@", targetName, p.rootObject);
+    
     for (PBXProjDictionary *buildPhase in [p arrayForKey:@"buildPhases"]) {
       NSString *isa = [buildPhase objectForKey:@"isa"];
       
@@ -415,8 +545,6 @@ NSComparator propertySortBlock = ^(id a, id b) {
       for (PBXProjDictionary *file in [buildPhase arrayForKey:@"files"]) {
 	PBXProjDictionary *fileRef = [file dictForKey:@"fileRef"];
 	
-	NSLog(@"%@", fileRef.rootObject);
-	
 	NSString *lastKnownFileType = [fileRef objectForKey:@"lastKnownFileType"];
 	NSString *sourceTree = [fileRef objectForKey:@"sourceTree"];
 	NSString *path = [fileRef objectForKey:@"path"];
@@ -426,12 +554,11 @@ NSComparator propertySortBlock = ^(id a, id b) {
 	}
 	
 	// TODO: check for errors and nils
-	NSString *absPath = [pbxProj absolutePath:path sourceTree:sourceTree];
+	NSString *absPath = [self.pbxProj absolutePath:path sourceTree:sourceTree];
 	if ([lastKnownFileType isEqualToString:@"folder"]) {
 	  for (NSString *subpath in [[NSFileManager defaultManager]
 				     subpathsOfDirectoryAtPath:absPath
 				     error:NULL]) {
-	    
 	    BOOL isDir = NO;
 	    if ([[NSFileManager defaultManager]
 		 fileExistsAtPath:[absPath stringByAppendingPathComponent:subpath]
@@ -441,6 +568,7 @@ NSComparator propertySortBlock = ^(id a, id b) {
 	    }
 	    
 	    NSString *filename = [subpath lastPathComponent];
+	    // prefix path with reference folder name
 	    NSArray *subpathComponents = [subpath pathComponents];
 	    subpathComponents = [subpathComponents subarrayWithRange:
 				 NSMakeRange(0, [subpathComponents count]-1)];
@@ -455,51 +583,20 @@ NSComparator propertySortBlock = ^(id a, id b) {
 	} else {
 	  [self addResourceToDir:[NSArray array]
 			    name:name
-			    path:path];
+			    path:name];
 	}
       }      
     }
   }
 }
 
-/*
- - (void)rescurseResoucesWithBlock:(void (^)(NSArray *dirComponents, id file))block
- dir:(ResourcesProperty *)dir
- dirComponents:(NSArray *)dirComponents {
- 
- block(dirComponents, dir);
- 
- for (id key in [dir.files keysSortedByValueUsingComparator:filesSortBlock]) {
- id file = [dir.files objectForKey:key];
- 
- NSString *subdir = @"";
- if ([dirComponents count] > 0) {
- subdir = [[NSString pathWithComponents:dirComponents]
- stringByAppendingString:@"/"];
- }
- 
- 
- if ([file isKindOfClass:[ResourcesProperty class]]) {
- ResourcesProperty *subDir = file;
- [self rescurseResoucesWithBlock:block
- dir:subDir
- dirComponents:[dirComponents arrayByAddingObject:subDir.name]];
- } else {
- block(dirComponents, file);
- }
- }
- }
- 
- - (void)rescurseResoucesWithBlock:(void (^)(NSArray *dirComponents, id file))block {
- [self rescurseResoucesWithBlock:block
- dir:self.root
- dirComponents:[NSArray array]];
- }
- */
 - (void)writeResoucesTo:(NSString *)outputDir
-	      className:(NSString *)className {
+	      className:(NSString *)className
+	      forTarget:(NSString *)targetName {
   NSMutableString *header = [NSMutableString string];
   NSMutableString *implementation = [NSMutableString string];
+  
+  [self loadResourcesForTarget:targetName];
   
   NSString *generatedWith = @"// This file was generated with rgen\n\n";
   [header appendString:generatedWith];
@@ -534,7 +631,25 @@ NSComparator propertySortBlock = ^(id a, id b) {
   }];
   
   //NSLog(@"%@", header);
-  NSLog(@"%@", implementation);
+  //NSLog(@"%@", implementation);
+  
+  [header writeToFile:[NSString pathWithComponents:
+		       [NSArray arrayWithObjects:
+			outputDir,
+			[className stringByAppendingPathExtension:@"h"],
+			nil]]
+	   atomically:YES
+	     encoding:NSUTF8StringEncoding
+		error:NULL];
+  
+  [implementation writeToFile:[NSString pathWithComponents:
+			       [NSArray arrayWithObjects:
+				outputDir,
+				[className stringByAppendingPathExtension:@"m"],
+				nil]]
+		   atomically:YES
+		     encoding:NSUTF8StringEncoding
+			error:NULL];
   
   /*
    NSMutableString *header = [NSMutableString string];
@@ -762,6 +877,7 @@ NSComparator propertySortBlock = ^(id a, id b) {
 
 - (void)dealloc {
   self.pbxProjPath = nil;
+  self.pbxProj = nil;
   self.root = nil;
   [super dealloc];
 }

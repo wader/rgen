@@ -13,11 +13,9 @@
 
 @interface ResourcesGenerator : NSObject
 
-+ (NSString *)propertyName:(NSString *)name;
-
 - (id)initWithProjectFile:(NSString *)aPath;
-- (void)loadResources:(PBXProj *)pbxProj;
 - (void)writeResoucesTo:(NSString *)outputDir
-	      className:(NSString *)className;
+	      className:(NSString *)className
+	      forTarget:(NSString *)targetName;
 
 @end
