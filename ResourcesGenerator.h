@@ -10,6 +10,8 @@
 
 #import "PBXProj.h"
 
+@interface ResourcesGeneratorException : NSException
+@end
 
 @interface ResourcesGenerator : NSObject
 

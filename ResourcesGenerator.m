@@ -12,6 +12,9 @@
 #import "ClassGenerator.h"
 
 
+@implementation ResourcesGeneratorException
+@end
+
 NSComparator propertySortBlock = ^(id a, id b) {
   return [((NSString *)[a valueForKey:@"name"])
 	  compare:[b valueForKey:@"name"]];
@@ -29,7 +32,16 @@ NSComparator propertySortBlock = ^(id a, id b) {
 @end
 
 @interface ResourcesProperty : Property
+@property(nonatomic, retain) NSString *className;
 @property(nonatomic, retain) NSMutableDictionary *properties;
+- (id)initWithName:(NSString *)aName
+	      path:(NSString *)aPath
+	 className:(NSString *)aClassName;
+- (void)rescursePostOrder:(BOOL)postOrder
+	     propertyPath:(NSArray *)propertyPath
+		    block:(void (^)(NSArray *propertyPath, Property *property))block;
+- (void)rescursePostOrder:(void (^)(NSArray *propertyPath, Property *property))block;
+- (void)rescursePreOrder:(void (^)(NSArray *propertyPath, Property *property))block;
 @end
 
 
@@ -75,7 +87,7 @@ NSComparator propertySortBlock = ^(id a, id b) {
     ]];
   
   [classGenerator.synthesizes addObject:
-   [NSString stringWithFormat:@"@synthesize %@", self.name]];
+   [NSString stringWithFormat:@"@synthesize %@;", self.name]];
   
   [classGenerator.implementations addObject:
    [NSString stringWithFormat:
@@ -87,7 +99,7 @@ NSComparator propertySortBlock = ^(id a, id b) {
     @"}",
     self.name,
     self.name,
-    self.path,
+    [self.path escapeCString],
     self.name
     ]];
 }
@@ -97,11 +109,14 @@ NSComparator propertySortBlock = ^(id a, id b) {
 // also used for root Resources class
 @implementation ResourcesProperty : Property
 
+@synthesize className;
 @synthesize properties;
 
 - (id)initWithName:(NSString *)aName
-	      path:(NSString *)aPath {
+	      path:(NSString *)aPath
+	 className:(NSString *)aClassName {
   self = [super initWithName:aName path:aPath];
+  self.className = aClassName;
   self.properties = [NSMutableDictionary dictionary];
   return self;
 }
@@ -125,14 +140,30 @@ NSComparator propertySortBlock = ^(id a, id b) {
       continue;
     }
     
+    [classGenerator.variables addObject:
+     [NSString stringWithFormat:
+      @"  %@ *%@; // %@",
+      resourcesProperty.className,
+      resourcesProperty.name,
+      resourcesProperty.path
+      ]];
+    
+    [classGenerator.properties addObject:
+     [NSString stringWithFormat:
+      @"@property(nonatomic, readonly) %@ *%@; // %@",
+      resourcesProperty.className,
+      resourcesProperty.name,
+      resourcesProperty.path
+      ]];
+    
     [classGenerator.synthesizes addObject:
-     [NSString stringWithFormat:@"@synthesize %@", resourcesProperty.name]];
+     [NSString stringWithFormat:@"@synthesize %@;", resourcesProperty.name]];
     
     [classGenerator.implementations addObject:
      [NSString stringWithFormat:
       @"  self->%@ = [[%@ alloc] init];",
       resourcesProperty.name,
-      @"Bla"
+      resourcesProperty.className
       ]];
   }
   [classGenerator.implementations addObject:
@@ -148,18 +179,17 @@ NSComparator propertySortBlock = ^(id a, id b) {
     Property *property = [self.properties objectForKey:key];
     if ([property isKindOfClass:[ImageProperty class]]) {
       ImageProperty *imageProperty = (ImageProperty *)property;
-      // TODO: escape path
       [classGenerator.implementations addObject:
        [NSString stringWithFormat:
-	@"  self->%@ = [[UImage imageNamed:@\"%@\"] retain];",
+	@"  self->%@ = [[UIImage imageNamed:@\"%@\"] retain];",
 	imageProperty.name,
-	imageProperty.path
+	[imageProperty.path escapeCString]
 	]];
     } else if ([property isKindOfClass:[ResourcesProperty class]]) {
       ResourcesProperty *resourcesProperty = (ResourcesProperty *)property;
       [classGenerator.implementations addObject:
        [NSString stringWithFormat:
-	@"  [self->%@ loadImages]",
+	@"  [self->%@ loadImages];",
 	resourcesProperty.name
 	]];
     }
@@ -180,13 +210,13 @@ NSComparator propertySortBlock = ^(id a, id b) {
 	@"  [self->%@ release];\n"
 	@"  self->%@ = nil;",
 	imageProperty.name,
-	imageProperty.path
+	imageProperty.name
 	]];
     } else if ([property isKindOfClass:[ResourcesProperty class]]) {
       ResourcesProperty *resourcesProperty = (ResourcesProperty *)property;
       [classGenerator.implementations addObject:
        [NSString stringWithFormat:
-	@"  [self->%@ releaseImages]",
+	@"  [self->%@ releaseImages];",
 	resourcesProperty.name
 	]];
     }
@@ -205,10 +235,12 @@ NSComparator propertySortBlock = ^(id a, id b) {
   }
 }
 
-- (void)rescurseWithBlock:(void (^)(NSArray *dirComponents, Property *property))block
-	     propertyPath:(NSArray *)propertyPath {
-  
-  block(propertyPath, self);
+- (void)rescursePostOrder:(BOOL)postOrder
+	     propertyPath:(NSArray *)propertyPath
+		    block:(void (^)(NSArray *propertyPath, Property *property))block {
+  if (!postOrder) {
+    block(propertyPath, self);
+  }
   
   for (id key in [self.properties keysSortedByValueUsingComparator:
 		  propertySortBlock]) {
@@ -216,23 +248,33 @@ NSComparator propertySortBlock = ^(id a, id b) {
     
     if ([property isKindOfClass:[ResourcesProperty class]]) {
       ResourcesProperty *resourcesProperty = (ResourcesProperty *)property;
-      [resourcesProperty rescurseWithBlock:block
-			      propertyPath:[propertyPath arrayByAddingObject:self.name]];
+      [resourcesProperty rescursePostOrder:postOrder
+			      propertyPath:[propertyPath arrayByAddingObject:self.name]
+				     block:block];
     } else {
       block(propertyPath, property);
     }
-  }  
+  }
+  
+  if (postOrder) {
+    block(propertyPath, self);
+  }
 }
 
-- (void)rescurseWithBlock:(void (^)(NSArray *dirComponents, Property *property))block {
-  [self rescurseWithBlock:block
-	     propertyPath:[NSArray array]];
+- (void)rescursePostOrder:(void (^)(NSArray *propertyPath, Property *property))block {
+  [self rescursePostOrder:YES
+	     propertyPath:[NSArray array]
+		    block:block];
 }
 
+- (void)rescursePreOrder:(void (^)(NSArray *propertyPath, Property *property))block {
+  [self rescursePostOrder:NO
+	     propertyPath:[NSArray array]
+		    block:block];
 }
-
 
 - (void)dealloc {
+  self.className = nil;
   self.properties = nil;
   [super dealloc];
 }
@@ -243,16 +285,17 @@ NSComparator propertySortBlock = ^(id a, id b) {
 @interface ResourcesGenerator ()
 @property(nonatomic, retain) NSString *pbxProjPath;
 @property(nonatomic, retain) PBXProj *pbxProj;
-@property(nonatomic, retain) ResourcesProperty *root;
 
 + (BOOL)shouldAvoidName:(NSString *)name;
 + (NSCharacterSet *)allowedCharacterSet;
++ (NSCharacterSet *)allowedStartCharacterSet;
 + (NSSet *)supportedImageExtByIOSSet;
 + (NSString *)normalizPath:(NSString *)path;
 + (NSString *)propertyName:(NSString *)name
 		     isDir:(BOOL)isDir;
 
-- (void)loadResourcesForTarget:(NSString *)targetName;
+- (void)loadResources:(ResourcesProperty *)rootResources
+	    forTarget:(NSString *)targetName;
 
 @end
 
@@ -260,7 +303,6 @@ NSComparator propertySortBlock = ^(id a, id b) {
 
 @synthesize pbxProjPath;
 @synthesize pbxProj;
-@synthesize root;
 
 // avoid C keywords and some Objective-C stuff
 + (BOOL)shouldAvoidName:(NSString *)name {
@@ -297,7 +339,7 @@ NSComparator propertySortBlock = ^(id a, id b) {
 	      @"unsigned",
 	      @"void",
 	      @"volatile",
-	      
+	      // rgen reserved
 	      @"loadImages",
 	      @"releaseImages",
 	      nil]
@@ -314,6 +356,19 @@ NSComparator propertySortBlock = ^(id a, id b) {
 		@"abcdefghijklmnopqrstuvwxyz"
 		@"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		@"_0123456789"]
+	       retain];
+  }
+  
+  return charSet;
+}
+
++ (NSCharacterSet *)allowedStartCharacterSet {
+  static NSCharacterSet *charSet = nil;
+  if (charSet == nil) {
+    charSet = [[NSCharacterSet characterSetWithCharactersInString:
+		@"abcdefghijklmnopqrstuvwxyz"
+		@"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		@"_"]
 	       retain];
   }
   
@@ -352,18 +407,11 @@ NSComparator propertySortBlock = ^(id a, id b) {
   return suffixes;
 }
 
-+ (NSString *)classNameForDirComponents:(NSArray *)dirComponents
-				   name:(NSString *)name {
++ (NSString *)classNameForDirComponents:(NSArray *)dirComponents {
   NSMutableArray *parts = [NSMutableArray array];
   
   for (NSString *component in dirComponents) {
     [parts addObject:[[component charSetNormalize:
-		       [[self class] allowedCharacterSet]]
-		      capitalizedString]];
-  }
-  
-  if (name != nil) {
-    [parts addObject:[[name charSetNormalize:
 		       [[self class] allowedCharacterSet]]
 		      capitalizedString]];
   }
@@ -402,6 +450,11 @@ NSComparator propertySortBlock = ^(id a, id b) {
     name = [name stringByAppendingString:@"_"];
   }
   
+  if (![[[self class] allowedStartCharacterSet]
+	characterIsMember:[name characterAtIndex:0]]) {
+    name = [@"_" stringByAppendingString:name];
+  }
+  
   return name;
 }
 
@@ -412,49 +465,63 @@ NSComparator propertySortBlock = ^(id a, id b) {
 		   initWithProjectFile:aPath
 		   environment:[[NSProcessInfo processInfo] environment]]
 		  autorelease];
-  self.root = [[[ResourcesProperty alloc]
-		initWithName:@""
-		path:@""]
-	       autorelease];
+  
+  if (self.pbxProj == nil) {
+    [ResourcesGeneratorException raise:@"error" format:
+     @"Failed to read %@", aPath];
+  }
+  
   return self;
 }
 
-
-- (void)addResourceToDir:(NSArray *)dirComponents 
-		    name:(NSString *)name
-		    path:(NSString *)path {
+- (void)addResource:(ResourcesProperty *)rootResources
+		dir:(NSArray *)dirComponents 
+	       name:(NSString *)name
+	       path:(NSString *)path {
   NSString *propertyName = [[self class] propertyName:name isDir:NO];
   
   // strip image scale suffix
   path = [[self class] normalizPath:path];
   
-  ResourcesProperty *current = self.root;
+  NSUInteger i = 1;
+  ResourcesProperty *current = rootResources;
   for (NSString *dirName in dirComponents) {
     NSString *nextPropertyName = [[self class] propertyName:dirName isDir:YES];
+    NSArray *nextDirComponents = [dirComponents
+				  subarrayWithRange:NSMakeRange(0, i)];
     ResourcesProperty *next = [current.properties
 			       objectForKey:nextPropertyName];
     
     if (next == nil) {
       next = [[[ResourcesProperty alloc]
 	       initWithName:nextPropertyName
-	       path:path]
+	       path:[NSString pathWithComponents:nextDirComponents]
+	       className:
+	       [rootResources.className stringByAppendingString:
+		[[self class] classNameForDirComponents:nextDirComponents]]]
 	      autorelease];
+      
       [current.properties setObject:next forKey:nextPropertyName];
     } else if (![next isKindOfClass:[ResourcesProperty class]]) {
-      NSLog(@"Property name collision for %@ between paths %@ and %@",
-	    nextPropertyName, ((Property *)next).path, path);
+      [ResourcesGeneratorException raise:@"error" format:
+       @"Property name collision for %@ between paths %@ and %@",
+       nextPropertyName, ((Property *)next).path, path];
     }
     
     current = next;
+    i++;
   }
   
   Property *property = [current.properties objectForKey:propertyName];
   if (property != nil) {
     if([path isEqualToString:property.path]) {
-      //NSLog(@"Ignoring duplicate for path %@", path);
+      /*
+       NSLog(@"Ignoring duplicate for path %@", path);
+       */
     } else {
-      NSLog(@"Property name collision for %@ between paths %@ and %@",
-	    propertyName, ((Property *)property).path, path);
+      [ResourcesGeneratorException raise:@"error" format:
+       @"Property name collision for %@ between paths %@ and %@",
+       propertyName, ((Property *)property).path, path];
     }
   } else {
     
@@ -467,7 +534,6 @@ NSComparator propertySortBlock = ^(id a, id b) {
 		   path:path]
 		  autorelease]
        forKey:propertyName];
-      
       /*
        NSLog(@"Added image property name %@ for path %@",
        propertyName, path);
@@ -480,7 +546,10 @@ NSComparator propertySortBlock = ^(id a, id b) {
   }	
 }
 
-- (void)loadResourcesForTarget:(NSString *)targetName {
+- (void)loadResources:(ResourcesProperty *)rootResources
+	    forTarget:(NSString *)targetName {
+  BOOL targetFound = targetName == nil;
+  
   // TODO: nil check
   for (PBXProjDictionary *p in [self.pbxProj.rootDictionary arrayForKey:@"targets"]) {    
     NSString *pName = [p objectForKey:@"name"];
@@ -491,8 +560,7 @@ NSComparator propertySortBlock = ^(id a, id b) {
     if (targetName != nil && ![targetName isEqualToString:pName]) {
       continue;
     }
-    
-    NSLog(@"BLA %@ %@", targetName, p.rootObject);
+    targetFound = YES;
     
     for (PBXProjDictionary *buildPhase in [p arrayForKey:@"buildPhases"]) {
       NSString *isa = [buildPhase objectForKey:@"isa"];
@@ -534,45 +602,103 @@ NSComparator propertySortBlock = ^(id a, id b) {
 	    NSArray *dirComponents = [[NSArray arrayWithObject:name]
 				      arrayByAddingObjectsFromArray:subpathComponents];
 	    
-	    [self addResourceToDir:dirComponents
-			      name:filename
-			      path:[NSString pathWithComponents:
-				    [dirComponents arrayByAddingObject:filename]]];
+	    [self addResource:rootResources
+			  dir:dirComponents
+			 name:filename
+			 path:[NSString pathWithComponents:
+			       [dirComponents arrayByAddingObject:filename]]];
 	  }
 	} else {
-	  [self addResourceToDir:[NSArray array]
-			    name:name
-			    path:name];
+	  [self addResource:rootResources
+			dir:[NSArray array]
+		       name:name
+		       path:name];
 	}
       }      
     }
+  }
+  
+  if (!targetFound) {
+    [ResourcesGeneratorException raise:@"error" format:
+     @"Could not find target \"%@\"", targetName];
   }
 }
 
 - (void)writeResoucesTo:(NSString *)outputDir
 	      className:(NSString *)className
 	      forTarget:(NSString *)targetName {
+  ResourcesProperty *rootResources = [[[ResourcesProperty alloc]
+				       initWithName:@""
+				       path:@""
+				       className:className]
+				      autorelease];
   NSMutableString *header = [NSMutableString string];
   NSMutableString *implementation = [NSMutableString string];
   
-  [self loadResourcesForTarget:targetName];
+  [self loadResources:rootResources
+	    forTarget:targetName];
   
-  NSString *generatedWith = @"// This file was generated with rgen\n\n";
+  // prune classes with no properties
+  [rootResources rescursePostOrder:^(NSArray *propertyPath, Property *property) {
+    ResourcesProperty *resourcesProperty = (ResourcesProperty *)property;
+    if (![resourcesProperty isKindOfClass:[ResourcesProperty class]]) {
+      return;
+    }
+    
+    NSMutableArray *remove = [NSMutableArray array];
+    for(id key in [resourcesProperty.properties allKeys]) {
+      ResourcesProperty *subResourcesProperty = [resourcesProperty.properties
+						 objectForKey:key];
+      if (![subResourcesProperty isKindOfClass:[ResourcesProperty class]] ||
+	  [subResourcesProperty.properties count] > 0) {
+	continue;
+      }
+      
+      [remove addObject:key];
+    }
+    
+    [resourcesProperty.properties removeObjectsForKeys:remove];
+  }];
+  
+  NSString *generatedWith;
+  if (targetName == nil) {
+    generatedWith = @"// This file was generated by rgen\n\n";
+  } else {
+    generatedWith = [NSString stringWithFormat:
+		     @"// This file was generated by rgen for target \"%@\"\n\n",
+		     targetName];
+  }
+  
   [header appendString:generatedWith];
   [implementation appendString:generatedWith];
   
-  [self.root rescurseWithBlock:^(NSArray *dirComponents, Property *property) {
+  [implementation appendFormat:@"#import \"%@.h\"\n\n", className];
+  
+  [rootResources rescursePreOrder:^(NSArray *propertyPath, Property *property) {
+    ResourcesProperty *resourcesProperty = (ResourcesProperty *)property;
+    if (![resourcesProperty isKindOfClass:[ResourcesProperty class]]) {
+      return;
+    }
+    
+    [header appendFormat:@"@class %@;\n", resourcesProperty.className];
+  }];
+  [header appendString:@"\n"];
+  
+  [header appendFormat:@"%@ *R;\n\n", className];
+  [implementation appendFormat:@"%@ *R;\n\n", className];
+  
+  [rootResources rescursePreOrder:^(NSArray *propertyPath, Property *property) {
     ResourcesProperty *resourcesProperty = (ResourcesProperty *)property;
     if (![resourcesProperty isKindOfClass:[ResourcesProperty class]]) {
       return;
     }
     
     ClassGenerator *classGenerator = [[[ClassGenerator alloc]
-				       initWithClassName:resourcesProperty.name
+				       initWithClassName:resourcesProperty.className
 				       inheritName:@"NSObject"]
 				      autorelease];
     
-    if (resourcesProperty == self.root) {
+    if (resourcesProperty == rootResources) {
       [classGenerator.implementations addObject:
        [NSString stringWithFormat:
 	@"+ (void)load {\n"
@@ -583,6 +709,7 @@ NSComparator propertySortBlock = ^(id a, id b) {
     }
     
     [resourcesProperty generate:classGenerator];
+    
     [header appendString:[classGenerator generateHeader]];
     [header appendString:@"\n"];
     [implementation appendString:[classGenerator generateImplementation]];
@@ -625,7 +752,6 @@ NSComparator propertySortBlock = ^(id a, id b) {
 - (void)dealloc {
   self.pbxProjPath = nil;
   self.pbxProj = nil;
-  self.root = nil;
   [super dealloc];
 }
 

@@ -1,15 +1,13 @@
 // TODO:
 // Paths P
 // image types (from project file?)
-// comment outputcode (path refrences etc)
-// sanetize/normalize variable names
 // run script varaibles.. target?
 // exit with error on conflicts?
 // paths, add smart ones?
-// generate h/m per target (argument?)
-// var starts with char
+// -ipad, own loader?
 // double loadImages?
-// generated from, relative path (so its not changed against scm)
+// class name collisions
+// verbose log
 // 
 // RGEN=/Users/mattias/src/rgen/build/Debug/rgen
 // if which $RGEN > /dev/null; then
@@ -23,6 +21,12 @@
 // NOPE preLoadImages (via path?)
 // NOPE $(SRCROOT)/Classes/Resources.h/m $(PROJECT_FILE_PATH) (does not work with updated folders)
 // NOPE depend on projectfile mtime?
+// DONE generate h/m per target (argument?)
+// DONE var starts with char
+// DONE generated from, relative path (so its not changed against scm)
+// DONE comment outputcode (path refrences etc)
+// DONE sanetize/normalize variable names
+
 
 #import <Foundation/Foundation.h>
 #import "ResourcesGenerator.h"
@@ -58,12 +62,20 @@ int main (int argc, const char * argv[]) {
 				    encoding:NSUTF8StringEncoding];
   }
   
-  ResourcesGenerator *gen = [[[ResourcesGenerator alloc]
-			      initWithProjectFile:path]
-			     autorelease];
-  [gen writeResoucesTo:outputDir
-	     className:className
-	     forTarget:targetName];
+  @try {
+    ResourcesGenerator *gen = [[[ResourcesGenerator alloc]
+				initWithProjectFile:path]
+			       autorelease];
+    [gen writeResoucesTo:outputDir
+	       className:className
+	       forTarget:targetName];
+  }
+  @catch (ResourcesGeneratorException * e) {
+    fprintf(stderr, "%s: %s\n",
+	    argv[0],
+	    [[e reason] cStringUsingEncoding:NSUTF8StringEncoding]);
+    return EXIT_FAILURE;
+  }
   
   [pool drain];
   
