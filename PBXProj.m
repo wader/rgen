@@ -88,6 +88,9 @@
   self = [super init];
   
   NSDictionary *project = [NSDictionary dictionaryWithContentsOfFile:path];
+  if (project == nil) {
+    return nil;
+  }
   
   self.pbxFilePath = path;
   self.objects = [project objectForKey:@"objects"];
