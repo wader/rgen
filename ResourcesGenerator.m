@@ -630,23 +630,34 @@ NSComparator propertySortBlock = ^(id a, id b) {
     [implementation appendString:@"\n"];
   }];
   
-  //NSLog(@"%@", header);
-  //NSLog(@"%@", implementation);
+  NSString *headerPath = [NSString pathWithComponents:
+			  [NSArray arrayWithObjects:
+			   outputDir,
+			   [className stringByAppendingPathExtension:@"h"],
+			   nil]];
+  NSString *implementationPath = [NSString pathWithComponents:
+				  [NSArray arrayWithObjects:
+				   outputDir,
+				   [className stringByAppendingPathExtension:@"m"],
+				   nil]];
   
-  [header writeToFile:[NSString pathWithComponents:
-		       [NSArray arrayWithObjects:
-			outputDir,
-			[className stringByAppendingPathExtension:@"h"],
-			nil]]
+  NSString *oldHeader = [NSString stringWithContentsOfFile:headerPath
+						  encoding:NSUTF8StringEncoding
+						     error:NULL];
+  NSString *oldImplementation = [NSString stringWithContentsOfFile:implementationPath
+							  encoding:NSUTF8StringEncoding
+							     error:NULL];
+  if (oldHeader != nil && [header isEqualToString:oldHeader] &&
+      oldImplementation != nil && [implementation isEqualToString:oldImplementation]) {
+    // source on disk is same as generated
+    return;
+  }
+  
+  [header writeToFile:headerPath
 	   atomically:YES
 	     encoding:NSUTF8StringEncoding
 		error:NULL];
-  
-  [implementation writeToFile:[NSString pathWithComponents:
-			       [NSArray arrayWithObjects:
-				outputDir,
-				[className stringByAppendingPathExtension:@"m"],
-				nil]]
+  [implementation writeToFile:implementationPath
 		   atomically:YES
 		     encoding:NSUTF8StringEncoding
 			error:NULL];
