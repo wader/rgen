@@ -8,8 +8,8 @@
 
 #import "ResourcesGenerator.h"
 #import "PBXProj.h"
-#import "NSString+rgen.h"
 #import "ClassGenerator.h"
+#import "NSString+rgen.h"
 #import "NSCharacterSet+rgen.h"
 
 
@@ -312,12 +312,6 @@ NSComparator propertySortBlock = ^(id a, id b) {
 @property(nonatomic, retain) NSString *pbxProjPath;
 @property(nonatomic, retain) PBXProj *pbxProj;
 
-+ (BOOL)shouldAvoidName:(NSString *)name;
-+ (NSSet *)supportedImageExtByIOSSet;
-+ (NSString *)normalizPath:(NSString *)path;
-+ (NSString *)propertyName:(NSString *)name
-		     isDir:(BOOL)isDir;
-
 - (void)loadResources:(ResourcesProperty *)rootResources
 	    forTarget:(NSString *)targetName;
 
@@ -330,134 +324,18 @@ NSComparator propertySortBlock = ^(id a, id b) {
 @synthesize pbxProjPath;
 @synthesize pbxProj;
 
-// avoid C keywords and some Objective-C stuff
-+ (BOOL)shouldAvoidName:(NSString *)name {
-  static NSSet *names = nil;
-  if (names == nil) {
-    names = [[NSSet setWithObjects:
-	      @"alloc",
-	      @"autorelease",
-	      @"bycopy",
-	      @"byref",
-	      @"char",
-	      @"const",
-	      @"copy",
-	      @"dealloc",
-	      @"default",
-	      @"delete",
-	      @"double",
-	      @"float",
-	      @"id",
-	      @"in",
-	      @"inout",
-	      @"int",
-	      @"long",
-	      @"new",
-	      @"nil",
-	      @"oneway",
-	      @"out",
-	      @"release",
-	      @"retain",
-	      @"self",
-	      @"short",
-	      @"signed",
-	      @"super",
-	      @"unsigned",
-	      @"void",
-	      @"volatile",
-	      // rgen reserved
-	      @"loadImages",
-	      @"releaseImages",
-	      nil]
-	     retain];
-  }
-  
-  return [names containsObject:name];  
-}
-
-
-+ (NSSet *)supportedImageExtByIOSSet {
-  static NSSet *exts = nil;
-  if (exts == nil) {
-    // from UIImage class reference "Supported Image Formats"
-    exts = [[NSSet setWithObjects:
-	     @"tiff", @"tif",
-	     @"jpg", @"jpeg",
-	     @"gif",
-	     @"png",
-	     @"bmp", @"bmpf",
-	     @"ico",
-	     @"cur",
-	     @"xbm",
-	     nil]
-	    retain];
-  }
-  
-  return exts;
-}
-
-+ (NSArray *)imageScaleSuffixArray {
-  static NSArray *suffixes = nil;
-  if (suffixes == nil) {
-    suffixes = [[NSArray arrayWithObjects:
-		 @"@2x",
-		 nil]
-		retain];
-  }
-  
-  return suffixes;
-}
-
 + (NSString *)classNameForDirComponents:(NSArray *)dirComponents {
   NSMutableArray *parts = [NSMutableArray array];
   
   for (NSString *component in dirComponents) {
     [parts addObject:[[component charSetNormalize:
-		       [[self class] allowedCharacterSet]]
+		       [NSCharacterSet propertyNameCharacterSet]]
 		      capitalizedString]];
   }
   
   return [parts componentsJoinedByString:@""];
 }
 
-+ (NSString *)normalizPath:(NSString *)path {
-  if ([[[self class] supportedImageExtByIOSSet] containsObject:
-       [[path pathExtension] lowercaseString]]) {
-    return [[[path stringByDeletingPathExtension]
-	     stripSuffix:[[self class] imageScaleSuffixArray]]
-	    stringByAppendingPathExtension:[path pathExtension]];
-  }
-  
-  return path;
-}
-
-+ (NSString *)propertyName:(NSString *)name
-		     isDir:(BOOL)isDir {
-  if (!isDir) {
-    NSString *ext = [[name pathExtension] lowercaseString];
-    name = [name stringByDeletingPathExtension];
-    
-    if ([[[self class] supportedImageExtByIOSSet] containsObject:ext]) {
-      name = [name stripSuffix:[[self class] imageScaleSuffixArray]];
-    }
-  }
-  
-  name = [[name toCamelCase:
-	   [NSCharacterSet characterSetWithCharactersInString:@"._-"]]
-	  charSetNormalize:
-	  [[self class] allowedCharacterSet]];
-  
-  if ([[self class] shouldAvoidName:name]) {
-    name = [name stringByAppendingString:@"_"];
-  }
-  
-  if (![[[self class] allowedStartCharacterSet]
-	characterIsMember:[name characterAtIndex:0]]) {
-    name = [@"_" stringByAppendingString:name];
-  }
-  
-  return name;
-}
 
 - (id)initWithProjectFile:(NSString *)aPath {
   self = [super init];
@@ -492,15 +370,15 @@ NSComparator propertySortBlock = ^(id a, id b) {
 		dir:(NSArray *)dirComponents 
 	       name:(NSString *)name
 	       path:(NSString *)path {
-  NSString *propertyName = [[self class] propertyName:name isDir:NO];
+  NSString *propertyName = [name propertyNameIsDir:NO];
   
   // strip image scale suffix
-  path = [[self class] normalizPath:path];
+  path = [path normalizIOSPath];
   
   NSUInteger i = 1;
   ResourcesProperty *current = rootResources;
   for (NSString *dirName in dirComponents) {
-    NSString *nextPropertyName = [[self class] propertyName:dirName isDir:YES];
+    NSString *nextPropertyName = [dirName propertyNameIsDir:YES];
     NSArray *nextDirComponents = [dirComponents
 				  subarrayWithRange:NSMakeRange(0, i)];
     ResourcesProperty *next = [current.properties
@@ -540,8 +418,7 @@ NSComparator propertySortBlock = ^(id a, id b) {
   } else {
     
     NSString *ext = [[path pathExtension] lowercaseString];
-    
-    if ([[[self class] supportedImageExtByIOSSet] containsObject:ext]) {
+    if ([ext isSupportedImageExtByIOS]) {
       [current.properties
        setObject:[[[ImageProperty alloc]
 		   initWithName:propertyName

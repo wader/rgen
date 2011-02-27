@@ -13,4 +13,8 @@
 - (NSString *)charSetNormalize:(NSCharacterSet *)charSet;
 - (NSString *)stripSuffix:(NSArray *)suffixes;
 - (NSString *)escapeCString;
+- (BOOL)isReservedRgenName;
+- (BOOL)isSupportedImageExtByIOS;
+- (NSString *)normalizIOSPath;
+- (NSString *)propertyNameIsDir:(BOOL)isDir;
 @end
