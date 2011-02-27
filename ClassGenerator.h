@@ -9,7 +9,6 @@
 #import <Foundation/Foundation.h>
 
 @interface ClassGenerator : NSObject
-
 @property(nonatomic, retain) NSString *className;
 @property(nonatomic, retain) NSString *inheritClassName;
 @property(nonatomic, retain) NSMutableArray *variables;
