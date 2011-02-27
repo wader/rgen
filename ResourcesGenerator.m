@@ -23,6 +23,7 @@ NSComparator propertySortBlock = ^(id a, id b) {
 @interface Property : NSObject
 @property(nonatomic, retain) NSString *name;
 @property(nonatomic, retain) NSString *path;
+
 - (id)initWithName:(NSString *)aName
 	      path:(NSString *)aPath;
 - (void)generate:(ClassGenerator *)classGenerator;
@@ -31,17 +32,24 @@ NSComparator propertySortBlock = ^(id a, id b) {
 @interface ImageProperty : Property
 @end
 
-@interface ResourcesProperty : Property
+@interface ClassProperty : Property
 @property(nonatomic, retain) NSString *className;
 @property(nonatomic, retain) NSMutableDictionary *properties;
+
 - (id)initWithName:(NSString *)aName
 	      path:(NSString *)aPath
 	 className:(NSString *)aClassName;
 - (void)rescursePostOrder:(BOOL)postOrder
 	     propertyPath:(NSArray *)propertyPath
-		    block:(void (^)(NSArray *propertyPath, Property *property))block;
-- (void)rescursePostOrder:(void (^)(NSArray *propertyPath, Property *property))block;
-- (void)rescursePreOrder:(void (^)(NSArray *propertyPath, Property *property))block;
+		    block:(void (^)(NSArray *propertyPath,
+				    ClassProperty *classProperty))block;
+- (void)rescursePostOrder:(void (^)(NSArray *propertyPath,
+				    ClassProperty *classProperty))block;
+- (void)rescursePreOrder:(void (^)(NSArray *propertyPath,
+				   ClassProperty *classProperty))block;
+@end
+
+@interface ResourcesProperty : ClassProperty
 @end
 
 
@@ -68,9 +76,7 @@ NSComparator propertySortBlock = ^(id a, id b) {
 
 @end
 
-
 @implementation ImageProperty : Property
-
 - (void)generate:(ClassGenerator *)classGenerator {
   [classGenerator.variables addObject:
    [NSString stringWithFormat:
@@ -103,12 +109,9 @@ NSComparator propertySortBlock = ^(id a, id b) {
     self.name
     ]];
 }
-
 @end
 
-// also used for root Resources class
-@implementation ResourcesProperty : Property
-
+@implementation ClassProperty : Property
 @synthesize className;
 @synthesize properties;
 
@@ -121,6 +124,72 @@ NSComparator propertySortBlock = ^(id a, id b) {
   return self;
 }
 
+- (void)rescursePostOrder:(BOOL)postOrder
+	     propertyPath:(NSArray *)propertyPath
+		    block:(void (^)(NSArray *propertyPath, ClassProperty *classProperty))block {
+  if (!postOrder) {
+    block(propertyPath, self);
+  }
+  
+  for (id key in [self.properties keysSortedByValueUsingComparator:
+		  propertySortBlock]) {
+    ClassProperty *classProperty = [self.properties objectForKey:key];
+    if (![classProperty isKindOfClass:[ClassProperty class]]) {
+      continue;
+    }
+    
+    [classProperty rescursePostOrder:postOrder
+			propertyPath:[propertyPath arrayByAddingObject:self.name]
+			       block:block];
+  }
+  
+  if (postOrder) {
+    block(propertyPath, self);
+  }
+}
+
+- (void)rescursePostOrder:(void (^)(NSArray *propertyPath,
+				    ClassProperty *classProperty))block {
+  [self rescursePostOrder:YES
+	     propertyPath:[NSArray array]
+		    block:block];
+}
+
+- (void)rescursePreOrder:(void (^)(NSArray *propertyPath,
+				   ClassProperty *classProperty))block {
+  [self rescursePostOrder:NO
+	     propertyPath:[NSArray array]
+		    block:block];
+}
+
+- (void)pruneEmptyClasses {
+  [self rescursePostOrder:^(NSArray *propertyPath,
+			    ClassProperty *classProperty) {
+    NSMutableArray *remove = [NSMutableArray array];
+    for(id key in [classProperty.properties allKeys]) {
+      ClassProperty *subClassProperty = [classProperty.properties
+					 objectForKey:key];
+      if (![subClassProperty isKindOfClass:[ClassProperty class]] ||
+	  [subClassProperty.properties count] > 0) {
+	continue;
+      }
+      
+      [remove addObject:key];
+    }
+    
+    [classProperty.properties removeObjectsForKeys:remove];
+  }];
+}
+
+- (void)dealloc {
+  self.className = nil;
+  self.properties = nil;
+  [super dealloc];
+}
+@end
+
+// also used for root Resources class
+@implementation ResourcesProperty : ClassProperty
 - (void)generate:(ClassGenerator *)classGenerator {
   [classGenerator.declarations addObject:
    [NSString stringWithString:
@@ -233,50 +302,6 @@ NSComparator propertySortBlock = ^(id a, id b) {
     
     [imageProperty generate:classGenerator];
   }
-}
-
-- (void)rescursePostOrder:(BOOL)postOrder
-	     propertyPath:(NSArray *)propertyPath
-		    block:(void (^)(NSArray *propertyPath, Property *property))block {
-  if (!postOrder) {
-    block(propertyPath, self);
-  }
-  
-  for (id key in [self.properties keysSortedByValueUsingComparator:
-		  propertySortBlock]) {
-    Property *property = [self.properties objectForKey:key];    
-    
-    if ([property isKindOfClass:[ResourcesProperty class]]) {
-      ResourcesProperty *resourcesProperty = (ResourcesProperty *)property;
-      [resourcesProperty rescursePostOrder:postOrder
-			      propertyPath:[propertyPath arrayByAddingObject:self.name]
-				     block:block];
-    } else {
-      block(propertyPath, property);
-    }
-  }
-  
-  if (postOrder) {
-    block(propertyPath, self);
-  }
-}
-
-- (void)rescursePostOrder:(void (^)(NSArray *propertyPath, Property *property))block {
-  [self rescursePostOrder:YES
-	     propertyPath:[NSArray array]
-		    block:block];
-}
-
-- (void)rescursePreOrder:(void (^)(NSArray *propertyPath, Property *property))block {
-  [self rescursePostOrder:NO
-	     propertyPath:[NSArray array]
-		    block:block];
-}
-
-- (void)dealloc {
-  self.className = nil;
-  self.properties = nil;
-  [super dealloc];
 }
 
 @end
@@ -683,26 +708,7 @@ NSComparator propertySortBlock = ^(id a, id b) {
 	    forTarget:targetName];
   
   // prune classes with no properties
-  [rootResources rescursePostOrder:^(NSArray *propertyPath, Property *property) {
-    ResourcesProperty *resourcesProperty = (ResourcesProperty *)property;
-    if (![resourcesProperty isKindOfClass:[ResourcesProperty class]]) {
-      return;
-    }
-    
-    NSMutableArray *remove = [NSMutableArray array];
-    for(id key in [resourcesProperty.properties allKeys]) {
-      ResourcesProperty *subResourcesProperty = [resourcesProperty.properties
-						 objectForKey:key];
-      if (![subResourcesProperty isKindOfClass:[ResourcesProperty class]] ||
-	  [subResourcesProperty.properties count] > 0) {
-	continue;
-      }
-      
-      [remove addObject:key];
-    }
-    
-    [resourcesProperty.properties removeObjectsForKeys:remove];
-  }];
+  [rootResources pruneEmptyClasses];
   
   NSMutableString *generatedBy = [NSMutableString string];
   [generatedBy appendString:@"// This file was generated by rgen\n"];
@@ -717,8 +723,9 @@ NSComparator propertySortBlock = ^(id a, id b) {
   
   [implementation appendFormat:@"#import \"%@.h\"\n\n", className];
   
-  [rootResources rescursePreOrder:^(NSArray *propertyPath, Property *property) {
-    ResourcesProperty *resourcesProperty = (ResourcesProperty *)property;
+  [rootResources rescursePreOrder:^(NSArray *propertyPath,
+				    ClassProperty *classProperty) {
+    ResourcesProperty *resourcesProperty = (ResourcesProperty *)classProperty;
     if (![resourcesProperty isKindOfClass:[ResourcesProperty class]]) {
       return;
     }
@@ -730,8 +737,9 @@ NSComparator propertySortBlock = ^(id a, id b) {
   [header appendFormat:@"%@ *R;\n\n", className];
   [implementation appendFormat:@"%@ *R;\n\n", className];
   
-  [rootResources rescursePreOrder:^(NSArray *propertyPath, Property *property) {
-    ResourcesProperty *resourcesProperty = (ResourcesProperty *)property;
+  [rootResources rescursePreOrder:^(NSArray *propertyPath,
+				    ClassProperty *classProperty) {
+    ResourcesProperty *resourcesProperty = (ResourcesProperty *)classProperty;
     if (![resourcesProperty isKindOfClass:[ResourcesProperty class]]) {
       return;
     }
