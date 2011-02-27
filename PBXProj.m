@@ -104,6 +104,11 @@
   return self;
 }
 
+- (NSString *)projectName {
+  NSArray *components = [self.pbxFilePath pathComponents];
+  return [components objectAtIndex:[components count] - 2];
+}
+
 - (NSString *)absolutePath:(NSString *)path
 		sourceTree:(NSString *)sourceTree {
   NSString *sourceRoot = [self.environment objectForKey:@"SOURCE_ROOT"];

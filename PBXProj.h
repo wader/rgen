@@ -31,4 +31,5 @@
 	      environment:(NSDictionary *)aEnvironment;
 - (NSString *)absolutePath:(NSString *)path
 		sourceTree:(NSString *)sourceTree;
+- (NSString *)projectName;
 @end
