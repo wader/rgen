@@ -297,6 +297,8 @@ NSComparator propertySortBlock = ^(id a, id b) {
 - (void)loadResources:(ResourcesProperty *)rootResources
 	    forTarget:(NSString *)targetName;
 
+- (void)raiseFormat:(NSString *)format, ...;
+
 @end
 
 @implementation ResourcesGenerator
@@ -467,11 +469,24 @@ NSComparator propertySortBlock = ^(id a, id b) {
 		  autorelease];
   
   if (self.pbxProj == nil) {
-    [ResourcesGeneratorException raise:@"error" format:
-     @"Failed to read %@", aPath];
+    [self raiseFormat:@"Failed to read pbxproj file"];
   }
   
   return self;
+}
+
+- (void)raiseFormat:(NSString *)format, ... {
+  format = [@": " stringByAppendingString:format];
+  if (self.pbxProj == nil) {
+    format = [self.pbxProjPath stringByAppendingString:format];
+  } else {
+    format = [[self.pbxProj projectName] stringByAppendingString:format];
+  }
+  
+  va_list va;
+  va_start(va, format);
+  [ResourcesGeneratorException raise:@"error" format:format arguments:va];
+  va_end(va);
 }
 
 - (void)addResource:(ResourcesProperty *)rootResources
@@ -503,7 +518,7 @@ NSComparator propertySortBlock = ^(id a, id b) {
       
       [current.properties setObject:next forKey:nextPropertyName];
     } else if (![next isKindOfClass:[ResourcesProperty class]]) {
-      [ResourcesGeneratorException raise:@"error" format:
+      [self raiseFormat:
        @"Property name collision for %@ between paths %@ and %@",
        nextPropertyName, ((Property *)next).path, path];
     }
@@ -519,7 +534,7 @@ NSComparator propertySortBlock = ^(id a, id b) {
        NSLog(@"Ignoring duplicate for path %@", path);
        */
     } else {
-      [ResourcesGeneratorException raise:@"error" format:
+      [self raiseFormat:
        @"Property name collision for %@ between paths %@ and %@",
        propertyName, ((Property *)property).path, path];
     }
@@ -550,9 +565,13 @@ NSComparator propertySortBlock = ^(id a, id b) {
 	    forTarget:(NSString *)targetName {
   BOOL targetFound = targetName == nil;
   
-  // TODO: nil check
-  for (PBXProjDictionary *p in [self.pbxProj.rootDictionary arrayForKey:@"targets"]) {    
-    NSString *pName = [p objectForKey:@"name"];
+  NSArray *targets = [self.pbxProj.rootDictionary arrayForKey:@"targets"];
+  if (targets == nil) {
+    [self raiseFormat:@"Failed to read targets array"];
+  }
+  
+  for (PBXProjDictionary *target in targets) {    
+    NSString *pName = [target objectForKey:@"name"];
     if (pName == nil || ![pName isKindOfClass:[NSString class]]) {
       continue;
     }
@@ -562,20 +581,46 @@ NSComparator propertySortBlock = ^(id a, id b) {
     }
     targetFound = YES;
     
-    for (PBXProjDictionary *buildPhase in [p arrayForKey:@"buildPhases"]) {
+    NSArray *buildPhases = [target arrayForKey:@"buildPhases"];
+    if (buildPhases == nil) {
+      [self raiseFormat:@"Failed to read buildPhases array for target \"%@\"",
+       pName];
+    }
+    
+    for (PBXProjDictionary *buildPhase in buildPhases) {
       NSString *isa = [buildPhase objectForKey:@"isa"];
       
-      if (![isa isEqualToString:@"PBXResourcesBuildPhase"]) {
+      if (isa == nil || ![isa isEqualToString:@"PBXResourcesBuildPhase"]) {
 	continue;
       }
       
-      for (PBXProjDictionary *file in [buildPhase arrayForKey:@"files"]) {
+      NSArray *files = [buildPhase arrayForKey:@"files"];
+      if (files == nil) {
+	[self raiseFormat:
+	 @"Failed to read files array for resource build phase for target \"%@\"",
+	 pName];
+      }
+      
+      for (PBXProjDictionary *file in files) {
 	PBXProjDictionary *fileRef = [file dictForKey:@"fileRef"];
+	if (fileRef == nil) {
+	  [self raiseFormat:
+	   @"Failed to read fileRef for file in resource build phase for target \"%@\"",
+	   pName];
+	}
 	
 	NSString *lastKnownFileType = [fileRef objectForKey:@"lastKnownFileType"];
 	NSString *sourceTree = [fileRef objectForKey:@"sourceTree"];
 	NSString *path = [fileRef objectForKey:@"path"];
 	NSString *name = [fileRef objectForKey:@"name"];
+	
+	if (lastKnownFileType == nil || sourceTree == nil || path == nil) {
+	  [self raiseFormat:
+	   @"Missing keys for fileRef in resource build phase for target \"%@\" "
+	   @"lastKnownFileType=%@ sourceTree=%@ path=%@ name=%@",
+	   pName, lastKnownFileType, sourceTree, path, name];
+	}
+	
 	if (name == nil) {
 	  name = [path lastPathComponent];
 	}
@@ -619,8 +664,7 @@ NSComparator propertySortBlock = ^(id a, id b) {
   }
   
   if (!targetFound) {
-    [ResourcesGeneratorException raise:@"error" format:
-     @"Could not find target \"%@\"", targetName];
+    [self raiseFormat:@"Could not find target \"%@\"", targetName];
   }
 }
 
