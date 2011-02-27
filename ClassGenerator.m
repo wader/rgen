@@ -45,6 +45,7 @@
   [source appendString:@"}\n"];
   [source appendString:@"\n"];
   [self appendString:source lines:self.properties];
+  [source appendString:@"\n"];
   [self appendString:source lines:self.declarations];
   [source appendString:@"@end\n"];
   
