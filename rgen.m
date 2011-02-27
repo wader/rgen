@@ -1,5 +1,5 @@
 // TODO:
-// Paths P
+// Paths P (stinrg or url?)
 // image types (from project file?)
 // run script varaibles.. target?
 // exit with error on conflicts?
@@ -8,6 +8,11 @@
 // double loadImages?
 // class name collisions
 // verbose log
+// move recurse etc to own class
+// move prune to own class too
+// error checks
+// try rebase history
+// NSImage, OSXify
 // 
 // RGEN=/Users/mattias/src/rgen/build/Debug/rgen
 // if which $RGEN > /dev/null; then
