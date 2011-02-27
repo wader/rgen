@@ -10,6 +10,7 @@
 #import "PBXProj.h"
 #import "NSString+rgen.h"
 #import "ClassGenerator.h"
+#import "NSCharacterSet+rgen.h"
 
 
 @implementation ResourcesGeneratorException
@@ -312,8 +313,6 @@ NSComparator propertySortBlock = ^(id a, id b) {
 @property(nonatomic, retain) PBXProj *pbxProj;
 
 + (BOOL)shouldAvoidName:(NSString *)name;
-+ (NSCharacterSet *)allowedCharacterSet;
-+ (NSCharacterSet *)allowedStartCharacterSet;
 + (NSSet *)supportedImageExtByIOSSet;
 + (NSString *)normalizPath:(NSString *)path;
 + (NSString *)propertyName:(NSString *)name
@@ -376,31 +375,6 @@ NSComparator propertySortBlock = ^(id a, id b) {
   return [names containsObject:name];  
 }
 
-+ (NSCharacterSet *)allowedCharacterSet {
-  static NSCharacterSet *charSet = nil;
-  if (charSet == nil) {
-    charSet = [[NSCharacterSet characterSetWithCharactersInString:
-		@"abcdefghijklmnopqrstuvwxyz"
-		@"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		@"_0123456789"]
-	       retain];
-  }
-  
-  return charSet;
-}
-
-+ (NSCharacterSet *)allowedStartCharacterSet {
-  static NSCharacterSet *charSet = nil;
-  if (charSet == nil) {
-    charSet = [[NSCharacterSet characterSetWithCharactersInString:
-		@"abcdefghijklmnopqrstuvwxyz"
-		@"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		@"_"]
-	       retain];
-  }
-  
-  return charSet;
-}
 
 + (NSSet *)supportedImageExtByIOSSet {
   static NSSet *exts = nil;
