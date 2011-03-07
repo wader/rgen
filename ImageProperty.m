@@ -12,37 +12,41 @@
 
 @implementation ImageProperty : Property
 
-- (void)generate:(ClassGenerator *)classGenerator {
-  [classGenerator.variables addObject:
-   [NSString stringWithFormat:
-    @"  UIImage *%@; // %@",
-    self.name,
-    self.path
-    ]];
+- (void)generate:(ClassGenerator *)classGenerator
+       generator:(ResourcesGenerator *)generator {
+  [classGenerator
+   addPropertyName:self.name
+   line:@"@property(nonatomic, readonly) UIImage *%@; // %@",
+   self.name,
+   self.path];
   
-  [classGenerator.properties addObject:
-   [NSString stringWithFormat:
-    @"@property(nonatomic, readonly) UIImage *%@; // %@",
-    self.name,
-    self.path
-    ]];
+  [classGenerator addSynthesizerName:self.name
+				line:@"@synthesize %@;", self.name];
   
-  [classGenerator.synthesizes addObject:
-   [NSString stringWithFormat:@"@synthesize %@;", self.name]];
-  
-  [classGenerator.implementations addObject:
-   [NSString stringWithFormat:
-    @"- (UIImage *)%@ {\n"
-    @"  if (%@ == nil)\n"
-    @"    return [UIImage imageNamed:@\"%@\"];\n"
-    @"  else\n"
-    @"    return [[self->%@ retain] autorelease];\n"
-    @"}",
-    self.name,
-    self.name,
-    [self.path escapeCString],
-    self.name
-    ]];
+  ClassMethod *method = [classGenerator
+			 addMethodName:self.name
+			 declaration:NO
+			 signature:@"- (UIImage *)%@", self.name];
+  if (generator.optionLoadImages) {
+    [classGenerator
+     addVariableName:self.name
+     line:@"UIImage *%@;",
+     self.name];
+    
+    [method
+     addLineIndent:1
+     format:
+     @"return self->%@ == nil ? i(@\"%@\") : [[self->%@ retain] autorelease];",
+     self.name,
+     [self.path escapeCString],
+     self.name];
+  } else {
+    [method
+     addLineIndent:1
+     format:
+     @"return i(@\"%@\");",
+     [self.path escapeCString]];
+  }
 }
 
 @end
