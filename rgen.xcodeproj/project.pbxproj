@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		8DD76F9A0486AA7600D96B5E /* rgen.m in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* rgen.m */; settings = {ATTRIBUTES = (); }; };
 		8DD76F9C0486AA7600D96B5E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08FB779EFE84155DC02AAC07 /* Foundation.framework */; };
-		CDF2D579130D93D20037E85E /* PBXProj.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2D578130D93D20037E85E /* PBXProj.m */; };
+		CDF2D579130D93D20037E85E /* PBXFile.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2D578130D93D20037E85E /* PBXFile.m */; };
 		CDF2D594130D950C0037E85E /* ResourcesGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2D593130D950C0037E85E /* ResourcesGenerator.m */; };
 		CDF2DDF91317FE910037E85E /* ClassGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2DDF81317FE910037E85E /* ClassGenerator.m */; };
 		CDF2E10A131964E40037E85E /* NSString+rgen.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2E109131964E40037E85E /* NSString+rgen.m */; };
@@ -17,7 +17,10 @@
 		CDF2E5B0131AC3970037E85E /* Property.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2E5AF131AC3970037E85E /* Property.m */; };
 		CDF2E5B3131AC3D50037E85E /* ImageProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2E5B2131AC3D50037E85E /* ImageProperty.m */; };
 		CDF2E5B6131AC41E0037E85E /* ClassProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2E5B5131AC41E0037E85E /* ClassProperty.m */; };
-		CDF2E5B9131AC4610037E85E /* ResourcesProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2E5B8131AC4610037E85E /* ResourcesProperty.m */; };
+		CDF2E5B9131AC4610037E85E /* ImagesProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2E5B8131AC4610037E85E /* ImagesProperty.m */; };
+		CDF2E600131AC76D0037E85E /* PathsProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2E5FF131AC76D0037E85E /* PathsProperty.m */; };
+		CDF2E603131AC7AF0037E85E /* PathProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2E602131AC7AF0037E85E /* PathProperty.m */; };
+		CDF2ED211323A6DD0037E85E /* XCodeProj.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2ED201323A6DD0037E85E /* XCodeProj.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -36,8 +39,8 @@
 		08FB7796FE84155DC02AAC07 /* rgen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = rgen.m; sourceTree = "<group>"; };
 		08FB779EFE84155DC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8DD76FA10486AA7600D96B5E /* rgen */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = rgen; sourceTree = BUILT_PRODUCTS_DIR; };
-		CDF2D577130D93D20037E85E /* PBXProj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBXProj.h; sourceTree = "<group>"; };
-		CDF2D578130D93D20037E85E /* PBXProj.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBXProj.m; sourceTree = "<group>"; };
+		CDF2D577130D93D20037E85E /* PBXFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBXFile.h; sourceTree = "<group>"; };
+		CDF2D578130D93D20037E85E /* PBXFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBXFile.m; sourceTree = "<group>"; };
 		CDF2D592130D950C0037E85E /* ResourcesGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourcesGenerator.h; sourceTree = "<group>"; };
 		CDF2D593130D950C0037E85E /* ResourcesGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourcesGenerator.m; sourceTree = "<group>"; };
 		CDF2DDF71317FE910037E85E /* ClassGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClassGenerator.h; sourceTree = "<group>"; };
@@ -52,8 +55,15 @@
 		CDF2E5B2131AC3D50037E85E /* ImageProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageProperty.m; sourceTree = "<group>"; };
 		CDF2E5B4131AC41E0037E85E /* ClassProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClassProperty.h; sourceTree = "<group>"; };
 		CDF2E5B5131AC41E0037E85E /* ClassProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClassProperty.m; sourceTree = "<group>"; };
-		CDF2E5B7131AC4610037E85E /* ResourcesProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourcesProperty.h; sourceTree = "<group>"; };
-		CDF2E5B8131AC4610037E85E /* ResourcesProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourcesProperty.m; sourceTree = "<group>"; };
+		CDF2E5B7131AC4610037E85E /* ImagesProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImagesProperty.h; sourceTree = "<group>"; };
+		CDF2E5B8131AC4610037E85E /* ImagesProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImagesProperty.m; sourceTree = "<group>"; };
+		CDF2E5FE131AC76D0037E85E /* PathsProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathsProperty.h; sourceTree = "<group>"; };
+		CDF2E5FF131AC76D0037E85E /* PathsProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PathsProperty.m; sourceTree = "<group>"; };
+		CDF2E601131AC7AF0037E85E /* PathProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathProperty.h; sourceTree = "<group>"; };
+		CDF2E602131AC7AF0037E85E /* PathProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PathProperty.m; sourceTree = "<group>"; };
+		CDF2E760131BD9570037E85E /* rgen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rgen.h; sourceTree = "<group>"; };
+		CDF2ED1F1323A6DD0037E85E /* XCodeProj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XCodeProj.h; sourceTree = "<group>"; };
+		CDF2ED201323A6DD0037E85E /* XCodeProj.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XCodeProj.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,18 +93,25 @@
 			isa = PBXGroup;
 			children = (
 				08FB7796FE84155DC02AAC07 /* rgen.m */,
-				CDF2D577130D93D20037E85E /* PBXProj.h */,
-				CDF2D578130D93D20037E85E /* PBXProj.m */,
+				CDF2E760131BD9570037E85E /* rgen.h */,
+				CDF2D577130D93D20037E85E /* PBXFile.h */,
+				CDF2D578130D93D20037E85E /* PBXFile.m */,
+				CDF2ED1F1323A6DD0037E85E /* XCodeProj.h */,
+				CDF2ED201323A6DD0037E85E /* XCodeProj.m */,
 				CDF2D592130D950C0037E85E /* ResourcesGenerator.h */,
 				CDF2D593130D950C0037E85E /* ResourcesGenerator.m */,
 				CDF2E5AE131AC3970037E85E /* Property.h */,
 				CDF2E5AF131AC3970037E85E /* Property.m */,
-				CDF2E5B1131AC3D50037E85E /* ImageProperty.h */,
-				CDF2E5B2131AC3D50037E85E /* ImageProperty.m */,
 				CDF2E5B4131AC41E0037E85E /* ClassProperty.h */,
 				CDF2E5B5131AC41E0037E85E /* ClassProperty.m */,
-				CDF2E5B7131AC4610037E85E /* ResourcesProperty.h */,
-				CDF2E5B8131AC4610037E85E /* ResourcesProperty.m */,
+				CDF2E5B1131AC3D50037E85E /* ImageProperty.h */,
+				CDF2E5B2131AC3D50037E85E /* ImageProperty.m */,
+				CDF2E5B7131AC4610037E85E /* ImagesProperty.h */,
+				CDF2E5B8131AC4610037E85E /* ImagesProperty.m */,
+				CDF2E5FE131AC76D0037E85E /* PathsProperty.h */,
+				CDF2E5FF131AC76D0037E85E /* PathsProperty.m */,
+				CDF2E601131AC7AF0037E85E /* PathProperty.h */,
+				CDF2E602131AC7AF0037E85E /* PathProperty.m */,
 				CDF2DDF71317FE910037E85E /* ClassGenerator.h */,
 				CDF2DDF81317FE910037E85E /* ClassGenerator.m */,
 				CDF2E108131964E40037E85E /* NSString+rgen.h */,
@@ -179,7 +196,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8DD76F9A0486AA7600D96B5E /* rgen.m in Sources */,
-				CDF2D579130D93D20037E85E /* PBXProj.m in Sources */,
+				CDF2D579130D93D20037E85E /* PBXFile.m in Sources */,
 				CDF2D594130D950C0037E85E /* ResourcesGenerator.m in Sources */,
 				CDF2DDF91317FE910037E85E /* ClassGenerator.m in Sources */,
 				CDF2E10A131964E40037E85E /* NSString+rgen.m in Sources */,
@@ -187,7 +204,10 @@
 				CDF2E5B0131AC3970037E85E /* Property.m in Sources */,
 				CDF2E5B3131AC3D50037E85E /* ImageProperty.m in Sources */,
 				CDF2E5B6131AC41E0037E85E /* ClassProperty.m in Sources */,
-				CDF2E5B9131AC4610037E85E /* ResourcesProperty.m in Sources */,
+				CDF2E5B9131AC4610037E85E /* ImagesProperty.m in Sources */,
+				CDF2E600131AC76D0037E85E /* PathsProperty.m in Sources */,
+				CDF2E603131AC7AF0037E85E /* PathProperty.m in Sources */,
+				CDF2ED211323A6DD0037E85E /* XCodeProj.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
