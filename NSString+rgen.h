@@ -15,6 +15,8 @@
 - (NSString *)escapeCString;
 - (BOOL)isReservedRgenName;
 - (BOOL)isSupportedImageExtByIOS;
-- (NSString *)normalizIOSPath;
-- (NSString *)propertyNameIsDir:(BOOL)isDir;
+- (NSString *)normalizeIOSPath:(BOOL)ipadSuffix;
+- (NSString *)propertyName;
+- (NSString *)imagePropertyName:(BOOL)ipadSuffix;
+- (NSString *)dirPropertyName;
 @end

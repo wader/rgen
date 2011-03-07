@@ -16,8 +16,8 @@
   NSMutableString *output = [NSMutableString string];
   
   BOOL makeNextCharacterUpperCase = NO;
-  for (NSInteger idx = 0; idx < [self length]; idx += 1) {
-    unichar c = [self characterAtIndex:idx];
+  for (NSInteger i = 0; i < [self length]; i++) {
+    unichar c = [self characterAtIndex:i];
     if ([charSet characterIsMember:c]) {
       makeNextCharacterUpperCase = YES;
     } else if (makeNextCharacterUpperCase) {
@@ -25,8 +25,12 @@
 			    uppercaseString]];
       makeNextCharacterUpperCase = NO;
     } else {
-      [output appendString:[[NSString stringWithCharacters:&c length:1]
-			    lowercaseString]];
+      NSString *s = [NSString stringWithCharacters:&c length:1];
+      if (i == 0) {
+	s = [s lowercaseString];
+      }
+      
+      [output appendString:s];
     }
   }
   
@@ -68,14 +72,10 @@
   static NSSet *names = nil;
   if (names == nil) {
     names = [[NSSet setWithObjects:
-	      @"alloc",
-	      @"autorelease",
 	      @"bycopy",
 	      @"byref",
 	      @"char",
 	      @"const",
-	      @"copy",
-	      @"dealloc",
 	      @"default",
 	      @"delete",
 	      @"double",
@@ -85,12 +85,10 @@
 	      @"inout",
 	      @"int",
 	      @"long",
-	      @"new",
+	      @"new", // not sure
 	      @"nil",
 	      @"oneway",
 	      @"out",
-	      @"release",
-	      @"retain",
 	      @"self",
 	      @"short",
 	      @"signed",
@@ -98,6 +96,24 @@
 	      @"unsigned",
 	      @"void",
 	      @"volatile",
+	      // NSObject class/protocol instance methods with no argument
+	      @"copy",
+	      @"mutableCopy",
+	      @"dealloc",
+	      @"finalize",
+	      @"classForCoder",
+	      @"classForKeyedArchiver",
+	      @"class",
+	      @"superclass",
+	      @"hash",
+	      /* @"self", */ // included as keyword above
+	      @"autorelease",
+	      @"release",
+	      @"retain",
+	      @"retainCount",
+	      @"description",
+	      @"zone",
+	      @"isProxy",
 	      // rgen reserved
 	      @"loadImages",
 	      @"releaseImages",
@@ -128,43 +144,37 @@
   return [exts containsObject:self];
 }
 
-+ (NSArray *)imageScaleSuffixArray {
-  static NSArray *suffixes = nil;
-  if (suffixes == nil) {
-    suffixes = [[NSArray arrayWithObjects:
-		 @"@2x",
-		 nil]
-		retain];
++ (NSArray *)imageScaleSuffixArray:(BOOL)ipadSuffix {
+  if (ipadSuffix) {
+    static NSArray *suffixes = nil;
+    if (suffixes == nil) {
+      suffixes = [[NSArray arrayWithObjects:@"@2x",  @"@ipad", nil] retain];
+    }
+    return suffixes;
+  } else {
+    static NSArray *suffixes = nil;
+    if (suffixes == nil) {
+      suffixes = [[NSArray arrayWithObjects:@"@2x", nil] retain];
+    }
+    return suffixes;
   }
-  
-  return suffixes;
 }
 
-- (NSString *)normalizIOSPath {
+- (NSString *)normalizeIOSPath:(BOOL)ipadSuffix {
   if ([[[self pathExtension] lowercaseString] isSupportedImageExtByIOS]) {
     return [[[self stringByDeletingPathExtension]
-	     stripSuffix:[[self class] imageScaleSuffixArray]]
+	     stripSuffix:[[self class] imageScaleSuffixArray:ipadSuffix]]
 	    stringByAppendingPathExtension:[self pathExtension]];
   }
   
   return self;
 }
 
-- (NSString *)propertyNameIsDir:(BOOL)isDir {
+- (NSString *)propertyName {
   NSString *name = self;
-  if (!isDir) {
-    NSString *ext = [[name pathExtension] lowercaseString];
-    name = [self stringByDeletingPathExtension];
-    
-    if ([ext isSupportedImageExtByIOS]) {
-      name = [name stripSuffix:[[self class] imageScaleSuffixArray]];
-    }
-  }
-  
-  name = [[name toCamelCase:
-	   [NSCharacterSet characterSetWithCharactersInString:@"._-"]]
-	  charSetNormalize:
-	  [NSCharacterSet propertyNameCharacterSet]];
+  name = [[name toCamelCase:[NSCharacterSet
+			     characterSetWithCharactersInString:@"._- @"]]
+	  charSetNormalize:[NSCharacterSet propertyNameCharacterSet]];
   
   if ([name isReservedRgenName]) {
     name = [name stringByAppendingString:@"_"];
@@ -177,5 +187,36 @@
   
   return name;
 }
+
+- (NSString *)imagePropertyName:(BOOL)ipadSuffix {
+  NSString *name = self;
+  NSString *ext = [[name pathExtension] lowercaseString];
+  name = [self stringByDeletingPathExtension];
+  if ([ext isSupportedImageExtByIOS]) {
+    name = [name stripSuffix:[[self class] imageScaleSuffixArray:ipadSuffix]];
+  }
+  
+  return [name propertyName];
+}
+
+- (NSString *)dirPropertyName {
+  return [self propertyName];
+}
+
+- (NSString *)className {
+  NSString *name = self;
+  
+  name = [[name toCamelCase:[NSCharacterSet
+			     characterSetWithCharactersInString:@"._- @"]]
+	  charSetNormalize:[NSCharacterSet classNameCharacterSet]];
+  
+  if (![[NSCharacterSet classNameStartCharacterSet]
+	characterIsMember:[name characterAtIndex:0]]) {
+    name = [@"_" stringByAppendingString:name];
+  }
+  
+  return [name capitalizedString];
+}
+
 
 @end
