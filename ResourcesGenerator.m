@@ -7,9 +7,12 @@
 //
 
 #import "ResourcesGenerator.h"
-#import "ResourcesProperty.h"
+#import "rgen.h"
+#import "XCodeProj.h"
+#import "ImagesProperty.h"
 #import "ImageProperty.h"
-#import "PBXProj.h"
+#import "PathsProperty.h"
+#import "PathProperty.h"
 #import "ClassGenerator.h"
 #import "NSString+rgen.h"
 #import "NSCharacterSet+rgen.h"
@@ -18,54 +21,66 @@
 @end
 
 @interface ResourcesGenerator ()
-@property(nonatomic, retain) NSString *pbxProjPath;
-@property(nonatomic, retain) PBXProj *pbxProj;
+@property(nonatomic, retain) XCodeProj *xcodeProj;
+@property(nonatomic, retain) ImagesProperty *imagesRoot;
+@property(nonatomic, retain) PathsProperty *pathsRoot;
 
-- (void)loadResources:(ResourcesProperty *)rootResources
-	    forTarget:(NSString *)targetName;
-
+- (void)addPath:(NSArray *)dirComponents 
+	   name:(NSString *)name
+	   path:(NSString *)path;
+- (void)addImage:(NSArray *)dirComponents 
+	    name:(NSString *)name
+	    path:(NSString *)path;
+- (void)loadVariantGroup:(PBXDictionary *)fileRef
+	      targetName:(NSString *)targetName;
+- (void)loadFileReference:(PBXDictionary *)fileRef
+	       targetName:(NSString *)targetName;
+- (void)loadResourcesForTarget:(NSString *)targetName;
 - (void)raiseFormat:(NSString *)format, ...;
 
 @end
 
-
 @implementation ResourcesGenerator
-@synthesize pbxProjPath;
-@synthesize pbxProj;
+@synthesize optionGenerateImages;
+@synthesize optionGeneratePaths;
+@synthesize optionLoadImages;
+@synthesize optionIpadImageSuffx;
+@synthesize optionIpad2xImageSuffx;
 
-+ (NSString *)classNameForDirComponents:(NSArray *)dirComponents {
-  NSMutableArray *parts = [NSMutableArray array];
-  
-  for (NSString *component in dirComponents) {
-    [parts addObject:[[component charSetNormalize:
-		       [NSCharacterSet propertyNameCharacterSet]]
-		      capitalizedString]];
-  }
-  
-  return [parts componentsJoinedByString:@""];
-}
+@synthesize xcodeProj;
+@synthesize imagesRoot;
+@synthesize pathsRoot;
 
 - (id)initWithProjectFile:(NSString *)aPath {
   self = [super init];
-  self.pbxProjPath = aPath;
-  self.pbxProj = [[[PBXProj alloc]
-		   initWithProjectFile:aPath
-		   environment:[[NSProcessInfo processInfo] environment]]
-		  autorelease];
+  self.xcodeProj = [[[XCodeProj alloc]
+		     initWithPath:aPath
+		     environment:[[NSProcessInfo processInfo] environment]]
+		    autorelease];
+  self.imagesRoot = [[[ImagesProperty alloc]
+		      initWithName:@""
+		      parent:nil
+		      path:@""
+		      className:@"RGenImagesRoot"]
+		     autorelease];
+  self.pathsRoot = [[[PathsProperty alloc]
+		     initWithName:@""
+		     parent:nil
+		     path:@""
+		     className:@"RGenPathsRoot"]
+		    autorelease];
   
-  if (self.pbxProj == nil) {
-    [self raiseFormat:@"Failed to read pbxproj file"];
+  if (self.xcodeProj == nil) {
+    [self raiseFormat:@"Failed to read xcode project file %@", aPath];
   }
   
   return self;
 }
 
 - (void)raiseFormat:(NSString *)format, ... {
-  format = [@": " stringByAppendingString:format];
-  if (self.pbxProj == nil) {
-    format = [self.pbxProjPath stringByAppendingString:format];
-  } else {
-    format = [[self.pbxProj projectName] stringByAppendingString:format];
+  if (self.xcodeProj != nil) {
+    format = [@": " stringByAppendingString:format];
+    format = [[self.xcodeProj projectName] stringByAppendingString:format];
   }
   
   va_list va;
@@ -74,45 +89,20 @@
   va_end(va);
 }
 
-- (void)addResource:(ResourcesProperty *)rootResources
-		dir:(NSArray *)dirComponents 
-	       name:(NSString *)name
-	       path:(NSString *)path {
-  NSString *propertyName = [name propertyNameIsDir:NO];
+- (void)addPath:(NSArray *)dirComponents 
+	   name:(NSString *)name
+	   path:(NSString *)path {
+  NSString *propertyName = [name propertyName];
   
-  // strip image scale suffix
-  path = [path normalizIOSPath];
-  
-  NSUInteger i = 1;
-  ResourcesProperty *current = rootResources;
-  for (NSString *dirName in dirComponents) {
-    NSString *nextPropertyName = [dirName propertyNameIsDir:YES];
-    NSArray *nextDirComponents = [dirComponents
-				  subarrayWithRange:NSMakeRange(0, i)];
-    ResourcesProperty *next = [current.properties
-			       objectForKey:nextPropertyName];
-    
-    if (next == nil) {
-      next = [[[ResourcesProperty alloc]
-	       initWithName:nextPropertyName
-	       path:[NSString pathWithComponents:nextDirComponents]
-	       className:
-	       [rootResources.className stringByAppendingString:
-		[[self class] classNameForDirComponents:nextDirComponents]]]
-	      autorelease];
-      
-      [current.properties setObject:next forKey:nextPropertyName];
-    } else if (![next isKindOfClass:[ResourcesProperty class]]) {
-      [self raiseFormat:
-       @"Property name collision for %@ between paths %@ and %@",
-       nextPropertyName, ((Property *)next).path, path];
-    }
-    
-    current = next;
-    i++;
+  ClassProperty *classProperty = [self.pathsRoot
+				  lookupPropertyPathFromDir:dirComponents];
+  if (![classProperty isKindOfClass:[PathsProperty class]]) {
+    [self raiseFormat:
+     @"Path property path name collision between path %@ and %@",
+     classProperty.path, path];
   }
   
-  Property *property = [current.properties objectForKey:propertyName];
+  Property *property = [classProperty.properties objectForKey:propertyName];
   if (property != nil) {
     if([path isEqualToString:property.path]) {
       /*
@@ -120,131 +110,226 @@
        */
     } else {
       [self raiseFormat:
-       @"Property name collision for %@ between paths %@ and %@",
+       @"Path Property name collision for %@ between paths %@ and %@",
        propertyName, ((Property *)property).path, path];
     }
-  } else {
-    
-    NSString *ext = [[path pathExtension] lowercaseString];
-    if ([ext isSupportedImageExtByIOS]) {
-      [current.properties
-       setObject:[[[ImageProperty alloc]
-		   initWithName:propertyName
-		   path:path]
-		  autorelease]
-       forKey:propertyName];
-      /*
-       NSLog(@"Added image property name %@ for path %@",
-       propertyName, path);
-       */
-    } else {
-      /*
-       NSLog(@"Ignoring unknown type for path %@", path);
-       */
-    }
-  }	
+  } else {    
+    [classProperty.properties
+     setObject:[[[PathProperty alloc]
+		 initWithName:propertyName
+		 path:path]
+		autorelease]
+     forKey:propertyName];
+    /*
+     NSLog(@"Added image property name %@ for path %@",
+     propertyName, path);
+     */
+  }
 }
 
-- (void)loadResources:(ResourcesProperty *)rootResources
-	    forTarget:(NSString *)targetName {
-  BOOL targetFound = targetName == nil;
+- (void)addLproj:(NSString *)path {
+  NSLog(@"path=%@", path);
+}
+
+- (void)addImage:(NSArray *)dirComponents 
+	    name:(NSString *)name
+	    path:(NSString *)path {
+  NSString *propertyName = [name imagePropertyName:self.optionIpadImageSuffx];
+  // strip image scale suffix
+  NSString *normalizedPath = [path normalizeIOSPath:self.optionIpadImageSuffx];
   
-  NSArray *targets = [self.pbxProj.rootDictionary arrayForKey:@"targets"];
-  if (targets == nil) {
-    [self raiseFormat:@"Failed to read targets array"];
+  ClassProperty *classProperty = [self.imagesRoot
+				  lookupPropertyPathFromDir:dirComponents];
+  if (![classProperty isKindOfClass:[ImagesProperty class]]) {
+    [self raiseFormat:
+     @"Image property path name collision between path %@ and %@ (real %@)",
+     classProperty.path, normalizedPath, path];
   }
   
-  for (PBXProjDictionary *target in targets) {    
-    NSString *pName = [target objectForKey:@"name"];
-    if (pName == nil || ![pName isKindOfClass:[NSString class]]) {
-      continue;
+  Property *property = [classProperty.properties objectForKey:propertyName];
+  if (property != nil) {
+    if([normalizedPath isEqualToString:property.path]) {
+      trace(@"Ignoring duplicate resource for path %@ (real %@)",
+	    normalizedPath, path);
+    } else {
+      [self raiseFormat:
+       @"Image property name collision for %@ between paths %@ and %@ (real %@)",
+       propertyName, ((Property *)property).path, normalizedPath, path];
     }
-    
-    if (targetName != nil && ![targetName isEqualToString:pName]) {
-      continue;
-    }
-    targetFound = YES;
-    
-    NSArray *buildPhases = [target arrayForKey:@"buildPhases"];
-    if (buildPhases == nil) {
-      [self raiseFormat:@"Failed to read buildPhases array for target \"%@\"",
-       pName];
-    }
-    
-    for (PBXProjDictionary *buildPhase in buildPhases) {
-      NSString *isa = [buildPhase objectForKey:@"isa"];
+  } else {
+    NSString *ext = [[path pathExtension] lowercaseString];
+    if ([ext isSupportedImageExtByIOS]) {
+      [classProperty.properties
+       setObject:[[[ImageProperty alloc]
+		   initWithName:propertyName
+		   path:normalizedPath]
+		  autorelease]
+       forKey:propertyName];
       
-      if (isa == nil || ![isa isEqualToString:@"PBXResourcesBuildPhase"]) {
+      trace(@"Added image property name %@ for path %@ (real %@)",
+	    propertyName, normalizedPath, path);
+    } else {
+      trace(@"Ignoring unknown resource for path %@ (real %@)",
+	    normalizedPath, path);
+    }
+  }
+}
+
+- (void)loadFileReference:(PBXDictionary *)fileRef
+	       targetName:(NSString *)targetName {
+  NSString *lastKnownFileType = [fileRef objectForKey:@"lastKnownFileType"];
+  NSString *sourceTree = [fileRef objectForKey:@"sourceTree"];
+  NSString *path = [fileRef objectForKey:@"path"];
+  NSString *name = [fileRef objectForKey:@"name"];
+  
+  if (lastKnownFileType == nil || sourceTree == nil || path == nil) {
+    [self raiseFormat:
+     @"%@: Missing keys for fileRef in resource build phase "
+     @"lastKnownFileType=%@ sourceTree=%@ path=%@ name=%@",
+     targetName, pName, lastKnownFileType, sourceTree, path, name];
+  }
+  
+  NSString *absPath = [self.xcodeProj absolutePath:path sourceTree:sourceTree];
+  if (absPath == nil) {
+    [self raiseFormat:
+     @"%@: Could not resolve absolute path for path %@ source tree %@",
+     targetName, path, sourceTree];
+  }
+  
+  if (name == nil) {
+    name = [path lastPathComponent];
+  }
+  
+  if ([lastKnownFileType isEqualToString:@"folder"]) {
+    trace(@"%@: Loading folder reference \"%@\" with absolute path %@",
+	  targetName, name, absPath);
+    
+    NSArray *subpaths = [[NSFileManager defaultManager]
+			 subpathsOfDirectoryAtPath:absPath
+			 error:NULL];
+    if (subpaths == nil) {
+      [self raiseFormat: @"%@: Failed to read directory at path %@",
+       targetName, absPath];
+    }
+    
+    for (NSString *subpath in subpaths) {
+      BOOL isDir = NO;
+      if ([[NSFileManager defaultManager]
+	   fileExistsAtPath:[absPath stringByAppendingPathComponent:subpath]
+	   isDirectory:&isDir] &&
+	  isDir) {
 	continue;
       }
       
-      NSArray *files = [buildPhase arrayForKey:@"files"];
-      if (files == nil) {
-	[self raiseFormat:
-	 @"Failed to read files array for resource build phase for target \"%@\"",
-	 pName];
-      }
+      NSString *filename = [subpath lastPathComponent];
+      // prefix path with reference folder name
+      NSArray *subpathComponents = [subpath pathComponents];
+      subpathComponents = [subpathComponents subarrayWithRange:
+			   NSMakeRange(0, [subpathComponents count]-1)];
+      NSArray *dirComponents = [[NSArray arrayWithObject:name]
+				arrayByAddingObjectsFromArray:subpathComponents];
       
-      for (PBXProjDictionary *file in files) {
-	PBXProjDictionary *fileRef = [file dictForKey:@"fileRef"];
-	if (fileRef == nil) {
-	  [self raiseFormat:
-	   @"Failed to read fileRef for file in resource build phase for target \"%@\"",
-	   pName];
-	}
-	
-	NSString *lastKnownFileType = [fileRef objectForKey:@"lastKnownFileType"];
-	NSString *sourceTree = [fileRef objectForKey:@"sourceTree"];
-	NSString *path = [fileRef objectForKey:@"path"];
-	NSString *name = [fileRef objectForKey:@"name"];
-	
-	if (lastKnownFileType == nil || sourceTree == nil || path == nil) {
-	  [self raiseFormat:
-	   @"Missing keys for fileRef in resource build phase for target \"%@\" "
-	   @"lastKnownFileType=%@ sourceTree=%@ path=%@ name=%@",
-	   pName, lastKnownFileType, sourceTree, path, name];
-	}
-	
-	if (name == nil) {
-	  name = [path lastPathComponent];
-	}
-	
-	// TODO: check for errors and nils
-	NSString *absPath = [self.pbxProj absolutePath:path sourceTree:sourceTree];
-	if ([lastKnownFileType isEqualToString:@"folder"]) {
-	  for (NSString *subpath in [[NSFileManager defaultManager]
-				     subpathsOfDirectoryAtPath:absPath
-				     error:NULL]) {
-	    BOOL isDir = NO;
-	    if ([[NSFileManager defaultManager]
-		 fileExistsAtPath:[absPath stringByAppendingPathComponent:subpath]
-		 isDirectory:&isDir] &&
-		isDir) {
-	      continue;
-	    }
-	    
-	    NSString *filename = [subpath lastPathComponent];
-	    // prefix path with reference folder name
-	    NSArray *subpathComponents = [subpath pathComponents];
-	    subpathComponents = [subpathComponents subarrayWithRange:
-				 NSMakeRange(0, [subpathComponents count]-1)];
-	    NSArray *dirComponents = [[NSArray arrayWithObject:name]
-				      arrayByAddingObjectsFromArray:subpathComponents];
-	    
-	    [self addResource:rootResources
-			  dir:dirComponents
-			 name:filename
-			 path:[NSString pathWithComponents:
-			       [dirComponents arrayByAddingObject:filename]]];
-	  }
-	} else {
-	  [self addResource:rootResources
-			dir:[NSArray array]
-		       name:name
-		       path:name];
-	}
-      }      
+      if ([filename isEqualToString:@"Localizable.strings"]) {
+	[self addLproj:[NSString pathWithComponents:
+			[NSArray arrayWithObjects:
+			 absPath,
+			 subpath,
+			 nil
+			 ]]];
+      } else {
+	[self addImage:dirComponents
+		  name:filename
+		  path:[NSString pathWithComponents:
+			[dirComponents arrayByAddingObject:filename]]];
+	[self addPath:dirComponents
+		 name:filename
+		 path:[NSString pathWithComponents:
+		       [dirComponents arrayByAddingObject:filename]]];
+      }
     }
+  } else {
+    trace(@"%@: Loading file reference \"%@\"", targetName, name); 
+    
+    [self addImage:[NSArray array]
+	      name:name
+	      path:name];
+    [self addPath:[NSArray array]
+	     name:name
+	     path:name];
+  }
+  
+}
+
+- (void)loadVariantGroup:(PBXDictionary *)fileRef
+	      targetName:(NSString *)targetName {
+  
+  NSLog(@"fileRef=%@", fileRef.rootObject);
+  
+  NSArray *children = [fileRef refDictArrayForKey:@"children"];
+  if (children == nil) {
+    [self raiseFormat:
+     @"Failed to read children array for variant group", pName];
+  }
+  
+  for (PBXDictionary *variant in children) {
+    NSString *sourceTree = [variant objectForKey:@"sourceTree"];
+    NSString *path = [variant objectForKey:@"path"];
+    NSString *name = [variant objectForKey:@"name"];
+    
+    NSLog(@"%@", variant.rootObject);
+    
+    if (sourceTree == nil || path == nil) {
+      [self raiseFormat:
+       @"Missing keys for variable group fileRef sourceTree=%@ path=%@ name=%@",
+       sourceTree, path, name];
+    }
+    
+    NSString *prefixPath =  [self.xcodeProj absolutePath:name
+					      sourceTree:sourceTree];
+    if (prefixPath == nil) {
+      [self raiseFormat:
+       @"Could not resolve prefix path for name %@ source tree %@",
+       name, sourceTree];
+    }
+    
+    [self addLproj:[NSString pathWithComponents:
+		    [NSArray arrayWithObjects:
+		     [prefixPath stringByAppendingPathExtension:@"lproj"],
+		     path,
+		     nil]]];
+  }
+}
+
+- (void)loadResourcesForTarget:(NSString *)targetName {
+  __block BOOL targetFound = (targetName == nil);
+  
+  /*
+  [self.xcodeProj forEachBuildSetting:^(NSString *buildConfigurationName,
+					NSDictionary *buildSettings) {
+
+    NSLog(@"name=%@ settings=%@", buildConfigurationName, buildSettings);
+  }];
+   */
+    
+  @try {
+    [self.xcodeProj forEachBuildResource:^(NSString *buildTargetName,
+					   PBXDictionary *fileRef) {
+      if (targetName != nil && ![targetName isEqualToString:buildTargetName]) {
+	return;
+      }
+      targetFound = YES;
+      
+      NSString *fileIsa = [fileRef objectForKey:@"isa"];
+      if ([fileIsa isEqualToString:@"PBXFileReference"]) {
+	[self loadFileReference:fileRef targetName:buildTargetName];
+      } else if ([fileIsa isEqualToString:@"PBXVariantGroup"]) {
+	[self loadVariantGroup:fileRef targetName:buildTargetName];
+      } else {
+	trace(@"%@: Ignoring fileRef with unknown isa %@", buildTargetName, fileIsa);
+      }
+    }];
+  } @catch (XCodeProjException *e) {
+    [self raiseFormat:@"%@", e.reason];
   }
   
   if (!targetFound) {
@@ -255,87 +340,78 @@
 - (void)writeResoucesTo:(NSString *)outputDir
 	      className:(NSString *)className
 	      forTarget:(NSString *)targetName {
-  ResourcesProperty *rootResources = [[[ResourcesProperty alloc]
-				       initWithName:@""
-				       path:@""
-				       className:className]
-				      autorelease];
+  NSString *headerFile = [className stringByAppendingPathExtension:@"h"];
+  NSString *implementationFile = [className stringByAppendingPathExtension:@"m"];
   NSMutableString *header = [NSMutableString string];
   NSMutableString *implementation = [NSMutableString string];
+  NSMutableArray *classes = [NSMutableArray array];
   
-  [self loadResources:rootResources
-	    forTarget:targetName];
+  if (self.optionGenerateImages) {
+    [classes addObject:self.imagesRoot];
+  }
   
-  // prune classes with no properties
-  [rootResources pruneEmptyClasses];
+  if (self.optionGeneratePaths) {
+    [classes addObject:self.pathsRoot];
+  }
+  
+  [self loadResourcesForTarget:targetName];
+  
+  // prune trees by removing empty classes
+  for (ClassProperty *classProperty in classes) {
+    [classProperty pruneEmptyClasses];
+  }
   
   NSMutableString *generatedBy = [NSMutableString string];
   [generatedBy appendString:@"// This file was generated by rgen\n"];
-  [generatedBy appendFormat:@"// Project: %@\n", [self.pbxProj projectName]];
+  [generatedBy appendFormat:@"// Project: %@\n", [self.xcodeProj projectName]];
   if (targetName != nil) {
     [generatedBy appendFormat:@"// Target : %@\n", targetName];
   }
   [generatedBy appendString:@"\n"];
-  
   [header appendString:generatedBy];
   [implementation appendString:generatedBy];
+  [implementation appendFormat:@"#import \"%@\"\n\n", headerFile];
   
-  [implementation appendFormat:@"#import \"%@.h\"\n\n", className];
-  
-  [rootResources rescursePreOrder:^(NSArray *propertyPath,
-				    ClassProperty *classProperty) {
-    ResourcesProperty *resourcesProperty = (ResourcesProperty *)classProperty;
-    if (![resourcesProperty isKindOfClass:[ResourcesProperty class]]) {
-      return;
-    }
-    
-    [header appendFormat:@"@class %@;\n", resourcesProperty.className];
-  }];
-  [header appendString:@"\n"];
-  
-  [header appendFormat:@"%@ *R;\n\n", className];
-  [implementation appendFormat:@"%@ *R;\n\n", className];
-  
-  [rootResources rescursePreOrder:^(NSArray *propertyPath,
-				    ClassProperty *classProperty) {
-    ResourcesProperty *resourcesProperty = (ResourcesProperty *)classProperty;
-    if (![resourcesProperty isKindOfClass:[ResourcesProperty class]]) {
-      return;
-    }
-    
-    ClassGenerator *classGenerator = [[[ClassGenerator alloc]
-				       initWithClassName:resourcesProperty.className
-				       inheritName:@"NSObject"]
-				      autorelease];
-    
-    if (resourcesProperty == rootResources) {
-      [classGenerator.implementations addObject:
-       [NSString stringWithFormat:
-	@"+ (void)load {\n"
-	@"  R = [[%@ alloc] init];\n"
-	@"}\n",
-	className]
-       ];
-    }
-    
-    [resourcesProperty generate:classGenerator];
-    
-    [header appendString:[classGenerator generateHeader]];
+  for (ClassProperty *classProperty in classes) {
+    [classProperty rescursePreOrder:^(NSArray *propertyPath,
+				      ClassProperty *classProperty) {
+      [header appendFormat:@"@class %@;\n", classProperty.className];
+    }];
     [header appendString:@"\n"];
-    [implementation appendString:[classGenerator generateImplementation]];
+  }
+  
+  for (ClassProperty *classProperty in classes) {
+    [header appendString:[classProperty headerProlog:self]];
+    [header appendString:@"\n"];
+  }
+  
+  for (ClassProperty *classProperty in classes) {
+    [implementation appendString:[classProperty implementationProlog:self]];
     [implementation appendString:@"\n"];
-  }];
+  }
+  
+  for (ClassProperty *classProperty in classes) {
+    [classProperty rescursePreOrder:^(NSArray *propertyPath,
+				      ClassProperty *classProperty) {
+      ClassGenerator *classGenerator = [[[ClassGenerator alloc]
+					 initWithClassName:classProperty.className
+					 inheritName:[classProperty inheritClassName]]
+					autorelease];
+      [classProperty generate:classGenerator generator:self];
+      
+      [header appendString:[classGenerator header]];
+      [header appendString:@"\n"];
+      [implementation appendString:[classGenerator implementation]];
+      [implementation appendString:@"\n"];
+    }];
+  }
   
   NSString *headerPath = [NSString pathWithComponents:
 			  [NSArray arrayWithObjects:
-			   outputDir,
-			   [className stringByAppendingPathExtension:@"h"],
-			   nil]];
+			   outputDir, headerFile, nil]];
   NSString *implementationPath = [NSString pathWithComponents:
 				  [NSArray arrayWithObjects:
-				   outputDir,
-				   [className stringByAppendingPathExtension:@"m"],
-				   nil]];
+				   outputDir, implementationFile, nil]];
   
   NSString *oldHeader = [NSString stringWithContentsOfFile:headerPath
 						  encoding:NSUTF8StringEncoding
@@ -345,23 +421,34 @@
 							     error:NULL];
   if (oldHeader != nil && [header isEqualToString:oldHeader] &&
       oldImplementation != nil && [implementation isEqualToString:oldImplementation]) {
-    // source on disk is same as generated
+    trace(@"Both header (%@) and implementation (%@) is same as on file system. "
+	  @"Skipping write.",
+	  headerPath, implementationPath);
     return;
   }
   
-  [header writeToFile:headerPath
-	   atomically:YES
-	     encoding:NSUTF8StringEncoding
-		error:NULL];
-  [implementation writeToFile:implementationPath
-		   atomically:YES
-		     encoding:NSUTF8StringEncoding
-			error:NULL];
+  if ([header writeToFile:headerPath
+	       atomically:YES
+		 encoding:NSUTF8StringEncoding
+		    error:NULL]) {
+    trace(@"Wrote header to %@", headerPath);
+  } else {
+    [self raiseFormat:@"Failed to write header to %@", headerPath];
+  }
+  if ([implementation writeToFile:implementationPath
+		       atomically:YES
+			 encoding:NSUTF8StringEncoding
+			    error:NULL]) {
+    trace(@"Wrote implementation to %@", implementationPath);
+  }  else {
+    [self raiseFormat:@"Failed to write implementation to %@", implementationPath];
+  }
 }
 
 - (void)dealloc {
-  self.pbxProjPath = nil;
-  self.pbxProj = nil;
+  self.xcodeProj = nil;
+  self.imagesRoot = nil;
+  self.pathsRoot = nil;
   [super dealloc];
 }
 

@@ -8,12 +8,15 @@
 
 #import <Foundation/Foundation.h>
 
-#import "PBXProj.h"
-
 @interface ResourcesGeneratorException : NSException
 @end
 
 @interface ResourcesGenerator : NSObject
+@property(nonatomic, assign) BOOL optionGenerateImages;
+@property(nonatomic, assign) BOOL optionGeneratePaths;
+@property(nonatomic, assign) BOOL optionLoadImages;
+@property(nonatomic, assign) BOOL optionIpadImageSuffx;
+@property(nonatomic, assign) BOOL optionIpad2xImageSuffx;
 
 - (id)initWithProjectFile:(NSString *)aPath;
 - (void)writeResoucesTo:(NSString *)outputDir
