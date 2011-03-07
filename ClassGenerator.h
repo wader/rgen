@@ -8,19 +8,49 @@
 
 #import <Foundation/Foundation.h>
 
+@interface IndentLine : NSObject
+@property(nonatomic, assign) NSUInteger indent;
+@property(nonatomic, retain) NSString *text;
+@end
+
+@interface IndentedLines : NSObject
+@property(nonatomic, retain) NSMutableArray *indentedLines;
+@end
+
+@interface ClassMethod : NSObject
+@property(nonatomic, retain) NSString *signature;
+@property(nonatomic, retain) IndentedLines *lines;
+
+- (id)initWithSignature:(NSString *)aSignature;
+- (void)addLineIndent:(NSUInteger)aIndent format:(NSString *)format, ...;
+@end
+
 @interface ClassGenerator : NSObject
 @property(nonatomic, retain) NSString *className;
 @property(nonatomic, retain) NSString *inheritClassName;
-@property(nonatomic, retain) NSMutableArray *variables;
-@property(nonatomic, retain) NSMutableArray *properties;
-@property(nonatomic, retain) NSMutableArray *declarations;
-@property(nonatomic, retain) NSMutableArray *synthesizes;
-@property(nonatomic, retain) NSMutableArray *implementations;
+@property(nonatomic, retain) NSMutableDictionary *variables;
+@property(nonatomic, retain) NSMutableDictionary *properties;
+@property(nonatomic, retain) NSMutableDictionary *declarations;
+@property(nonatomic, retain) NSMutableDictionary *synthesizes;
+@property(nonatomic, retain) NSMutableDictionary *methods;
 
 - (id)initWithClassName:(NSString *)aClassName
 	    inheritName:(NSString *)aInheritClassName;
-- (NSString *)generateHeader;
-- (NSString *)generateImplementation;
+
+- (void)addVariableName:(NSString *)aName
+		   line:(NSString *)aFormatLine, ...;
+- (void)addPropertyName:(NSString *)aName
+		   line:(NSString *)aFormatLine, ...;
+- (void)addDeclarationName:(NSString *)aName
+		      line:(NSString *)aFormatLine, ...;
+- (void)addSynthesizerName:(NSString *)aName
+		      line:(NSString *)aFormatLine, ...;
+- (ClassMethod *)addMethodName:(NSString *)aName
+		   declaration:(BOOL)declaration
+		     signature:(NSString *)aFormatSignature, ...;
+
+- (NSString *)header;
+- (NSString *)implementation;
 
 @end
 
