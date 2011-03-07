@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "ClassGenerator.h"
+#import "ResourcesGenerator.h"
 
 NSComparator propertySortBlock;
 
@@ -17,5 +18,7 @@ NSComparator propertySortBlock;
 
 - (id)initWithName:(NSString *)aName
 	      path:(NSString *)aPath;
-- (void)generate:(ClassGenerator *)classGenerator;
+- (void)generate:(ClassGenerator *)classGenerator
+       generator:(ResourcesGenerator *)generator;
+
 @end

@@ -25,7 +25,8 @@ NSComparator propertySortBlock = ^(id a, id b) {
   return self;
 }
 
-- (void)generate:(ClassGenerator *)classGenerator {
+- (void)generate:(ClassGenerator *)classGenerator
+       generator:(ResourcesGenerator *)generator {
 }
 
 - (void)dealloc {
