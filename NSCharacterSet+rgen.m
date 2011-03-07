@@ -36,4 +36,12 @@
   return charSet;
 }
 
++ (NSCharacterSet *)classNameCharacterSet {
+  return [self propertyNameCharacterSet];
+}
+
++ (NSCharacterSet *)classNameStartCharacterSet {
+  return [self propertyNameStartCharacterSet];
+}
+
 @end

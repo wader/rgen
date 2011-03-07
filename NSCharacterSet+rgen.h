@@ -11,4 +11,6 @@
 @interface NSCharacterSet (rgen)
 + (NSCharacterSet *)propertyNameCharacterSet;
 + (NSCharacterSet *)propertyNameStartCharacterSet;
++ (NSCharacterSet *)classNameCharacterSet;
++ (NSCharacterSet *)classNameStartCharacterSet;
 @end
