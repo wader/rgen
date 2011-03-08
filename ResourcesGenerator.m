@@ -76,6 +76,11 @@
 		      initWithName:@""
 		      parent:nil
 		      path:@""
+  if (self.xcodeProj == nil) {
+    [self release];
+    return nil;
+  }
+  
 		      className:@"RGenImagesRoot"]
 		     autorelease];
   self.pathsRoot = [[[PathsProperty alloc]
@@ -84,10 +89,6 @@
 		     path:@""
 		     className:@"RGenPathsRoot"]
 		    autorelease];
-  
-  if (self.xcodeProj == nil) {
-    [self raiseFormat:@"Failed to read xcode project file %@", aPath];
-  }
   
   return self;
 }

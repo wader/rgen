@@ -132,6 +132,11 @@ int main(int argc,  char *const argv[]) {
     ResourcesGenerator *gen = [[[ResourcesGenerator alloc]
 				initWithProjectFile:path]
 			       autorelease];
+    if (gen == nil) {
+      error(@"Failed to read xcode project at path %@", path);
+      return EXIT_FAILURE;
+    }
+    
     gen.optionGenerateImages = generateImages;
     gen.optionGeneratePaths = generatePaths;
     gen.optionLoadImages = generateLoadImages;
