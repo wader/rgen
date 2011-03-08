@@ -26,6 +26,7 @@
 
 #import "ImageProperty.h"
 #import "ClassGenerator.h"
+#import "ResourcesGenerator.h"
 #import "NSString+rgen.h"
 
 @implementation ImageProperty : Property

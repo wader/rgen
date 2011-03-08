@@ -26,6 +26,10 @@
 
 #import <Foundation/Foundation.h>
 
+#import "XCodeProj.h"
+#import "ImagesProperty.h"
+#import "PathsProperty.h"
+
 @interface ResourcesGeneratorException : NSException
 @end
 

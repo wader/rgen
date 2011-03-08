@@ -28,7 +28,8 @@
 #import <Foundation/Foundation.h>
 #import "Property.h"
 
-@class ClassProperty;
+@class ResourcesGenerator;
+
 @interface ClassProperty : Property {
   NSString *className;
   ClassProperty *parent;

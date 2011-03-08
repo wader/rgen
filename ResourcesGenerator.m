@@ -23,12 +23,10 @@
  * THE SOFTWARE.
  *
  */
+
 #import "ResourcesGenerator.h"
 #import "rgen.h"
-#import "XCodeProj.h"
-#import "ImagesProperty.h"
 #import "ImageProperty.h"
-#import "PathsProperty.h"
 #import "PathProperty.h"
 #import "ClassGenerator.h"
 #import "NSString+rgen.h"
@@ -321,13 +319,13 @@
   __block BOOL targetFound = (targetName == nil);
   
   /*
-  [self.xcodeProj forEachBuildSetting:^(NSString *buildConfigurationName,
-					NSDictionary *buildSettings) {
-
-    NSLog(@"name=%@ settings=%@", buildConfigurationName, buildSettings);
-  }];
+   [self.xcodeProj forEachBuildSetting:^(NSString *buildConfigurationName,
+   NSDictionary *buildSettings) {
+   
+   NSLog(@"name=%@ settings=%@", buildConfigurationName, buildSettings);
+   }];
    */
-    
+  
   @try {
     [self.xcodeProj forEachBuildResource:^(NSString *buildTargetName,
 					   PBXDictionary *fileRef) {

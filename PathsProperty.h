@@ -28,5 +28,4 @@
 #import "ClassProperty.h"
 
 @interface PathsProperty : ClassProperty
-
 @end

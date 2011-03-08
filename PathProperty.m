@@ -25,6 +25,7 @@
  */
 
 #import "PathProperty.h"
+#import "ClassGenerator.h"
 #import "NSString+rgen.h"
 
 @implementation PathProperty

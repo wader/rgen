@@ -25,8 +25,9 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "ClassGenerator.h"
-#import "ResourcesGenerator.h"
+
+@class ClassGenerator;
+@class ResourcesGenerator;
 
 NSComparator propertySortBlock;
 
