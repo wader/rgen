@@ -1,5 +1,5 @@
 /*
- * XCodeProj.h, Xcode project specific PBX structures
+ * XCodeProj.h, read Xcode project specific PBX structures
  *
  * Copyright (c) 2011 <mattias.wadman@gmail.com>
  *
@@ -41,15 +41,20 @@
 
 - (id)initWithPath:(NSString *)aPath
        environment:(NSDictionary *)anEnvironment {
+  self = [super init];
+  if (self == nil) {
+    return nil;
+  }
+  
   BOOL isDir = NO;
   if ([[NSFileManager defaultManager]
        fileExistsAtPath:aPath isDirectory:&isDir] && isDir) {
     aPath = [aPath stringByAppendingPathComponent:@"project.pbxproj"];
   }
   
-  self = [super init];
   self.pbxFile = [[[PBXFile alloc] initWithProjectFile:aPath] autorelease];
   if (self.pbxFile == nil) {
+    [self release];
     return nil;
   }
   

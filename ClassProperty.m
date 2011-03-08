@@ -56,6 +56,10 @@
 	      path:(NSString *)aPath
 	 className:(NSString *)aClassName {
   self = [super initWithName:aName path:aPath];
+  if (self == nil) {
+    return nil;
+  }
+  
   self.parent = aParent;
   self.className = aClassName;
   self.properties = [NSMutableDictionary dictionary];

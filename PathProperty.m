@@ -48,4 +48,5 @@
    @"return p(@\"%@\");",
    [self.path escapeCString]];
 }
+
 @end

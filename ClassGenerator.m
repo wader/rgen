@@ -44,7 +44,12 @@ static NSString *const oneIndent = @"  ";
 
 - (id)init {
   self = [super init];
+  if (self == nil) {
+    return nil;
+  }
+  
   self.indentedLines = [NSMutableArray array];
+  
   return self;
 }
 
@@ -64,6 +69,7 @@ static NSString *const oneIndent = @"  ";
 
 - (void)dealloc {
   self.indentedLines = nil;
+  
   [super dealloc];
 }
 
@@ -75,8 +81,13 @@ static NSString *const oneIndent = @"  ";
 
 - (id)initWithSignature:(NSString *)aSignature {
   self = [super init];
+  if (self == nil) {
+    return nil;
+  }
+  
   self.signature = aSignature;
   self.lines = [[[IndentedLines alloc] init] autorelease];
+  
   return self;
 }
 
@@ -103,6 +114,7 @@ static NSString *const oneIndent = @"  ";
 - (void)dealloc {
   self.signature = nil;
   self.lines = nil;
+  
   [super dealloc];
 }
 
@@ -122,6 +134,10 @@ static NSString *const oneIndent = @"  ";
 - (id)initWithClassName:(NSString *)aClassName
 	    inheritName:(NSString *)aInheritClassName {
   self = [super init];
+  if (self == nil) {
+    return nil;
+  }
+  
   self.className = aClassName;
   self.inheritClassName = aInheritClassName;
   self.variables = [NSMutableDictionary dictionary];
@@ -129,6 +145,7 @@ static NSString *const oneIndent = @"  ";
   self.declarations = [NSMutableDictionary dictionary];
   self.synthesizes = [NSMutableDictionary dictionary];
   self.methods = [NSMutableDictionary dictionary];
+  
   return self;
 }
 
@@ -277,6 +294,7 @@ static NSString *const oneIndent = @"  ";
   self.declarations = nil;
   self.synthesizes = nil;
   self.methods = nil;
+  
   [super dealloc];
 }
 

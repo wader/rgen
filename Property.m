@@ -38,8 +38,13 @@ NSComparator propertySortBlock = ^(id a, id b) {
 - (id)initWithName:(NSString *)aName
 	      path:(NSString *)aPath {
   self = [super init];
+  if (self == nil) {
+    return nil;
+  }
+  
   self.name = aName;
   self.path = aPath;
+  
   return self;
 }
 
@@ -50,6 +55,7 @@ NSComparator propertySortBlock = ^(id a, id b) {
 - (void)dealloc {
   self.name = nil;
   self.path = nil;
+  
   [super dealloc];
 }
 

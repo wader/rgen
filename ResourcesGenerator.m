@@ -68,19 +68,23 @@
 
 - (id)initWithProjectFile:(NSString *)aPath {
   self = [super init];
+  if (self == nil) {
+    return nil;
+  }
+  
   self.xcodeProj = [[[XCodeProj alloc]
 		     initWithPath:aPath
 		     environment:[[NSProcessInfo processInfo] environment]]
 		    autorelease];
-  self.imagesRoot = [[[ImagesProperty alloc]
-		      initWithName:@""
-		      parent:nil
-		      path:@""
   if (self.xcodeProj == nil) {
     [self release];
     return nil;
   }
   
+  self.imagesRoot = [[[ImagesProperty alloc]
+		      initWithName:@""
+		      parent:nil
+		      path:@""
 		      className:@"RGenImagesRoot"]
 		     autorelease];
   self.pathsRoot = [[[PathsProperty alloc]
@@ -465,6 +469,7 @@
   self.xcodeProj = nil;
   self.imagesRoot = nil;
   self.pathsRoot = nil;
+  
   [super dealloc];
 }
 

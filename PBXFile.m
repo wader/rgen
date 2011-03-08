@@ -35,32 +35,39 @@
 
 - (id)initWithProjectFile:(NSString *)aPath {
   self = [super init];
-  self.pbxFilePath = aPath;
+  if (self == nil) {
+    return nil;
+  }
   
   NSDictionary *project = [NSDictionary dictionaryWithContentsOfFile:aPath];
   if (project == nil ||
       ![project isKindOfClass:[NSDictionary class]]) {
+    [self release];
     return nil;
   }
   
   self.objects = [project objectForKey:@"objects"];
   if (self.objects == nil ||
       ![self.objects isKindOfClass:[NSDictionary class]]) {
+    [self release];
     return nil;
   }
   
   NSString *rootObjectId = [project objectForKey:@"rootObject"];
   if (rootObjectId == nil ||
       ![rootObjectId isKindOfClass:[NSString class]]) {
+    [self release];
     return nil;
   }
   
   NSDictionary *rootObject = [self.objects objectForKey:rootObjectId];
   if (rootObject == nil ||
       ![rootObject isKindOfClass:[NSDictionary class]]) {
+    [self release];
     return nil;
   }
   
+  self.pbxFilePath = aPath;
   self.rootDictionary = [[[PBXDictionary alloc]
 			  initWithRoot:rootObject
 			  pbxFile:self]
