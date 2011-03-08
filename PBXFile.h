@@ -28,7 +28,12 @@
 
 @class PBXDictionary;
 
-@interface PBXFile : NSObject
+@interface PBXFile : NSObject {
+  NSString *pbxFilePath;
+  NSDictionary *objects;
+  PBXDictionary *rootDictionary;
+}
+
 @property(nonatomic, retain) NSString *pbxFilePath;
 @property(nonatomic, retain) NSDictionary *objects;
 @property(nonatomic, retain) PBXDictionary *rootDictionary;
@@ -37,7 +42,11 @@
 
 @end
 
-@interface PBXDictionary : NSObject
+@interface PBXDictionary : NSObject {
+  PBXFile *pbxFile;
+  NSDictionary *rootObject;
+}
+
 @property(nonatomic, retain) PBXFile *pbxFile;
 @property(nonatomic, retain) NSDictionary *rootObject;
 
@@ -52,4 +61,3 @@
 - (id)objectForKey:(NSString *)key;
 
 @end
-

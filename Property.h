@@ -30,7 +30,11 @@
 
 NSComparator propertySortBlock;
 
-@interface Property : NSObject
+@interface Property : NSObject {
+  NSString *name;
+  NSString *path;
+}
+
 @property(nonatomic, retain) NSString *name;
 @property(nonatomic, retain) NSString *path;
 

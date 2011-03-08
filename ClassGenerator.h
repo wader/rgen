@@ -26,16 +26,27 @@
 
 #import <Foundation/Foundation.h>
 
-@interface IndentLine : NSObject
+@interface IndentLine : NSObject {
+  NSUInteger indent;
+  NSString *text;
+}
+
 @property(nonatomic, assign) NSUInteger indent;
 @property(nonatomic, retain) NSString *text;
 @end
 
-@interface IndentedLines : NSObject
+@interface IndentedLines : NSObject {
+  NSMutableArray *indentedLines;
+}
+
 @property(nonatomic, retain) NSMutableArray *indentedLines;
 @end
 
-@interface ClassMethod : NSObject
+@interface ClassMethod : NSObject {
+  NSString *signature;
+  IndentedLines *lines;
+}
+
 @property(nonatomic, retain) NSString *signature;
 @property(nonatomic, retain) IndentedLines *lines;
 
@@ -43,7 +54,16 @@
 - (void)addLineIndent:(NSUInteger)aIndent format:(NSString *)format, ...;
 @end
 
-@interface ClassGenerator : NSObject
+@interface ClassGenerator : NSObject {
+  NSString *className;
+  NSString *inheritClassName;
+  NSMutableDictionary *variables;
+  NSMutableDictionary *properties;
+  NSMutableDictionary *declarations;
+  NSMutableDictionary *synthesizes;
+  NSMutableDictionary *methods;
+}
+
 @property(nonatomic, retain) NSString *className;
 @property(nonatomic, retain) NSString *inheritClassName;
 @property(nonatomic, retain) NSMutableDictionary *variables;

@@ -29,7 +29,19 @@
 @interface ResourcesGeneratorException : NSException
 @end
 
-@interface ResourcesGenerator : NSObject
+@interface ResourcesGenerator : NSObject {
+  BOOL optionGenerateImages;
+  BOOL optionGeneratePaths;
+  BOOL optionLoadImages;
+  BOOL optionIpadImageSuffx;
+  BOOL optionIpad2xImageSuffx;
+  
+@private
+  XCodeProj *xcodeProj;
+  ImagesProperty *imagesRoot;
+  PathsProperty *pathsRoot;
+}
+
 @property(nonatomic, assign) BOOL optionGenerateImages;
 @property(nonatomic, assign) BOOL optionGeneratePaths;
 @property(nonatomic, assign) BOOL optionLoadImages;

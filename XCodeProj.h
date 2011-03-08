@@ -30,7 +30,15 @@
 @interface XCodeProjException : NSException
 @end
 
-@interface XCodeProj : NSObject
+@interface XCodeProj : NSObject {
+  PBXFile *pbxFile;
+  NSString *sourceRoot;
+  NSString *buildProductDir;
+  NSString *developerDir;
+  NSString *sdkRoot;
+  NSDictionary *sourceTrees;
+}
+
 @property(nonatomic, retain) PBXFile *pbxFile;
 @property(nonatomic, retain) NSString *sourceRoot;
 @property(nonatomic, retain) NSString *buildProductDir;

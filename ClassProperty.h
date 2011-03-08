@@ -29,8 +29,12 @@
 #import "Property.h"
 
 @class ClassProperty;
+@interface ClassProperty : Property {
+  NSString *className;
+  ClassProperty *parent;
+  NSMutableDictionary *properties;
+}
 
-@interface ClassProperty : Property
 @property(nonatomic, retain) NSString *className;
 @property(nonatomic, assign) ClassProperty *parent;
 @property(nonatomic, retain) NSMutableDictionary *properties;
