@@ -31,6 +31,13 @@
 
 BOOL verbose = NO;
 
+void fprintf_nsstring(FILE *stream, NSString *format, va_list va) {
+  fprintf(stream, "%s\n",
+	  [[[[NSString alloc] initWithFormat:format arguments:va]
+	    autorelease]
+	   cStringUsingEncoding:NSUTF8StringEncoding]);
+}
+
 void trace(NSString *format, ...) {
   if (!verbose) {
     return;
@@ -38,10 +45,14 @@ void trace(NSString *format, ...) {
   
   va_list va;
   va_start(va, format);
-  fprintf(stdout, "%s\n",
-	  [[[[NSString alloc] initWithFormat:format arguments:va]
-	    autorelease]
-	   cStringUsingEncoding:NSUTF8StringEncoding]);
+  fprintf_nsstring(stdout, format, va);
+  va_end(va);
+}
+
+void error(NSString *format, ...) {
+  va_list va;
+  va_start(va, format);
+  fprintf_nsstring(stderr, [@"error: " stringByAppendingString:format], va);
   va_end(va);
 }
 
@@ -107,7 +118,7 @@ int main(int argc,  char *const argv[]) {
   }
   
   if (!(generateImages || generatePaths)) {
-    fprintf(stderr, "error: Please specify at least -I or -P\n");
+    error(@"Please specify at least -I or -P");
     return EXIT_FAILURE;
   }
   
@@ -146,8 +157,7 @@ int main(int argc,  char *const argv[]) {
 	       className:className
 	       forTarget:targetName];
   } @catch (ResourcesGeneratorException *e) {
-    fprintf(stderr, "error: %s\n",
-	    [[e reason] cStringUsingEncoding:NSUTF8StringEncoding]);
+    error([e reason]);
     return EXIT_FAILURE;
   }
   
