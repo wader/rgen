@@ -37,8 +37,18 @@
 
 - (NSString *)implementationProlog:(ResourcesGenerator *)generator {
   NSMutableString *s = [NSMutableString string];
-  
+  NSMutableArray *ipadSuffixes = [NSMutableArray array];
   if (generator.optionIpadImageSuffx) {
+    [ipadSuffixes addObject:@"@ipad"];
+  }
+  if (generator.optionIpad2xImageSuffx) {
+    [ipadSuffixes addObject:@"@2x"];
+  }
+  
+  ClassMethod *iMethod = [[[ClassMethod alloc] 
+			   initWithSignature:@"static UIImage *i(NSString *path)"]
+			  autorelease];
+  if ([ipadSuffixes count] > 0) {
     ClassMethod *isIpadMethod = [[[ClassMethod alloc] 
 				  initWithSignature:@"static BOOL isPad()"]
 				 autorelease];
@@ -47,20 +57,25 @@
     [isIpadMethod addLineIndent:0 format:@"#else"];
     [isIpadMethod addLineIndent:1 format:@"return NO;"];
     [isIpadMethod addLineIndent:0 format:@"#endif"];
-    
     [s appendFormat:@"%@\n", isIpadMethod];
-  }
-  
-  ClassMethod *iMethod = [[[ClassMethod alloc] 
-			   initWithSignature:@"static UIImage *i(NSString *path)"]
-			  autorelease];
-  if (generator.optionIpadImageSuffx) {
+    
     [iMethod addLineIndent:1 format:@"if (isPad()) {"];
+    [iMethod addLineIndent:2 format:@"static NSArray *suffixes = nil;"];
+    [iMethod addLineIndent:2 format:@"if (suffixes == nil) {"];
+    
+    NSMutableString *arrayString = [NSMutableString string];
+    for (NSString *suffix in ipadSuffixes) {
+      [arrayString appendFormat:@"@\"%@\", ", suffix];
+    }
+    [arrayString appendString:@"nil"];
+    [iMethod addLineIndent:3 format:
+     @"suffixes = [NSArray arrayWithObjects:%@];",
+     arrayString];
+    
+    [iMethod addLineIndent:2 format:@"}"];
     [iMethod addLineIndent:2 format:@"NSString *prefix = [path stringByDeletingPathExtension];"];
     [iMethod addLineIndent:2 format:@"NSString *ext = [path pathExtension];"];
-    [iMethod addLineIndent:2 format:
-     @"for (NSString *suffix in [NSArray arrayWithObjects:%@, nil]) {",
-     generator.optionIpad2xImageSuffx ? @"@\"@ipad\", @\"@2x\"" : @"@\"@ipad\""];
+    [iMethod addLineIndent:2 format:@"for (NSString *suffix in suffixes) {"];
     [iMethod addLineIndent:3 format:@"UIImage *image = [UIImage imageNamed:[[prefix stringByAppendingString:suffix] stringByAppendingPathExtension:ext]];"];
     [iMethod addLineIndent:3 format:@"if (image != nil) {"];
     [iMethod addLineIndent:4 format:@"return image;"];
