@@ -1,12 +1,12 @@
-TODO:
+ivars, synthz... whats needed?
 image types (from project file?)
 paths, add smart ones?
 double loadImages?
 class name collisions
 try rebase history
 NSImage, OSXify
-lproj, keys? PBXVariantGroup and via file refs
-user xcode settgin RGEN variable? shared project file
+S for strings, lproj, keys? PBXVariantGroup and via file refs
+user xcode setting RGEN variable? shared project file
 xcode error/warning file:line: warning|error: blabla
 skip init for leaf classes
 fake suffix stripped path for paths
