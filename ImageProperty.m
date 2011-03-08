@@ -38,9 +38,6 @@
    self.name,
    self.path];
   
-  [classGenerator addSynthesizerName:self.name
-				line:@"@synthesize %@;", self.name];
-  
   ClassMethod *method = [classGenerator
 			 addMethodName:self.name
 			 declaration:NO
