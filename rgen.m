@@ -65,7 +65,7 @@ int main(int argc,  char *const argv[]) {
   };
   
   int c;
-  while ((c = getopt_long(argc, argv, "vIP", longopts, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "IPv", longopts, NULL)) != -1) {
     switch (c) {
       case 'v':
 	verbose = YES;
@@ -94,7 +94,7 @@ int main(int argc,  char *const argv[]) {
   argv += optind;
   
   if (argc < 1) {
-    printf("Usage: %s [-vIP] xcodeproject [Output path] [Target name]\n"
+    printf("Usage: %s [-IPv] xcodeproject [Output path] [Target name]\n"
 	   "  -I, --images     Generate I images property tree\n"
 	   "  -P, --paths      Generate P paths property tree\n"
 	   "  --loadimages     Generate loadImages/releaseImages methods\n"
