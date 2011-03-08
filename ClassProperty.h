@@ -58,5 +58,8 @@
 				   ClassProperty *classProperty))block;
 - (void)pruneEmptyClasses;
 - (ClassProperty *)lookupPropertyPathFromDir:(NSArray *)dirComponents;
+- (void)forEachPropertyOfClass:(Class)cls
+			 block:(void (^)(Property *property))block;
+- (NSUInteger)countPropertiesOfClass:(Class)cls;
 
 @end

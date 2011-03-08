@@ -103,40 +103,42 @@
      format:@"I = [[%@ alloc] init];", self.className];
   }
   
-  ClassMethod *initMethod = [classGenerator addMethodName:@"1init"
-					      declaration:NO
-						signature:@"- (id)init"];
-  [initMethod addLineIndent:1 format:@"self = [super init];"];
-  for(ImagesProperty *imagesProperty in [self.properties allValues]) {
-    if (![imagesProperty isKindOfClass:[ImagesProperty class]]) {
-      continue;
-    }
+  if ([self countPropertiesOfClass:[self class]] > 0) {
+    ClassMethod *initMethod = [classGenerator addMethodName:@"1init"
+						declaration:NO
+						  signature:@"- (id)init"];
+    [initMethod addLineIndent:1 format:@"self = [super init];"];
     
-    [classGenerator
-     addVariableName:imagesProperty.name
-     line:@"%@ *%@;",
-     imagesProperty.className,
-     imagesProperty.name];
+    [self forEachPropertyOfClass:[self class] block:^(Property *property) {
+      ImagesProperty *imagesProperty = (ImagesProperty *)property;
+      
+      [classGenerator
+       addVariableName:imagesProperty.name
+       line:@"%@ *%@;",
+       imagesProperty.className,
+       imagesProperty.name];
+      
+      [classGenerator
+       addPropertyName:imagesProperty.name
+       line:@"@property(nonatomic, readonly) %@ *%@; // %@",
+       imagesProperty.className,
+       imagesProperty.name,
+       imagesProperty.path];
+      
+      [classGenerator
+       addSynthesizerName:imagesProperty.name
+       line:@"@synthesize %@;",
+       imagesProperty.name];
+      
+      [initMethod
+       addLineIndent:1
+       format:@"self->%@ = [[%@ alloc] init];",
+       imagesProperty.name,
+       imagesProperty.className];
+    }];
     
-    [classGenerator
-     addPropertyName:imagesProperty.name
-     line:@"@property(nonatomic, readonly) %@ *%@; // %@",
-     imagesProperty.className,
-     imagesProperty.name,
-     imagesProperty.path];
-    
-    [classGenerator
-     addSynthesizerName:imagesProperty.name
-     line:@"@synthesize %@;",
-     imagesProperty.name];
-    
-    [initMethod
-     addLineIndent:1
-     format:@"self->%@ = [[%@ alloc] init];",
-     imagesProperty.name,
-     imagesProperty.className];
+    [initMethod addLineIndent:1 format:@"return self;"];
   }
-  [initMethod addLineIndent:1 format:@"return self;"];
   
   if (generator.optionLoadImages) {
     ClassMethod *loadImagesMethod = [classGenerator
@@ -185,13 +187,9 @@
     }
   }
   
-  for(ImageProperty *imageProperty in [self.properties allValues]) {
-    if (![imageProperty isKindOfClass:[ImageProperty class]]) {
-      continue;
-    }
-    
-    [imageProperty generate:classGenerator generator:generator];
-  }
+  [self forEachPropertyOfClass:[ImageProperty class] block:^(Property *property) {
+    [((ImageProperty *)property) generate:classGenerator generator:generator];
+  }];
 }
 
 @end

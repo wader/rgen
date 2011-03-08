@@ -103,12 +103,12 @@
      format:@"P = [[%@ alloc] init];", self.className];
   }
   
-  ClassMethod *initMethod = [classGenerator addMethodName:@"1init"
-					      declaration:NO
-						signature:@"- (id)init"];
-  [initMethod addLineIndent:1 format:@"self = [super init];"];
-  for(Property *property in [self.properties allValues]) {
-    if ([property isKindOfClass:[PathsProperty class]]) {
+  if ([self countPropertiesOfClass:[self class]] > 0) {
+    ClassMethod *initMethod = [classGenerator addMethodName:@"1init"
+						declaration:NO
+						  signature:@"- (id)init"];
+    [initMethod addLineIndent:1 format:@"self = [super init];"];
+    [self forEachPropertyOfClass:[PathsProperty class] block:^(Property *property) {
       PathsProperty *pathsProperty = (PathsProperty *)property;
       
       [classGenerator
@@ -134,20 +134,22 @@
        format:@"self->%@ = [[%@ alloc] init];",
        pathsProperty.name,
        pathsProperty.className];
-    } else {
-      [property generate:classGenerator generator:generator];
-    }
-  }
-  [initMethod addLineIndent:1 format:@"return self;"];
+    }];
+    [initMethod addLineIndent:1 format:@"return self;"];
+  };
   
   ClassMethod *descriptionMethod = [classGenerator
-				    addMethodName:@"1description"
+				    addMethodName:@"3description"
 				    declaration:NO
 				    signature:@"- (NSString *)description"];  
   [descriptionMethod
    addLineIndent:1
    format:@"return p(@\"%@\");",
    [self.path escapeCString]];
+  
+  [self forEachPropertyOfClass:[PathProperty class] block:^(Property *property) {
+    [((PathProperty *)property) generate:classGenerator generator:generator];
+  }];
 }
 
 @end

@@ -163,6 +163,29 @@
 			 classNamePrefix:self.className];
 }
 
+- (void)forEachPropertyOfClass:(Class)cls
+			 block:(void (^)(Property *property))block {
+  for (Property *property in [self.properties allValues]) {
+    if (![property isKindOfClass:cls]) {
+      continue;
+    }
+    
+    block(property);
+  }  
+}
+
+- (NSUInteger)countPropertiesOfClass:(Class)cls {
+  NSUInteger i = 0;
+  
+  for (Property *property in [self.properties allValues]) {
+    if ([property isKindOfClass:cls]) {
+      i++;
+    }
+  }
+  
+  return i;
+}
+
 - (void)dealloc {
   self.className = nil;
   self.parent = nil;
