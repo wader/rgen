@@ -1,3 +1,6 @@
+xcode plugin?
+autodetect build sdk for mac or iphoneos
+rename classmethdo to methodgenerator?
 ivars, synthz... whats needed?
 image types (from project file?)
 paths, add smart ones?
@@ -8,7 +11,6 @@ NSImage, OSXify
 S for strings, lproj, keys? PBXVariantGroup and via file refs
 user xcode setting RGEN variable? shared project file
 xcode error/warning file:line: warning|error: blabla
-skip init for leaf classes
 fake suffix stripped path for paths
 custome source tress (~/Library/Preferences/com.apple.Xcode.plist)
 
@@ -17,6 +19,9 @@ if which $RGEN > /dev/null; then
   $RGEN $PROJECT_FILE_PATH $SRCROOT/Classes/Resources
 fi
 
+DONE skip init for leaf classes
+DONE ivars for rgen self?
+DONE generat static arrauy for i function
 DONE verbose log, vert verbose log?
 NOPE Paths P (stinrg or url?)
 DONE P optional?
