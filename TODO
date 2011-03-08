@@ -1,0 +1,44 @@
+TODO:
+image types (from project file?)
+paths, add smart ones?
+double loadImages?
+class name collisions
+try rebase history
+NSImage, OSXify
+lproj, keys? PBXVariantGroup and via file refs
+user xcode settgin RGEN variable? shared project file
+xcode error/warning file:line: warning|error: blabla
+skip init for leaf classes
+fake suffix stripped path for paths
+custome source tress (~/Library/Preferences/com.apple.Xcode.plist)
+
+RGEN=/Users/mattias/src/rgen/build/Debug/rgen
+if which $RGEN > /dev/null; then
+  $RGEN $PROJECT_FILE_PATH $SRCROOT/Classes/Resources
+fi
+
+DONE verbose log, vert verbose log?
+NOPE Paths P (stinrg or url?)
+DONE P optional?
+DONE refactor Paths code, smart generated code
+DONE @ipad image load method
+DONE target nil, error?
+DONE generate less code : ? and stuff?
+DONE exit with error on conflicts?
+DONE rgen .. ... || true
+DONE recursive loadImages
+DONE output filename
+DONE sorted output, makes diffs nicer
+NOPE preLoadImages (via path?)
+NOPE $(SRCROOT)/Classes/Resources.h/m $(PROJECT_FILE_PATH) (does not work with updated folders)
+NOPE depend on projectfile mtime?
+DONE generate h/m per target (argument?)
+DONE var starts with char
+DONE generated from, relative path (so its not changed against scm)
+DONE comment outputcode (path refrences etc)
+DONE sanetize/normalize variable names
+DONE move recurse etc to own class
+DONE move prune to own class too
+DONE error checks
+NOPE run script varaibles.. target? one run script per target anyway
+
