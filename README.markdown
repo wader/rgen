@@ -76,7 +76,8 @@ a <code>@ipad</code> image has priority.
 ### Xcode build run script
 
 Add a "New run script build phase" with a script like this. <code>which</code> is used
-to make sure a user can build without rgen is installed.
+to make sure a user can build without rgen is installed. Also
+<code>$PROJECT_FILE_PATH</code> and <code>$SRCROOT</code> will be assigned by Xcode.
 
 	RGEN=/path/to/rgen
 	which -s $RGEN && $RGEN -IPS $PROJECT_FILE_PATH $SRCROOT/Classes/Resources
@@ -90,7 +91,7 @@ to your project and your done.
 
 To make thing even smoother you can add <code>#import "Resources.h"</code> to
 your <code>_Prefix.pch</code> file. rgen makes sure to not touch the generated
-files is no changes has happend since last run to not trigger unnecessary
+files if no changes has happend since last run to not trigger unnecessary
 rebuilds.
 
 ### Manual run from terminal
