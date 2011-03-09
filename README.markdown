@@ -11,7 +11,7 @@ instead of this
 
 	imageView.image = [UIImage imageNamed:@"images/cute-seal.png"]
 
-Specify resource paths like this
+Specify resource paths (even directory paths!) like this
 
 	[NSDictionary dictionaryWithContentsOfFile:P.files.dogsPlist]
 
@@ -115,6 +115,8 @@ keys found for target <code>TargetA</code>
 *  Read other .strings files then just Localizable.strings
 *  Detect class name collisions
 *  Support document paths somehow. Specify list of known paths etc
+*  Rebuild dependencies seams to be calculated before starting build
+   so you might need to build twice to use updated resources files
 *  Xcode plugin?
 *  RGEN path as user setting for shared project files. Make sure rgen is in path or
 use .xcconfig files? 
