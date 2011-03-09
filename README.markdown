@@ -1,5 +1,6 @@
 # rgen
-Resource code generator for iOS inspired by Android resource handling.
+
+Resource code generator for iOS development inspired by the resource handling for Android.
 
 <code>rgen</code> makes it possible to:
 
@@ -11,7 +12,7 @@ instead of this
 
 	imageView.image = [UIImage imageNamed:@"images/cute-seal.png"];
 
-Specify resource paths (even directory paths!) like this
+Specify resource paths to files and directories like this
 
 	[NSDictionary dictionaryWithContentsOfFile:P.files.dogsPlist];
 
@@ -23,11 +24,11 @@ instead of this
 
 And get localization string keys like this
 
-        NSLocalizedString(S.cats, nil)
+	NSLocalizedString(S.cats, nil)
 
 instead of this
 
-        NSLocalizedString(@"cats", nil)
+	NSLocalizedString(@"cats", nil)
 
 This is very nice for several reasons
 
@@ -35,6 +36,18 @@ This is very nice for several reasons
    files and string keys.
 *  Code completion
 *  Less and nicer looking code
+
+## Install
+
+Compile from source:
+
+	$ git clone git://github.com/wader/rgen.git
+	$ cd rgen
+	$ xcodebuild
+	$ cp build/Release/rgen /to/somewhere
+
+If don't want to compile there is a binary for download compiled for i386
+and Mac OS X 10.6.
 
 ## Usage
 
@@ -60,8 +73,8 @@ the different resources. At least one must be enabled.
 
 <code>--imageimages</code> generates two methods <code>loadImages</code> and
 <code>releaseImages</code> for each image directory. <code>loadimages</code>
-can be used to preload all images in a dirctory and below.
-<code>releaseImages</code> does the opposite.
+can be used to load and retin all images in a dirctory and below.
+<code>releaseImages</code> does the opposite by releasing them.
 
 <code>--ipad</code> generates image loading code that will extend the normal
 <code>@2x</code> suffix to also load <code>@ipad</code> images if found on
@@ -75,30 +88,33 @@ a <code>@ipad</code> image has priority.
 
 ### Xcode build run script
 
-Add a "New run script build phase" with a script like this. <code>which</code> is used
-to make sure a user can build without rgen is installed. Also
-<code>$PROJECT_FILE_PATH</code> and <code>$SRCROOT</code> will be assigned by Xcode.
+Add a "New run script build phase" to your target and make sure the phase it
+is dirctly after the "Copy Bundle Resources" phase for best result.
+
+The run script should look something like the one below. <code>which</code> is
+used to make sure a user can build without <code>rgen</code> is installed.
+<code>$PROJECT_FILE_PATH</code> and <code>$SRCROOT</code> will be assigned
+by Xcode.
 
 	RGEN=/path/to/rgen
 	which -s $RGEN && $RGEN -IPS $PROJECT_FILE_PATH $SRCROOT/Classes/Resources
 
-Place the new "Run Script" phase dirctly after the "Copy Bundle Resources" phase
-for best result.
+Now build the target and two new files, in this case
+<code>Classes/Resources.m</code> and <code>Classes/Resources.h</code> will be
+created. Add these as source files to your project and then import
+<code>Resources.h</code> where you want access to the resouces classes.
+Then and your good to go!
 
-Now build and two new files <code>Classes/Resources.m</code> and
-<code>Classes/Resources.h</code> are created. Add these as existing files
-to your project and your done. 
+To make thing even smoother you can add a <code>#import "Resources.h"</code> line
+to your <code>*_Prefix.pch</code> file. <code>rgen</code> makes sure not to touch
+the generated files if nothing has changed since last run to not trigger
+unnecessary rebuilds.
 
-To make thing even smoother you can add <code>#import "Resources.h"</code> to
-your <code>_Prefix.pch</code> file. rgen makes sure to not touch the generated
-files if no changes has happend since last run to not trigger unnecessary
-rebuilds.
+### Run from terminal
 
-### Manual run from terminal
-
-Should work fine as long as your project does not have weird paths. rgen uses
-various exported environment variables when running as a build script but
-fallbacks to guessing paths based on project path if not found.
+Should work fine as long as your project does not have weird source trees paths.
+rgen uses various exported environment variables when running in a build script
+but can fallback to guessing paths based on project path.
 
 Example:
 <code>rgen -IPS path/to/app.xcodeproj path/to/Classes/ResourcesTargetA TargetA</code>
