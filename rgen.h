@@ -1,4 +1,5 @@
 /*
+ * rgen - Resource code generator for iOS
  *
  * Copyright (c) 2011 <mattias.wadman@gmail.com>
  *
