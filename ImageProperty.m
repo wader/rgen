@@ -1,5 +1,5 @@
 /*
- * ImageProperty.m, concrete image property
+ * ImageProperty.m, image property
  *
  * Copyright (c) 2011 <mattias.wadman@gmail.com>
  *

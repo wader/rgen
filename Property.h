@@ -1,5 +1,5 @@
 /*
- * Property.h, abstract common property class
+ * Property.h, common property class
  *
  * Copyright (c) 2011 <mattias.wadman@gmail.com>
  *

@@ -1,5 +1,5 @@
 /*
- * PathProperty.h, concrete file path property
+ * PathProperty.h, file path property
  *
  * Copyright (c) 2011 <mattias.wadman@gmail.com>
  *

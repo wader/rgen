@@ -1,5 +1,5 @@
 /*
- * ImageProperty.h, concrete image property
+ * ImageProperty.h, image property
  *
  * Copyright (c) 2011 <mattias.wadman@gmail.com>
  *

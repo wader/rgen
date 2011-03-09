@@ -1,5 +1,5 @@
 /*
- * PathProperty.m, concrete file path property
+ * PathProperty.m, file path property
  *
  * Copyright (c) 2011 <mattias.wadman@gmail.com>
  *

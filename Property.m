@@ -1,5 +1,5 @@
 /*
- * Property.m, abstract class representing a property
+ * Property.m, class representing a property
  *
  * Copyright (c) 2011 <mattias.wadman@gmail.com>
  *
