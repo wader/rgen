@@ -39,10 +39,10 @@
    self.name,
    self.path];
   
-  ClassMethod *method = [classGenerator
-			 addMethodName:self.name
-			 declaration:NO
-			 signature:@"- (UIImage *)%@", self.name];
+  MethodGenerator *method = [classGenerator
+			     addMethodName:self.name
+			     declaration:NO
+			     signature:@"- (UIImage *)%@", self.name];
   if (generator.optionLoadImages) {
     [classGenerator
      addVariableName:self.name

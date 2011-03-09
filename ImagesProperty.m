@@ -46,13 +46,13 @@
     [ipadSuffixes addObject:@"@2x"];
   }
   
-  ClassMethod *iMethod = [[[ClassMethod alloc] 
-			   initWithSignature:@"static UIImage *i(NSString *path)"]
-			  autorelease];
+  MethodGenerator *iMethod = [[[MethodGenerator alloc] 
+			       initWithSignature:@"static UIImage *i(NSString *path)"]
+			      autorelease];
   if ([ipadSuffixes count] > 0) {
-    ClassMethod *isIpadMethod = [[[ClassMethod alloc] 
-				  initWithSignature:@"static BOOL isPad()"]
-				 autorelease];
+    MethodGenerator *isIpadMethod = [[[MethodGenerator alloc] 
+				      initWithSignature:@"static BOOL isPad()"]
+				     autorelease];
     [isIpadMethod addLineIndent:0 format:@"#ifdef UI_USER_INTERFACE_IDIOM"];
     [isIpadMethod addLineIndent:1 format:@"return (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad);"];
     [isIpadMethod addLineIndent:0 format:@"#else"];
@@ -95,18 +95,18 @@
 - (void)generate:(ClassGenerator *)classGenerator
        generator:(ResourcesGenerator *)generator {
   if (self.parent == nil) {
-    ClassMethod *loadMethod = [classGenerator addMethodName:@"0load"
-						declaration:NO
-						  signature:@"+ (void)load"];
+    MethodGenerator *loadMethod = [classGenerator addMethodName:@"0load"
+						    declaration:NO
+						      signature:@"+ (void)load"];
     [loadMethod
      addLineIndent:1
      format:@"I = [[%@ alloc] init];", self.className];
   }
   
   if ([self countPropertiesOfClass:[self class]] > 0) {
-    ClassMethod *initMethod = [classGenerator addMethodName:@"1init"
-						declaration:NO
-						  signature:@"- (id)init"];
+    MethodGenerator *initMethod = [classGenerator addMethodName:@"1init"
+						    declaration:NO
+						      signature:@"- (id)init"];
     [initMethod addLineIndent:1 format:@"self = [super init];"];
     
     [self forEachPropertyOfClass:[self class] block:^(Property *property) {
@@ -141,10 +141,10 @@
   }
   
   if (generator.optionLoadImages) {
-    ClassMethod *loadImagesMethod = [classGenerator
-				     addMethodName:@"loadImages"
-				     declaration:YES
-				     signature:@"- (void)loadImages"];
+    MethodGenerator *loadImagesMethod = [classGenerator
+					 addMethodName:@"loadImages"
+					 declaration:YES
+					 signature:@"- (void)loadImages"];
     for(Property *property in [self.properties allValues]) {
       if ([property isKindOfClass:[ImageProperty class]]) {
 	ImageProperty *imageProperty = (ImageProperty *)property;
@@ -162,10 +162,10 @@
       }
     }
     
-    ClassMethod *releaseImagesMethod = [classGenerator
-					addMethodName:@"releaseImages"
-					declaration:YES
-					signature:@"- (void)releaseImages"];
+    MethodGenerator *releaseImagesMethod = [classGenerator
+					    addMethodName:@"releaseImages"
+					    declaration:YES
+					    signature:@"- (void)releaseImages"];
     for(Property *property in [self.properties allValues]) {
       if ([property isKindOfClass:[ImageProperty class]]) {
 	ImageProperty *imageProperty = (ImageProperty *)property;

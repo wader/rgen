@@ -42,7 +42,7 @@
 @property(nonatomic, retain) NSMutableArray *indentedLines;
 @end
 
-@interface ClassMethod : NSObject {
+@interface MethodGenerator : NSObject {
   NSString *signature;
   IndentedLines *lines;
 }
@@ -83,9 +83,9 @@
 		      line:(NSString *)aFormatLine, ...;
 - (void)addSynthesizerName:(NSString *)aName
 		      line:(NSString *)aFormatLine, ...;
-- (ClassMethod *)addMethodName:(NSString *)aName
-		   declaration:(BOOL)declaration
-		     signature:(NSString *)aFormatSignature, ...;
+- (MethodGenerator *)addMethodName:(NSString *)aName
+		       declaration:(BOOL)declaration
+			 signature:(NSString *)aFormatSignature, ...;
 
 - (NSString *)header;
 - (NSString *)implementation;

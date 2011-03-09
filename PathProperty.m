@@ -38,10 +38,10 @@
    self.name,
    self.path];
   
-  ClassMethod *method = [classGenerator
-			 addMethodName:self.name
-			 declaration:NO
-			 signature:@"- (NSString *)%@", self.name];
+  MethodGenerator *method = [classGenerator
+			     addMethodName:self.name
+			     declaration:NO
+			     signature:@"- (NSString *)%@", self.name];
   [method
    addLineIndent:1
    format:

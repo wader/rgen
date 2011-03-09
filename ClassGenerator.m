@@ -75,7 +75,7 @@ static NSString *const oneIndent = @"  ";
 
 @end
 
-@implementation ClassMethod
+@implementation MethodGenerator
 @synthesize signature;
 @synthesize lines;
 
@@ -197,9 +197,9 @@ static NSString *const oneIndent = @"  ";
   va_end(va);
 }
 
-- (ClassMethod *)addMethodName:(NSString *)aName
-		   declaration:(BOOL)declaration
-		     signature:(NSString *)aFormatSignature, ... {
+- (MethodGenerator *)addMethodName:(NSString *)aName
+		       declaration:(BOOL)declaration
+			 signature:(NSString *)aFormatSignature, ... {
   va_list va;
   va_start(va, aFormatSignature);
   NSString *signature = [[[NSString alloc]
@@ -208,8 +208,8 @@ static NSString *const oneIndent = @"  ";
 			 autorelease];
   va_end(va);
   
-  ClassMethod *method = [[[ClassMethod alloc] initWithSignature:signature]
-			 autorelease];
+  MethodGenerator *method = [[[MethodGenerator alloc] initWithSignature:signature]
+			     autorelease];
   [self.methods setObject:method forKey:aName];
   
   if (declaration) {
@@ -276,7 +276,7 @@ static NSString *const oneIndent = @"  ";
   if ([self.methods count] > 0) {
     for(id key in [[self.methods allKeys]
 		   sortedArrayUsingSelector:@selector(compare:)]) {
-      ClassMethod *method = [self.methods objectForKey:key];
+      MethodGenerator *method = [self.methods objectForKey:key];
       [s appendFormat:@"%@\n", method];
     }
   }

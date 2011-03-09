@@ -41,17 +41,17 @@
 - (void)generate:(ClassGenerator *)classGenerator
        generator:(ResourcesGenerator *)generator {
   if (self.parent == nil) {
-    ClassMethod *loadMethod = [classGenerator addMethodName:@"0load"
-						declaration:NO
-						  signature:@"+ (void)load"];
+    MethodGenerator *loadMethod = [classGenerator addMethodName:@"0load"
+						    declaration:NO
+						      signature:@"+ (void)load"];
     [loadMethod
      addLineIndent:1
      format:@"S = [[%@ alloc] init];", self.className];
   }
   
-  ClassMethod *initMethod = [classGenerator addMethodName:@"1init"
-					      declaration:NO
-						signature:@"- (id)init"];
+  MethodGenerator *initMethod = [classGenerator addMethodName:@"1init"
+						  declaration:NO
+						    signature:@"- (id)init"];
   for (Property *property in [self.properties allValues]) {
     [classGenerator
      addVariableName:property.name

@@ -68,9 +68,9 @@
 }
 
 - (NSString *)implementationProlog:(ResourcesGenerator *)generator {
-  ClassMethod *pMethod = [[[ClassMethod alloc] 
-			   initWithSignature:@"static NSString *p(NSString *path)"]
-			  autorelease];
+  MethodGenerator *pMethod = [[[MethodGenerator alloc] 
+			       initWithSignature:@"static NSString *p(NSString *path)"]
+			      autorelease];
   [pMethod addLineIndent:1 format:@"static NSString *resourcePath = nil;"];
   [pMethod addLineIndent:1 format:@"if (resourcePath == nil) {"];
   [pMethod addLineIndent:2 format:@"resourcePath = [[[NSBundle mainBundle] resourcePath] retain];"];
@@ -95,18 +95,18 @@
 - (void)generate:(ClassGenerator *)classGenerator
        generator:(ResourcesGenerator *)generator {
   if (self.parent == nil) {
-    ClassMethod *loadMethod = [classGenerator addMethodName:@"0load"
-						declaration:NO
-						  signature:@"+ (void)load"];
+    MethodGenerator *loadMethod = [classGenerator addMethodName:@"0load"
+						    declaration:NO
+						      signature:@"+ (void)load"];
     [loadMethod
      addLineIndent:1
      format:@"P = [[%@ alloc] init];", self.className];
   }
   
   if ([self countPropertiesOfClass:[self class]] > 0) {
-    ClassMethod *initMethod = [classGenerator addMethodName:@"1init"
-						declaration:NO
-						  signature:@"- (id)init"];
+    MethodGenerator *initMethod = [classGenerator addMethodName:@"1init"
+						    declaration:NO
+						      signature:@"- (id)init"];
     [initMethod addLineIndent:1 format:@"self = [super init];"];
     [self forEachPropertyOfClass:[PathsProperty class] block:^(Property *property) {
       PathsProperty *pathsProperty = (PathsProperty *)property;
@@ -138,10 +138,10 @@
     [initMethod addLineIndent:1 format:@"return self;"];
   };
   
-  ClassMethod *descriptionMethod = [classGenerator
-				    addMethodName:@"3description"
-				    declaration:NO
-				    signature:@"- (NSString *)description"];  
+  MethodGenerator *descriptionMethod = [classGenerator
+					addMethodName:@"3description"
+					declaration:NO
+					signature:@"- (NSString *)description"];  
   [descriptionMethod
    addLineIndent:1
    format:@"return p(@\"%@\");",
