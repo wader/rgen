@@ -58,11 +58,22 @@
     return nil;
   }
   
+  // setup source tree paths by first checking the environment then fallback
+  // to guessing based on project path
+  
   self.sourceRoot = [anEnvironment objectForKey:@"SOURCE_ROOT"];
   if (self.sourceRoot == nil) {
-    self.sourceRoot = [[self.pbxFile.pbxFilePath
-			stringByDeletingLastPathComponent]
-		       stringByDeletingLastPathComponent];
+    NSMutableArray *components = [NSMutableArray array];
+    if (![self.pbxFile.pbxFilePath isAbsolutePath]) {
+      [components addObject:[[NSFileManager defaultManager]
+			     currentDirectoryPath]];
+    }
+    [components addObject:[[self.pbxFile.pbxFilePath
+			    stringByDeletingLastPathComponent]
+			   stringByDeletingLastPathComponent]];
+    
+    self.sourceRoot = [[NSString pathWithComponents:components]
+		       stringByStandardizingPath];
   }
   
   self.buildProductDir = [anEnvironment
