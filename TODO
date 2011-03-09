@@ -1,4 +1,8 @@
 xcode plugin?
+target name per localizable strings
+other strings-files?
+document paths? static
+rgen should be after copy bundle resources?
 autodetect build sdk for mac or iphoneos
 rename classmethdo to methodgenerator?
 ivars, synthz... whats needed?
