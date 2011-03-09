@@ -5,15 +5,15 @@ Resource code generator for iOS inspired by Android resource handling.
 
 Load images like this
 
-	imageView.image = I.images.cuteSeal
+	imageView.image = I.images.cuteSeal;
 
 instead of this
 
-	imageView.image = [UIImage imageNamed:@"images/cute-seal.png"]
+	imageView.image = [UIImage imageNamed:@"images/cute-seal.png"];
 
 Specify resource paths (even directory paths!) like this
 
-	[NSDictionary dictionaryWithContentsOfFile:P.files.dogsPlist]
+	[NSDictionary dictionaryWithContentsOfFile:P.files.dogsPlist];
 
 instead of this
 
