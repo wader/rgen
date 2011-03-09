@@ -120,6 +120,10 @@
 - (void)addImage:(NSArray *)dirComponents 
 	    name:(NSString *)name
 	    path:(NSString *)path {
+  if (!self.optionGenerateImages) {
+    return;
+  }
+  
   NSString *propertyName = [name imagePropertyName:self.optionIpadImageSuffx];
   // strip image scale suffix
   NSString *normalizedPath = [path normalizeIOSPath:self.optionIpadImageSuffx];
@@ -164,6 +168,10 @@
 - (void)addPath:(NSArray *)dirComponents 
 	   name:(NSString *)name
 	   path:(NSString *)path {
+  if (!self.optionGeneratePaths) {
+    return;
+  }
+  
   NSString *propertyName = [name propertyName];
   
   ClassProperty *classProperty = [self.pathsRoot
@@ -197,6 +205,10 @@
 }
 
 - (void)addLocalizableStrings:(NSString *)path {
+  if (!self.optionGenerateStringKeys) {
+    return;
+  }
+  
   trace(@"Reading localizable strings file with path %@", path);
   
   // binary plist? (compiled via group reference)
@@ -318,6 +330,7 @@
 - (void)loadResourcesForTarget:(NSString *)targetName {
   __block BOOL targetFound = (targetName == nil);
   
+  // TODO: is not done per target currently
   [self.xcodeProj forEachGroupChild:^(NSString *groupPath, PBXDictionary *child) {
     NSString *childIsa = [child objectForKey:@"isa"];
     if (childIsa == nil || ![childIsa isKindOfClass:[NSString class]] ||
