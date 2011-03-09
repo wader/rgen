@@ -150,7 +150,9 @@
 	ImageProperty *imageProperty = (ImageProperty *)property;
 	[loadImagesMethod
 	 addLineIndent:1
-	 format:@"self->%@ = [i(@\"%@\") retain];",
+	 format:@"self->%@ = self->%@ != nil ? self->%@ : [i(@\"%@\") retain];",
+	 imageProperty.name,
+	 imageProperty.name,
 	 imageProperty.name,
 	 [imageProperty.path escapeCString]];
       } else if ([property isKindOfClass:[ImagesProperty class]]) {
