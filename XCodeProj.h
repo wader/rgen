@@ -50,10 +50,13 @@
        environment:(NSDictionary *)anEnvironment;
 - (NSString *)projectName;
 - (NSString *)absolutePath:(NSString *)path
-		sourceTree:(NSString *)sourceTree;
+		sourceTree:(NSString *)sourceTree
+		 groupPath:(NSString *)groupPath;
 - (void)forEachBuildResource:(void (^)(NSString *buildTargetName,
 				       PBXDictionary *fileRef))block;
 - (void)forEachBuildSetting:(void (^)(NSString *buildConfigurationName,
 				      NSDictionary *buildSettings))block;
+- (void)forEachGroupChild:(void (^)(NSString *groupPath,
+				    PBXDictionary *child))block;
 
 @end

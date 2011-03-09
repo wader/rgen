@@ -39,15 +39,15 @@
 @property(nonatomic, retain) XCodeProj *xcodeProj;
 @property(nonatomic, retain) ImagesProperty *imagesRoot;
 @property(nonatomic, retain) PathsProperty *pathsRoot;
+@property(nonatomic, retain) StringKeysProperty *stringKeysRoot;
 
-- (void)addPath:(NSArray *)dirComponents 
-	   name:(NSString *)name
-	   path:(NSString *)path;
 - (void)addImage:(NSArray *)dirComponents 
 	    name:(NSString *)name
 	    path:(NSString *)path;
-- (void)loadVariantGroup:(PBXDictionary *)fileRef
-	      targetName:(NSString *)targetName;
+- (void)addPath:(NSArray *)dirComponents 
+	   name:(NSString *)name
+	   path:(NSString *)path;
+- (void)addLocalizableStrings:(NSString *)path;
 - (void)loadFileReference:(PBXDictionary *)fileRef
 	       targetName:(NSString *)targetName;
 - (void)loadResourcesForTarget:(NSString *)targetName;
@@ -58,6 +58,7 @@
 @implementation ResourcesGenerator
 @synthesize optionGenerateImages;
 @synthesize optionGeneratePaths;
+@synthesize optionGenerateStringKeys;
 @synthesize optionLoadImages;
 @synthesize optionIpadImageSuffx;
 @synthesize optionIpad2xImageSuffx;
@@ -65,6 +66,7 @@
 @synthesize xcodeProj;
 @synthesize imagesRoot;
 @synthesize pathsRoot;
+@synthesize stringKeysRoot;
 
 - (id)initWithProjectFile:(NSString *)aPath {
   self = [super init];
@@ -93,6 +95,12 @@
 		     path:@""
 		     className:@"RGenPathsRoot"]
 		    autorelease];
+  self.stringKeysRoot = [[[StringKeysProperty alloc]
+			  initWithName:@""
+			  parent:nil
+			  path:@""
+			  className:@"RGenStringKeysRoot"]
+			 autorelease];
   
   return self;
 }
@@ -107,48 +115,6 @@
   va_start(va, format);
   [ResourcesGeneratorException raise:@"error" format:format arguments:va];
   va_end(va);
-}
-
-- (void)addPath:(NSArray *)dirComponents 
-	   name:(NSString *)name
-	   path:(NSString *)path {
-  NSString *propertyName = [name propertyName];
-  
-  ClassProperty *classProperty = [self.pathsRoot
-				  lookupPropertyPathFromDir:dirComponents];
-  if (![classProperty isKindOfClass:[PathsProperty class]]) {
-    [self raiseFormat:
-     @"Path property path name collision between path %@ and %@",
-     classProperty.path, path];
-  }
-  
-  Property *property = [classProperty.properties objectForKey:propertyName];
-  if (property != nil) {
-    if([path isEqualToString:property.path]) {
-      /*
-       NSLog(@"Ignoring duplicate for path %@", path);
-       */
-    } else {
-      [self raiseFormat:
-       @"Path Property name collision for %@ between paths %@ and %@",
-       propertyName, ((Property *)property).path, path];
-    }
-  } else {    
-    [classProperty.properties
-     setObject:[[[PathProperty alloc]
-		 initWithName:propertyName
-		 path:path]
-		autorelease]
-     forKey:propertyName];
-    /*
-     NSLog(@"Added image property name %@ for path %@",
-     propertyName, path);
-     */
-  }
-}
-
-- (void)addLproj:(NSString *)path {
-  NSLog(@"path=%@", path);
 }
 
 - (void)addImage:(NSArray *)dirComponents 
@@ -195,6 +161,74 @@
   }
 }
 
+- (void)addPath:(NSArray *)dirComponents 
+	   name:(NSString *)name
+	   path:(NSString *)path {
+  NSString *propertyName = [name propertyName];
+  
+  ClassProperty *classProperty = [self.pathsRoot
+				  lookupPropertyPathFromDir:dirComponents];
+  if (![classProperty isKindOfClass:[PathsProperty class]]) {
+    [self raiseFormat:
+     @"Path property path name collision between path %@ and %@",
+     classProperty.path, path];
+  }
+  
+  Property *property = [classProperty.properties objectForKey:propertyName];
+  if (property != nil) {
+    if([path isEqualToString:property.path]) {
+      trace(@"Ignoring duplicate resource for path %@", path);
+    } else {
+      [self raiseFormat:
+       @"Path Property name collision for %@ between paths %@ and %@",
+       propertyName, ((Property *)property).path, path];
+    }
+  } else {    
+    [classProperty.properties
+     setObject:[[[PathProperty alloc]
+		 initWithName:propertyName
+		 path:path]
+		autorelease]
+     forKey:propertyName];
+    
+    trace(@"Added path property name %@ for path %@",
+	  propertyName, path);
+  }
+}
+
+- (void)addLocalizableStrings:(NSString *)path {
+  trace(@"Reading localizable strings file with path %@", path);
+  
+  // binary plist? (compiled via group reference)
+  NSDictionary *strings = [NSDictionary dictionaryWithContentsOfFile:path];
+  if (strings == nil) {
+    // strings format? (string format via folder reference)
+    NSString *stringsData = [NSString stringWithContentsOfFile:path
+						      encoding:NSUTF8StringEncoding
+							 error:NULL];
+    if (stringsData != nil) {
+      strings = [stringsData propertyListFromStringsFileFormat];
+    }
+  }
+  
+  if (strings == nil) {
+    [self raiseFormat:@"Failed to read localizable strings file %@", path];
+  }
+  
+  for (NSString *key in [strings allKeys]) {
+    NSString *propertyName = [key propertyName];
+    
+    [self.stringKeysRoot.properties
+     setObject:[[[Property alloc] initWithName:propertyName
+					  path:key]
+		autorelease]
+     forKey:propertyName];
+    
+    trace(@"Added string key property name %@ for key \"%@\"",
+	  propertyName, key);
+  }
+}
+
 - (void)loadFileReference:(PBXDictionary *)fileRef
 	       targetName:(NSString *)targetName {
   NSString *lastKnownFileType = [fileRef objectForKey:@"lastKnownFileType"];
@@ -223,7 +257,7 @@
   }
   
   if ([lastKnownFileType isEqualToString:@"folder"]) {
-    trace(@"%@: Loading folder reference \"%@\" with absolute path %@",
+    trace(@"%@: Loading folder reference \"%@\" with path %@",
 	  targetName, name, absPath);
     
     NSArray *subpaths = [[NSFileManager defaultManager]
@@ -252,12 +286,11 @@
 				arrayByAddingObjectsFromArray:subpathComponents];
       
       if ([filename isEqualToString:@"Localizable.strings"]) {
-	[self addLproj:[NSString pathWithComponents:
-			[NSArray arrayWithObjects:
-			 absPath,
-			 subpath,
-			 nil
-			 ]]];
+	[self addLocalizableStrings:[NSString pathWithComponents:
+				     [NSArray arrayWithObjects:
+				      absPath,
+				      subpath,
+				      nil]]];
       } else {
 	[self addImage:dirComponents
 		  name:filename
@@ -282,50 +315,27 @@
   
 }
 
-- (void)loadVariantGroup:(PBXDictionary *)fileRef
-	      targetName:(NSString *)targetName {
-  
-  NSLog(@"fileRef=%@", fileRef.rootObject);
-  
-  NSArray *children = [fileRef refDictArrayForKey:@"children"];
-  if (children == nil) {
-    [self raiseFormat:
-     @"Failed to read children array for variant group", pName];
-  }
-  
-  for (PBXDictionary *variant in children) {
-    NSString *sourceTree = [variant objectForKey:@"sourceTree"];
-    NSString *path = [variant objectForKey:@"path"];
-    NSString *name = [variant objectForKey:@"name"];
-    
-    NSLog(@"%@", variant.rootObject);
-    
-    if (sourceTree == nil || path == nil) {
-      [self raiseFormat:
-       @"Missing keys for variable group fileRef sourceTree=%@ path=%@ name=%@",
-       sourceTree, path, name];
-    }
-    
-    NSString *prefixPath =  [self.xcodeProj absolutePath:name
-					      sourceTree:sourceTree];
-    if (prefixPath == nil) {
-      [self raiseFormat:
-       @"Could not resolve prefix path for name %@ source tree %@",
-       name, sourceTree];
-    }
-    
-    [self addLproj:[NSString pathWithComponents:
-		    [NSArray arrayWithObjects:
-		     [prefixPath stringByAppendingPathExtension:@"lproj"],
-		     path,
-		     nil]]];
-  }
-}
-
 - (void)loadResourcesForTarget:(NSString *)targetName {
   __block BOOL targetFound = (targetName == nil);
   
+  [self.xcodeProj forEachGroupChild:^(NSString *groupPath, PBXDictionary *child) {
+    NSString *childIsa = [child objectForKey:@"isa"];
+    if (childIsa == nil || ![childIsa isKindOfClass:[NSString class]] ||
+	![childIsa isEqualToString:@"PBXFileReference"]) {
+      return;
+    }
+    
+    NSString *path = [child objectForKey:@"path"];
+    if (path == nil || ![path isKindOfClass:[NSString class]] ||
+	![path isEqualToString:@"Localizable.strings"]) {
+      return;
+    }
+    
+    [self addLocalizableStrings:[groupPath stringByAppendingPathComponent:path]];
+  }];
+  
   /*
+   // TODO: autodetect sdk
    [self.xcodeProj forEachBuildSetting:^(NSString *buildConfigurationName,
    NSDictionary *buildSettings) {
    
@@ -344,8 +354,6 @@
       NSString *fileIsa = [fileRef objectForKey:@"isa"];
       if ([fileIsa isEqualToString:@"PBXFileReference"]) {
 	[self loadFileReference:fileRef targetName:buildTargetName];
-      } else if ([fileIsa isEqualToString:@"PBXVariantGroup"]) {
-	[self loadVariantGroup:fileRef targetName:buildTargetName];
       } else {
 	trace(@"%@: Ignoring fileRef with unknown isa %@", buildTargetName, fileIsa);
       }
@@ -371,9 +379,11 @@
   if (self.optionGenerateImages) {
     [classes addObject:self.imagesRoot];
   }
-  
   if (self.optionGeneratePaths) {
     [classes addObject:self.pathsRoot];
+  }
+  if (self.optionGenerateStringKeys) {
+    [classes addObject:self.stringKeysRoot];
   }
   
   [self loadResourcesForTarget:targetName];
@@ -471,6 +481,7 @@
   self.xcodeProj = nil;
   self.imagesRoot = nil;
   self.pathsRoot = nil;
+  self.stringKeysRoot = nil;
   
   [super dealloc];
 }

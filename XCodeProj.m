@@ -227,6 +227,50 @@
   }
 }
 
+- (void)forEachGroupChild:(PBXDictionary *)group
+		groupPath:(NSString *)groupPath
+		    block:(void (^)(NSString *groupPath,
+				    PBXDictionary *child))block {
+  NSArray *children = [group refDictArrayForKey:@"children"];
+  if (children == nil) {
+    [self raiseFormat:@"Failed to read children array"];
+  }
+  
+  for (PBXDictionary *child in children) {
+    NSString *groupIsa = [child objectForKey:@"isa"];
+    
+    if (groupIsa != nil && [groupIsa isKindOfClass:[NSString class]] &&
+	([groupIsa isEqualToString:@"PBXGroup"] ||
+	 [groupIsa isEqualToString:@"PBXVariantGroup"])) {
+      NSString *sourceTree = [child objectForKey:@"sourceTree"];
+      NSString *path = [child objectForKey:@"path"];
+      if (sourceTree == nil) {
+	[self raiseFormat:@"Failed to read group with sourceTree=%@ path=%@",
+	 sourceTree, path];
+      }
+      
+      [self forEachGroupChild:child
+		    groupPath:[self absolutePath:path == nil ? @"" : path
+				      sourceTree:sourceTree
+				       groupPath:groupPath]
+			block:block];
+    } else {
+      block(groupPath, child);
+    }
+  }
+}
+
+- (void)forEachGroupChild:(void (^)(NSString *groupPath,
+				    PBXDictionary *child))block {
+  PBXDictionary *mainGroup = [self.pbxFile.rootDictionary
+			      refDictForKey:@"mainGroup"];
+  if (mainGroup == nil) {
+    [self raiseFormat:@"Failed to read mainGroup"];
+  }
+  
+  [self forEachGroupChild:mainGroup groupPath:self.sourceRoot block:block];
+}
+
 - (void)dealloc {
   self.pbxFile = nil;
   self.sourceRoot = nil;

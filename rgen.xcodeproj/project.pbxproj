@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		8DD76F9A0486AA7600D96B5E /* rgen.m in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* rgen.m */; settings = {ATTRIBUTES = (); }; };
 		8DD76F9C0486AA7600D96B5E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08FB779EFE84155DC02AAC07 /* Foundation.framework */; };
+		CD4E3D7113271B0B006148D5 /* StringKeysProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CD4E3D7013271B0B006148D5 /* StringKeysProperty.m */; };
 		CDF2D579130D93D20037E85E /* PBXFile.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2D578130D93D20037E85E /* PBXFile.m */; };
 		CDF2D594130D950C0037E85E /* ResourcesGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2D593130D950C0037E85E /* ResourcesGenerator.m */; };
 		CDF2DDF91317FE910037E85E /* ClassGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2DDF81317FE910037E85E /* ClassGenerator.m */; };
@@ -39,6 +40,8 @@
 		08FB7796FE84155DC02AAC07 /* rgen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = rgen.m; sourceTree = "<group>"; };
 		08FB779EFE84155DC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8DD76FA10486AA7600D96B5E /* rgen */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = rgen; sourceTree = BUILT_PRODUCTS_DIR; };
+		CD4E3D6F13271B0B006148D5 /* StringKeysProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringKeysProperty.h; sourceTree = "<group>"; };
+		CD4E3D7013271B0B006148D5 /* StringKeysProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StringKeysProperty.m; sourceTree = "<group>"; };
 		CDF2D577130D93D20037E85E /* PBXFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBXFile.h; sourceTree = "<group>"; };
 		CDF2D578130D93D20037E85E /* PBXFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBXFile.m; sourceTree = "<group>"; };
 		CDF2D592130D950C0037E85E /* ResourcesGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourcesGenerator.h; sourceTree = "<group>"; };
@@ -112,6 +115,8 @@
 				CDF2E5FF131AC76D0037E85E /* PathsProperty.m */,
 				CDF2E601131AC7AF0037E85E /* PathProperty.h */,
 				CDF2E602131AC7AF0037E85E /* PathProperty.m */,
+				CD4E3D6F13271B0B006148D5 /* StringKeysProperty.h */,
+				CD4E3D7013271B0B006148D5 /* StringKeysProperty.m */,
 				CDF2DDF71317FE910037E85E /* ClassGenerator.h */,
 				CDF2DDF81317FE910037E85E /* ClassGenerator.m */,
 				CDF2E108131964E40037E85E /* NSString+rgen.h */,
@@ -208,6 +213,7 @@
 				CDF2E600131AC76D0037E85E /* PathsProperty.m in Sources */,
 				CDF2E603131AC7AF0037E85E /* PathProperty.m in Sources */,
 				CDF2ED211323A6DD0037E85E /* XCodeProj.m in Sources */,
+				CD4E3D7113271B0B006148D5 /* StringKeysProperty.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

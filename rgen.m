@@ -61,13 +61,15 @@ int main(int argc,  char *const argv[]) {
   char *argv0 = argv[0];
   BOOL generateImages = NO;
   BOOL generatePaths = NO;
+  BOOL generateStringKeys = NO;
   BOOL generateLoadImages = NO;
   BOOL ipadImageSuffx = NO;
   BOOL ipad2xImageSuffx = NO;
-  
+    
   static struct option longopts[] = {
     {"images", no_argument, NULL, 'I'},
     {"paths", no_argument, NULL, 'P'},
+    {"stringkeys", no_argument, NULL, 'S'},
     {"loadimages", no_argument, NULL, 1},
     {"ipad", no_argument, NULL, 2},
     {"ipad2x", no_argument, NULL, 3},
@@ -76,7 +78,7 @@ int main(int argc,  char *const argv[]) {
   };
   
   int c;
-  while ((c = getopt_long(argc, argv, "IPv", longopts, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "IPSv", longopts, NULL)) != -1) {
     switch (c) {
       case 'v':
 	verbose = YES;
@@ -86,6 +88,9 @@ int main(int argc,  char *const argv[]) {
 	break;
       case 'P':
 	generatePaths = YES;
+	break;
+      case 'S':
+	generateStringKeys = YES;
 	break;
       case 1:
 	generateLoadImages = YES;
@@ -105,20 +110,21 @@ int main(int argc,  char *const argv[]) {
   argv += optind;
   
   if (argc < 1) {
-    printf("Usage: %s [-IPv] xcodeproject [Output path] [Target name]\n"
-	   "  -I, --images     Generate I images property tree\n"
-	   "  -P, --paths      Generate P paths property tree\n"
-	   "  --loadimages     Generate loadImages/releaseImages methods\n"
-	   "  --ipad           Support @ipad image name scale suffix\n"
-	   "  --ipad2x         Support @2x as 1.0 scale image on iPad\n"
-	   "  -v, --verbose    Verbose output\n"
+    printf("Usage: %s [-IPSv] xcodeproject [Output path] [Target name]\n"
+	   "  -I, --images      Generate I images property tree\n"
+	   "  -P, --paths       Generate P paths property tree\n"
+	   "  -S, --stringkeys  Generate S localizable string keys class\n"
+	   "  --loadimages      Generate loadImages/releaseImages methods\n"
+	   "  --ipad            Support @ipad image name scale suffix\n"
+	   "  --ipad2x          Support @2x as 1.0 scale image on iPad\n"
+	   "  -v, --verbose     Verbose output\n"
 	   "",
 	   argv0);
     return EXIT_FAILURE;
   }
   
-  if (!(generateImages || generatePaths)) {
-    error(@"Please specify at least -I or -P");
+  if (!(generateImages || generatePaths || generateStringKeys)) {
+    error(@"Please specify at least -I, -P or -S");
     return EXIT_FAILURE;
   }
   
@@ -150,6 +156,7 @@ int main(int argc,  char *const argv[]) {
     
     gen.optionGenerateImages = generateImages;
     gen.optionGeneratePaths = generatePaths;
+    gen.optionGenerateStringKeys = generateStringKeys;
     gen.optionLoadImages = generateLoadImages;
     gen.optionIpadImageSuffx = ipadImageSuffx;
     gen.optionIpad2xImageSuffx = ipad2xImageSuffx;

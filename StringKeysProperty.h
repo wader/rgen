@@ -1,5 +1,5 @@
 /*
- * ResourcesGenerator.h, the glue class
+ * StringsProperty.h, concrete class representing localizable string keys
  *
  * Copyright (c) 2011 <mattias.wadman@gmail.com>
  *
@@ -24,41 +24,8 @@
  *
  */
 
-#import <Foundation/Foundation.h>
+#import <Cocoa/Cocoa.h>
+#import "ClassProperty.h"
 
-#import "XCodeProj.h"
-#import "ImagesProperty.h"
-#import "PathsProperty.h"
-#import "StringKeysProperty.h"
-
-@interface ResourcesGeneratorException : NSException
-@end
-
-@interface ResourcesGenerator : NSObject {
-  BOOL optionGenerateImages;
-  BOOL optionGeneratePaths;
-  BOOL optionGenerateStringKeys;
-  BOOL optionLoadImages;
-  BOOL optionIpadImageSuffx;
-  BOOL optionIpad2xImageSuffx;
-  
-@private
-  XCodeProj *xcodeProj;
-  ImagesProperty *imagesRoot;
-  PathsProperty *pathsRoot;
-  StringKeysProperty *stringKeysRoot;
-}
-
-@property(nonatomic, assign) BOOL optionGenerateImages;
-@property(nonatomic, assign) BOOL optionGeneratePaths;
-@property(nonatomic, assign) BOOL optionGenerateStringKeys;
-@property(nonatomic, assign) BOOL optionLoadImages;
-@property(nonatomic, assign) BOOL optionIpadImageSuffx;
-@property(nonatomic, assign) BOOL optionIpad2xImageSuffx;
-
-- (id)initWithProjectFile:(NSString *)aPath;
-- (void)writeResoucesTo:(NSString *)outputDir
-	      className:(NSString *)className
-	      forTarget:(NSString *)targetName;
-
+@interface StringKeysProperty : ClassProperty
 @end
