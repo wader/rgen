@@ -209,7 +209,9 @@
      targetName, pName, lastKnownFileType, sourceTree, path, name];
   }
   
-  NSString *absPath = [self.xcodeProj absolutePath:path sourceTree:sourceTree];
+  NSString *absPath = [self.xcodeProj absolutePath:path
+					sourceTree:sourceTree
+					 groupPath:self.xcodeProj.sourceRoot];
   if (absPath == nil) {
     [self raiseFormat:
      @"%@: Could not resolve absolute path for path %@ source tree %@",

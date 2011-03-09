@@ -96,7 +96,6 @@
   }
   
   self.sourceTrees = [NSDictionary dictionaryWithObjectsAndKeys:
-		      self.sourceRoot, @"<group>",
 		      self.sourceRoot, @"SOURCE_ROOT",
 		      @"/", @"<absolute>",			 
 		      self.buildProductDir, @"BUILT_PRODUCTS_DIR",
@@ -120,18 +119,25 @@
 }
 
 - (NSString *)absolutePath:(NSString *)path
-		sourceTree:(NSString *)sourceTree {
-  NSString *treePath = [self.sourceTrees objectForKey:sourceTree];
-  if (treePath == nil) {
-    // TODO: find source trees in global xcode config
-    /*
-     NSString *xcodePref = [NSString pathWithComponents:
-     [NSArray arrayWithObjects:
-     NSHomeDirectory(),
-     @"Library", @"Preferences", @"com.apple.Xcode.plist",
-     nil]];
-     */
-    return nil;
+		sourceTree:(NSString *)sourceTree
+		 groupPath:(NSString *)groupPath {
+  NSString *treePath;
+  
+  if ([sourceTree isEqualToString:@"<group>"]) {
+    treePath = groupPath;
+  } else {
+    treePath = [self.sourceTrees objectForKey:sourceTree];
+    if (treePath == nil) {
+      // TODO: find source trees in global xcode config
+      /*
+       NSString *xcodePref = [NSString pathWithComponents:
+       [NSArray arrayWithObjects:
+       NSHomeDirectory(),
+       @"Library", @"Preferences", @"com.apple.Xcode.plist",
+       nil]];
+       */
+      return nil;
+    }
   }
   
   return [[NSString pathWithComponents:
