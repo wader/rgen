@@ -52,7 +52,7 @@
   MethodGenerator *initMethod = [classGenerator addMethodName:@"1init"
 						  declaration:NO
 						    signature:@"- (id)init"];
-  for (Property *property in [self.properties allValues]) {
+  [self forEachProperty:^(Property *property) {
     [classGenerator
      addVariableName:property.name
      line:@"NSString *%@;",
@@ -62,7 +62,7 @@
      addPropertyName:property.name
      line:@"@property(nonatomic, readonly) NSString *%@; // %@",
      property.name,
-     property.path];
+     property.path]; // path is used for string key
     
     [classGenerator
      addSynthesizerName:property.name
@@ -73,8 +73,9 @@
      addLineIndent:1
      format:@"self->%@ = @\"%@\";",
      property.name,
-     [property.path escapeCString]]; // path is used for string key
-  }
+     [property.path escapeCString]];
+  }];
+
   [initMethod addLineIndent:1 format:@"return self;"];
 }
 
