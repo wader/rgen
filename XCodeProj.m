@@ -52,6 +52,15 @@
     aPath = [aPath stringByAppendingPathComponent:@"project.pbxproj"];
   }
   
+  if (![aPath isAbsolutePath]) {
+    NSMutableArray *components = [NSMutableArray array];
+    [components addObject:[[NSFileManager defaultManager]
+                           currentDirectoryPath]];
+    [components addObject:aPath];
+    aPath = [[NSString pathWithComponents:components]
+             stringByStandardizingPath];
+  }
+  
   self.pbxFile = [[[PBXFile alloc] initWithProjectFile:aPath] autorelease];
   if (self.pbxFile == nil) {
     [self release];
@@ -63,17 +72,9 @@
   
   self.sourceRoot = [anEnvironment objectForKey:@"SOURCE_ROOT"];
   if (self.sourceRoot == nil) {
-    NSMutableArray *components = [NSMutableArray array];
-    if (![self.pbxFile.pbxFilePath isAbsolutePath]) {
-      [components addObject:[[NSFileManager defaultManager]
-			     currentDirectoryPath]];
-    }
-    [components addObject:[[self.pbxFile.pbxFilePath
-			    stringByDeletingLastPathComponent]
-			   stringByDeletingLastPathComponent]];
-    
-    self.sourceRoot = [[NSString pathWithComponents:components]
-		       stringByStandardizingPath];
+    self.sourceRoot = [[self.pbxFile.pbxFilePath
+                        stringByDeletingLastPathComponent]
+                       stringByDeletingLastPathComponent];
   }
   
   self.buildProductDir = [anEnvironment
