@@ -49,8 +49,9 @@ static NSString *const LocalizableStringName = @"Localizable.strings";
 - (void)addPath:(NSArray *)dirComponents 
 	   name:(NSString *)name
 	   path:(NSString *)path;
-- (void)addLocalizableStrings:(NSString *)path;
-- (void)loadFileReference:(PBXDictionary *)fileRef
+- (void)addLocalizableStrings:(NSString *)path
+                   targetName:(NSString *)targetName;
+- (void)loadFileReference:(XCodeFile *)xcodeFile
 	       targetName:(NSString *)targetName;
 - (void)loadResourcesForTarget:(NSString *)targetName;
 - (void)raiseFormat:(NSString *)format, ...;
@@ -206,27 +207,26 @@ static NSString *const LocalizableStringName = @"Localizable.strings";
   }
 }
 
-- (void)addLocalizableStrings:(NSString *)path {
+- (void)addLocalizableStrings:(NSString *)path
+                   targetName:(NSString *)targetName {
   if (!self.optionGenerateStringKeys) {
     return;
   }
   
   trace(@"Reading localizable strings file with path %@", path);
   
-  // binary plist? (compiled via group reference)
-  NSDictionary *strings = [NSDictionary dictionaryWithContentsOfFile:path];
-  if (strings == nil) {
-    // strings format? (string format via folder reference)
-    NSString *stringsData = [NSString stringWithContentsOfFile:path
-						      encoding:NSUTF8StringEncoding
-							 error:NULL];
-    if (stringsData != nil) {
-      strings = [stringsData propertyListFromStringsFileFormat];
-    }
+  NSString *stringsData = [NSString stringWithContentsOfFile:path
+                                                    encoding:NSUTF8StringEncoding
+                                                       error:NULL];
+  if (stringsData == nil) {
+    [self raiseFormat:@"%@: Failed to read localizable strings file %@",
+     targetName, path];
   }
   
+  NSDictionary *strings = [stringsData propertyListFromStringsFileFormat];
   if (strings == nil) {
-    [self raiseFormat:@"Failed to read localizable strings file %@", path];
+    [self raiseFormat:@"%@: Failed to deserialize file %@",
+     targetName, path];
   }
   
   for (NSString *key in [strings allKeys]) {
@@ -243,34 +243,24 @@ static NSString *const LocalizableStringName = @"Localizable.strings";
   }
 }
 
-- (void)loadFileReference:(PBXDictionary *)fileRef
+- (void)loadFileReference:(XCodeFile *)xcodeFile
 	       targetName:(NSString *)targetName {
-  NSString *lastKnownFileType = [fileRef objectForKey:@"lastKnownFileType"];
-  NSString *sourceTree = [fileRef objectForKey:@"sourceTree"];
-  NSString *path = [fileRef objectForKey:@"path"];
-  NSString *name = [fileRef objectForKey:@"name"];
+  NSString *name = xcodeFile.name;
+  BOOL isDir = NO;
+  NSString *absPath = [xcodeFile absolutePath];
   
-  if (lastKnownFileType == nil || sourceTree == nil || path == nil) {
-    [self raiseFormat:
-     @"%@: Missing keys for fileRef in resource build phase "
-     @"lastKnownFileType=%@ sourceTree=%@ path=%@ name=%@",
-     targetName, pName, lastKnownFileType, sourceTree, path, name];
-  }
-  
-  NSString *absPath = [self.xcodeProj absolutePath:path
-					sourceTree:sourceTree
-					 groupPath:self.xcodeProj.sourceRoot];
   if (absPath == nil) {
     [self raiseFormat:
      @"%@: Could not resolve absolute path for path %@ source tree %@",
-     targetName, path, sourceTree];
+     targetName, xcodeFile.path, xcodeFile.sourceTree];
   }
   
-  if (name == nil) {
-    name = [path lastPathComponent];
+  if (xcodeFile.name == nil) {
+    name = [xcodeFile.path lastPathComponent];
   }
   
-  if ([lastKnownFileType isEqualToString:@"folder"]) {
+  if ([[NSFileManager defaultManager] fileExistsAtPath:absPath
+                                           isDirectory:&isDir] && isDir) {
     trace(@"%@: Loading folder reference \"%@\" with path %@",
 	  targetName, name, absPath);
     
@@ -283,7 +273,6 @@ static NSString *const LocalizableStringName = @"Localizable.strings";
     }
     
     for (NSString *subpath in subpaths) {
-      BOOL isDir = NO;
       if ([[NSFileManager defaultManager]
 	   fileExistsAtPath:[absPath stringByAppendingPathComponent:subpath]
 	   isDirectory:&isDir] &&
@@ -304,7 +293,8 @@ static NSString *const LocalizableStringName = @"Localizable.strings";
 				     [NSArray arrayWithObjects:
 				      absPath,
 				      subpath,
-				      nil]]];
+				      nil]]
+                         targetName:targetName];
       } else {
 	[self addImage:dirComponents
 		  name:filename
@@ -317,7 +307,7 @@ static NSString *const LocalizableStringName = @"Localizable.strings";
       }
     }
   } else {
-    trace(@"%@: Loading file reference \"%@\"", targetName, name); 
+    trace(@"%@: Loading group file \"%@\"", targetName, name); 
     
     [self addImage:[NSArray array]
 	      name:name
@@ -331,24 +321,7 @@ static NSString *const LocalizableStringName = @"Localizable.strings";
 
 - (void)loadResourcesForTarget:(NSString *)targetName {
   __block BOOL targetFound = (targetName == nil);
-  
-  // TODO: is not done per target currently
-  [self.xcodeProj forEachGroupChild:^(NSString *groupPath, PBXDictionary *child) {
-    NSString *childIsa = [child objectForKey:@"isa"];
-    if (childIsa == nil || ![childIsa isKindOfClass:[NSString class]] ||
-	![childIsa isEqualToString:@"PBXFileReference"]) {
-      return;
-    }
-    
-    NSString *path = [child objectForKey:@"path"];
-    if (path == nil || ![path isKindOfClass:[NSString class]] ||
-	![path isEqualToString:@"Localizable.strings"]) {
-      return;
-    }
-    
-    [self addLocalizableStrings:[groupPath stringByAppendingPathComponent:path]];
-  }];
-  
+ 
   /*
    // TODO: autodetect sdk
    [self.xcodeProj forEachBuildSetting:^(NSString *buildConfigurationName,
@@ -360,17 +333,29 @@ static NSString *const LocalizableStringName = @"Localizable.strings";
   
   @try {
     [self.xcodeProj forEachBuildResource:^(NSString *buildTargetName,
-					   PBXDictionary *fileRef) {
+					   XCodeNode *xcodeNode) {
       if (targetName != nil && ![targetName isEqualToString:buildTargetName]) {
 	return;
       }
       targetFound = YES;
       
-      NSString *fileIsa = [fileRef objectForKey:@"isa"];
-      if ([fileIsa isEqualToString:@"PBXFileReference"]) {
-	[self loadFileReference:fileRef targetName:buildTargetName];
+      if ([xcodeNode isKindOfClass:[XCodeGroup class]]) {
+        for (XCodeNode *groupXCodeNode in ((XCodeGroup *)xcodeNode).children) {
+          if ([groupXCodeNode isKindOfClass:[XCodeFile class]] &&
+              [groupXCodeNode.path isEqualToString:LocalizableStringName]) {
+            NSString *path = [groupXCodeNode absolutePath];
+            if (path == nil) {
+              [self raiseFormat:
+               @"%@: Could resolve path to localizable string path=@% sourceTree=%@",
+               buildTargetName, groupXCodeNode.path, groupXCodeNode.sourceTree];
+            }
+            
+            [self addLocalizableStrings:[groupXCodeNode absolutePath]
+                             targetName:buildTargetName];
+          }
+        }
       } else {
-	trace(@"%@: Ignoring fileRef with unknown isa %@", buildTargetName, fileIsa);
+        [self loadFileReference:(XCodeFile *)xcodeNode targetName:buildTargetName];
       }
     }];
   } @catch (XCodeProjException *e) {
