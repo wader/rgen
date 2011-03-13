@@ -109,7 +109,7 @@
 						      signature:@"- (id)init"];
     [initMethod addLineIndent:1 format:@"self = [super init];"];
     
-    [self forEachPropertyOfClass:[self class] block:^(Property *property) {
+    [self forEachPropertyOfClass:[ImagesProperty class] block:^(Property *property) {
       ImagesProperty *imagesProperty = (ImagesProperty *)property;
       
       [classGenerator
@@ -142,12 +142,17 @@
   
   if (generator.optionLoadImages) {
     MethodGenerator *loadImagesMethod = [classGenerator
-					 addMethodName:@"loadImages"
+					 addMethodName:@"2loadImages"
 					 declaration:YES
 					 signature:@"- (void)loadImages"];
-    for(Property *property in [self.properties allValues]) {
+    MethodGenerator *releaseImagesMethod = [classGenerator
+					    addMethodName:@"3releaseImages"
+					    declaration:YES
+					    signature:@"- (void)releaseImages"];
+    [self forEachProperty:^(Property *property) {
       if ([property isKindOfClass:[ImageProperty class]]) {
 	ImageProperty *imageProperty = (ImageProperty *)property;
+        
 	[loadImagesMethod
 	 addLineIndent:1
 	 format:@"self->%@ = self->%@ != nil ? self->%@ : [i(@\"%@\") retain];",
@@ -155,22 +160,7 @@
 	 imageProperty.name,
 	 imageProperty.name,
 	 [imageProperty.path escapeCString]];
-      } else if ([property isKindOfClass:[ImagesProperty class]]) {
-	ImagesProperty *imagesProperty = (ImagesProperty *)property;
-	[loadImagesMethod
-	 addLineIndent:1
-	 format:@"[self->%@ loadImages];",
-	 imagesProperty.name];
-      }
-    }
-    
-    MethodGenerator *releaseImagesMethod = [classGenerator
-					    addMethodName:@"releaseImages"
-					    declaration:YES
-					    signature:@"- (void)releaseImages"];
-    for(Property *property in [self.properties allValues]) {
-      if ([property isKindOfClass:[ImageProperty class]]) {
-	ImageProperty *imageProperty = (ImageProperty *)property;
+        
 	[releaseImagesMethod
 	 addLineIndent:1
 	 format:@"[self->%@ release];",
@@ -181,12 +171,18 @@
 	 imageProperty.name];
       } else if ([property isKindOfClass:[ImagesProperty class]]) {
 	ImagesProperty *imagesProperty = (ImagesProperty *)property;
+        
+	[loadImagesMethod
+	 addLineIndent:1
+	 format:@"[self->%@ loadImages];",
+	 imagesProperty.name];
+        
 	[releaseImagesMethod
 	 addLineIndent:1
 	 format:@"[self->%@ releaseImages];",
 	 imagesProperty.name];
       }
-    }
+    }];
   }
   
   [self forEachPropertyOfClass:[ImageProperty class] block:^(Property *property) {
