@@ -116,7 +116,11 @@
 
 - (NSString *)projectName {
   NSArray *components = [self.pbxFile.pbxFilePath pathComponents];
-  return [components objectAtIndex:[components count] - 2];
+  if ([components count] > 1) {
+    return [components objectAtIndex:[components count] - 2];    
+  } else {
+    return self.pbxFile.pbxFilePath;
+  }
 }
 
 - (NSString *)absolutePath:(NSString *)path
