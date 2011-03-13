@@ -88,11 +88,9 @@ a <code>@ipad</code> image has priority.
 
 ### Xcode build run script
 
-Add a "New run script build phase" to your target and make sure the phase it
-is dirctly after the "Copy Bundle Resources" phase for best result.
-
-The run script should look something like the one below. <code>which</code> is
-used to make sure a user can build without <code>rgen</code> is installed.
+Add a "New run script build phase" to your target. The run script should look
+something like the one below. <code>which</code> is used to make sure a user can
+build without <code>rgen</code> is installed.
 <code>$PROJECT_FILE_PATH</code> and <code>$SRCROOT</code> will be assigned
 by Xcode.
 
@@ -125,7 +123,6 @@ keys found for target <code>TargetA</code>
 
 ## Known issues and TODOs
 
-*  Strings key collection does not filter on target name
 *  Support custome source tree paths
 *  Support Mac OS X applications. Autodetect via SDK (iphoneos/macosx) and
    generate NSImage code etc
