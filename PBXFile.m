@@ -70,7 +70,8 @@
   self.pbxFilePath = aPath;
   self.rootDictionary = [[[PBXDictionary alloc]
 			  initWithRoot:rootObject
-			  pbxFile:self]
+			  pbxFile:self
+                          objectId:rootObjectId]
 			 autorelease];
   
   return self;
@@ -89,21 +90,29 @@
 @implementation PBXDictionary
 @synthesize pbxFile;
 @synthesize rootObject;
+@synthesize objectId;
 
 - (id)initWithRoot:(NSDictionary *)aRootObject
-	   pbxFile:(PBXFile *)aPBXFile {
+	   pbxFile:(PBXFile *)aPBXFile
+          objectId:(NSString *)anObjectId {
   self = [super init];
-  self.rootObject = aRootObject;
-  self.pbxFile = aPBXFile;
-  return self;
-}
-
-- (PBXDictionary *)refDictForObjectId:(NSString *)objectId {
-  if (objectId == nil || ![objectId isKindOfClass:[NSString class]]) {
+  if (self == nil) {
     return nil;
   }
   
-  NSDictionary *newRootObject = [self.pbxFile.objects objectForKey:objectId];
+  self.rootObject = aRootObject;
+  self.pbxFile = aPBXFile;
+  self.objectId = anObjectId;
+  
+  return self;
+}
+
+- (PBXDictionary *)refDictForObjectId:(NSString *)anObjectId {
+  if (anObjectId == nil || ![anObjectId isKindOfClass:[NSString class]]) {
+    return nil;
+  }
+  
+  NSDictionary *newRootObject = [self.pbxFile.objects objectForKey:anObjectId];
   if (newRootObject == nil ||
       ![newRootObject isKindOfClass:[NSDictionary class]]) {
     return nil;
@@ -111,7 +120,8 @@
   
   return [[[PBXDictionary alloc]
 	   initWithRoot:newRootObject
-	   pbxFile:self.pbxFile]
+	   pbxFile:self.pbxFile
+           objectId:anObjectId]
 	  autorelease];
 }
 
@@ -127,8 +137,8 @@
   }
   
   NSMutableArray *pbxDictObjects = [NSMutableArray array];
-  for (NSString *objectId in objectIdArray) {
-    PBXDictionary *dict = [self refDictForObjectId:objectId];
+  for (NSString *anObjectId in objectIdArray) {
+    PBXDictionary *dict = [self refDictForObjectId:anObjectId];
     if (dict == nil) {
       return nil;
     }
@@ -146,6 +156,7 @@
 - (void)dealloc {
   self.pbxFile = nil;
   self.rootObject = nil;
+  self.objectId = nil;
   
   [super dealloc];
 }

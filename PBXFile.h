@@ -45,13 +45,16 @@
 @interface PBXDictionary : NSObject {
   PBXFile *pbxFile;
   NSDictionary *rootObject;
+  NSString *objectId;
 }
 
 @property(nonatomic, retain) PBXFile *pbxFile;
 @property(nonatomic, retain) NSDictionary *rootObject;
+@property(nonatomic, retain) NSString *objectId;
 
 - (id)initWithRoot:(NSDictionary *)aRootObject
-	   pbxFile:(PBXFile *)aPBXFile;
+	   pbxFile:(PBXFile *)aPBXFile
+          objectId:(NSString *)objectId;
 // PBXDictionary from key with object id, returns nil if wrong types
 - (PBXDictionary *)refDictForKey:(NSString *)key;
 // Get array of PBXDictionary from key with array of object ids,
