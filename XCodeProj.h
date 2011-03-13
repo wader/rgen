@@ -27,11 +27,18 @@
 #import <Foundation/Foundation.h>
 #import "PBXFile.h"
 
+@class XCodeNode;
+@class XCodeGroup;
+@class XCodeFile;
+
 @interface XCodeProjException : NSException
 @end
 
 @interface XCodeProj : NSObject {
+@private
   PBXFile *pbxFile;
+  NSMutableDictionary *nodeRefs;
+  XCodeGroup *mainGroup;
   NSString *sourceRoot;
   NSString *buildProductDir;
   NSString *developerDir;
@@ -40,6 +47,8 @@
 }
 
 @property(nonatomic, retain) PBXFile *pbxFile;
+@property(nonatomic, retain) NSMutableDictionary *nodeRefs;
+@property(nonatomic, retain) XCodeGroup *mainGroup;
 @property(nonatomic, retain) NSString *sourceRoot;
 @property(nonatomic, retain) NSString *buildProductDir;
 @property(nonatomic, retain) NSString *developerDir;
@@ -53,10 +62,51 @@
 		sourceTree:(NSString *)sourceTree
 		 groupPath:(NSString *)groupPath;
 - (void)forEachBuildResource:(void (^)(NSString *buildTargetName,
-				       PBXDictionary *fileRef))block;
+				       XCodeNode *xcodeNode))block;
 - (void)forEachBuildSetting:(void (^)(NSString *buildConfigurationName,
 				      NSDictionary *buildSettings))block;
-- (void)forEachGroupChild:(void (^)(NSString *groupPath,
-				    PBXDictionary *child))block;
+- (XCodeGroup *)loadGroup:(PBXDictionary *)group;
+- (XCodeGroup *)loadMainGroup;
+
 
 @end
+
+// abstract class with common properites for file and group
+@interface XCodeNode : NSObject {
+@private
+  XCodeProj *xcodeProj;
+  NSString *objectId;
+  XCodeGroup *parent;
+  NSString *name;
+  NSString *sourceTree;
+  NSString *path;
+}
+
+@property(nonatomic, retain) XCodeProj *xcodeProj;
+@property(nonatomic, retain) NSString *objectId;
+@property(nonatomic, assign) XCodeGroup *parent;
+@property(nonatomic, retain) NSString *name;
+@property(nonatomic, retain) NSString *sourceTree;
+@property(nonatomic, retain) NSString *path;
+
+- (id)initFromPBXDictionary:(PBXDictionary *)pbxDict
+                  xcodeProj:(XCodeProj *)anXCodeProj
+                     parent:(XCodeGroup *)anParent;
+- (NSString *)absolutePath;
+- (void)dump;
+
+@end
+
+@interface XCodeGroup : XCodeNode {
+  NSMutableArray *children;
+}
+
+@property(nonatomic, retain) NSMutableArray *children;
+
+@end
+
+@interface XCodeFile : XCodeNode {
+}
+
+@end
+

@@ -33,6 +33,8 @@
 
 @implementation XCodeProj
 @synthesize pbxFile;
+@synthesize nodeRefs;
+@synthesize mainGroup;
 @synthesize sourceRoot;
 @synthesize buildProductDir;
 @synthesize developerDir;
@@ -104,6 +106,8 @@
 		      self.sdkRoot, @"SDKROOT",
 		      nil];
   
+  self.nodeRefs = [NSMutableDictionary dictionary];
+  
   return self;
 }
 
@@ -150,8 +154,27 @@
 	  stringByStandardizingPath];
 }
 
+- (XCodeGroup *)loadMainGroup {
+  if (self.mainGroup == nil) {
+    PBXDictionary *mainGroupDict = [self.pbxFile.rootDictionary
+                                    refDictForKey:@"mainGroup"];
+    if (mainGroupDict == nil) {
+      [self raiseFormat:@"Failed to read mainGroup key"];
+    }
+    
+    self.mainGroup = [self loadGroup:mainGroupDict];
+    if (self.mainGroup == nil) {
+      [self raiseFormat:@"Failed to load mainGroup"];
+    }
+  }
+  
+  return self.mainGroup;
+}
+
 - (void)forEachBuildResource:(void (^)(NSString *buildTargetName,
-				       PBXDictionary *fileRef))block {  
+				       XCodeNode *xcodeNode))block {
+  [self loadMainGroup]; 
+  
   NSArray *targets = [self.pbxFile.rootDictionary refDictArrayForKey:@"targets"];
   if (targets == nil) {
     [self raiseFormat:@"Failed to read targets array"];
@@ -194,8 +217,14 @@
 	   @"Failed to read fileRef for file in resource build phase for target \"%@\"",
 	   name];
 	}
-	
-	block(name, fileRef);
+        
+        XCodeFile *xcodeNode = [self.nodeRefs objectForKey:fileRef.objectId];
+        if (xcodeNode == nil) {
+	  [self raiseFormat:
+	   @"Could not find file reference %@ for build file", fileRef.objectId];
+	}
+        
+	block(name, xcodeNode);
       }      
     }
   }
@@ -232,52 +261,57 @@
   }
 }
 
-- (void)forEachGroupChild:(PBXDictionary *)group
-		groupPath:(NSString *)groupPath
-		    block:(void (^)(NSString *groupPath,
-				    PBXDictionary *child))block {
+- (XCodeGroup *)loadGroup:(PBXDictionary *)group {
+  XCodeGroup *xcodeGroup = [[[XCodeGroup alloc]
+                             initFromPBXDictionary:group
+                             xcodeProj:self
+                             parent:nil]
+                            autorelease];
+  if (xcodeGroup == nil) {
+    [self raiseFormat:@"Failed to create group for %@", group.rootObject];
+  }
+  
   NSArray *children = [group refDictArrayForKey:@"children"];
   if (children == nil) {
     [self raiseFormat:@"Failed to read children array"];
   }
-  
   for (PBXDictionary *child in children) {
-    NSString *groupIsa = [child objectForKey:@"isa"];
+    NSString *childIsa = [child objectForKey:@"isa"];
+    XCodeNode *childXcodeNode = nil;
     
-    if (groupIsa != nil && [groupIsa isKindOfClass:[NSString class]] &&
-	([groupIsa isEqualToString:@"PBXGroup"] ||
-	 [groupIsa isEqualToString:@"PBXVariantGroup"])) {
-      NSString *sourceTree = [child objectForKey:@"sourceTree"];
-      NSString *path = [child objectForKey:@"path"];
-      if (sourceTree == nil) {
-	[self raiseFormat:@"Failed to read group with sourceTree=%@ path=%@",
-	 sourceTree, path];
+    if (childIsa != nil && [childIsa isKindOfClass:[NSString class]]) {
+      if ([childIsa isEqualToString:@"PBXGroup"] ||
+          [childIsa isEqualToString:@"PBXVariantGroup"]) {
+        
+        childXcodeNode = (XCodeNode *)[self loadGroup:child];
+        childXcodeNode.parent = xcodeGroup;
+      } else if ([childIsa isEqualToString:@"PBXFileReference"]) {
+        childXcodeNode = (XCodeNode *)[[[XCodeFile alloc]
+                                        initFromPBXDictionary:child
+                                        xcodeProj:self
+                                        parent:xcodeGroup]
+                                       autorelease];
+        if (childXcodeNode == nil) {
+          [self raiseFormat:@"Failed to create file reference for %@",
+           child.rootObject];
+        }
       }
       
-      [self forEachGroupChild:child
-		    groupPath:[self absolutePath:path == nil ? @"" : path
-				      sourceTree:sourceTree
-				       groupPath:groupPath]
-			block:block];
-    } else {
-      block(groupPath, child);
-    }
-  }
-}
-
-- (void)forEachGroupChild:(void (^)(NSString *groupPath,
-				    PBXDictionary *child))block {
-  PBXDictionary *mainGroup = [self.pbxFile.rootDictionary
-			      refDictForKey:@"mainGroup"];
-  if (mainGroup == nil) {
-    [self raiseFormat:@"Failed to read mainGroup"];
+      if (childXcodeNode != nil) {
+        [xcodeGroup.children addObject:childXcodeNode];
+        [self.nodeRefs setObject:childXcodeNode
+                          forKey:childXcodeNode.objectId];
+      }
+    }    
   }
   
-  [self forEachGroupChild:mainGroup groupPath:self.sourceRoot block:block];
+  return xcodeGroup;
 }
 
 - (void)dealloc {
   self.pbxFile = nil;
+  self.nodeRefs = nil;
+  self.mainGroup = nil;
   self.sourceRoot = nil;
   self.buildProductDir = nil;
   self.developerDir = nil;
@@ -287,4 +321,115 @@
   [super dealloc];
 }
 
+@end
+
+@implementation XCodeNode
+@synthesize objectId;
+@synthesize xcodeProj;
+@synthesize parent;
+@synthesize name;
+@synthesize path;
+@synthesize sourceTree;
+
+- (id)initFromPBXDictionary:(PBXDictionary *)pbxDict
+                  xcodeProj:(XCodeProj *)anXCodeProj
+                     parent:(XCodeGroup *)anParent {
+  self = [super init];
+  if (self == nil) {
+    return nil;
+  }
+  
+  self.objectId = pbxDict.objectId;
+  self.xcodeProj = anXCodeProj;
+  self.parent = anParent;
+  self.name = [pbxDict objectForKey:@"name"];
+  self.sourceTree = [pbxDict objectForKey:@"sourceTree"];
+  self.path = [pbxDict objectForKey:@"path"];
+  if (self.sourceTree == nil) {
+    [self release];
+    return nil;
+  }
+  
+  return self;
+}
+
+- (NSString *)absolutePath {
+  NSString *p;
+  NSString *groupPath = nil;
+  
+  if ([self.sourceTree isEqualToString:@"<group>"]) {
+    if (self.parent == nil) {
+      groupPath = self.xcodeProj.sourceRoot; // projectDir?
+    } else {
+      groupPath = [self.parent absolutePath];
+    }
+  }
+  
+  p = [self.xcodeProj absolutePath:self.path
+                        sourceTree:self.sourceTree
+                         groupPath:groupPath];
+  
+  return p;
+}
+
+- (void)dump:(NSUInteger)indent {
+  NSMutableString *s = [NSMutableString string];
+  
+  for (int i = 0; i < indent; i++) {
+    [s appendString:@"  "];
+  }
+  
+  NSLog(@"%@%@ parent=%@ sourceTree=%@ abspath=%@",
+        s, self.name, self.parent, self.sourceTree, [self absolutePath]);
+  
+  if ([self isKindOfClass:[XCodeGroup class]]) {
+    for (XCodeNode *child in ((XCodeGroup *)self).children) {
+      [child dump:indent + 1];
+    }
+  }
+}
+
+- (void)dump {
+  [self dump:0];
+}
+
+- (void)dealloc {
+  self.objectId = nil;
+  self.xcodeProj = nil;
+  self.name = nil;
+  self.sourceTree = nil;
+  self.path = nil;
+  
+  [super dealloc];
+}
+
+@end
+
+@implementation XCodeGroup
+@synthesize children;
+
+- (id)initFromPBXDictionary:(PBXDictionary *)pbxDict
+                  xcodeProj:(XCodeProj *)anXCodeProj
+                     parent:(XCodeGroup *)anParent {
+  self = [super initFromPBXDictionary:pbxDict
+                            xcodeProj:anXCodeProj
+                               parent:anParent];
+  if (self == nil) {
+    return nil;
+  }
+  
+  self.children = [NSMutableArray array];
+  
+  return self;
+}
+
+- (void)dealloc {
+  self.children = nil;
+  
+  [super dealloc];
+}
+
+@end
+
+@implementation XCodeFile
 @end
