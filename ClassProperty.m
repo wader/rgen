@@ -169,7 +169,9 @@
 
 - (void)forEachPropertyOfClass:(Class)cls
 			 block:(void (^)(Property *property))block {
-  for (Property *property in [self.properties allValues]) {
+  for (id key in [self.properties
+                  keysSortedByValueUsingComparator:propertySortBlock]) {
+    Property *property = [self.properties objectForKey:key];
     if (![property isKindOfClass:cls]) {
       continue;
     }
