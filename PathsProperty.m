@@ -139,7 +139,7 @@
   };
   
   MethodGenerator *descriptionMethod = [classGenerator
-					addMethodName:@"3description"
+					addMethodName:@"2description"
 					declaration:NO
 					signature:@"- (NSString *)description"];  
   [descriptionMethod
