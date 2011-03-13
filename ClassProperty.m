@@ -185,15 +185,9 @@
 }
 
 - (NSUInteger)countPropertiesOfClass:(Class)cls {
-  NSUInteger i = 0;
-  
-  for (Property *property in [self.properties allValues]) {
-    if ([property isKindOfClass:cls]) {
-      i++;
-    }
-  }
-  
-  return i;
+  return [[self.properties keysOfEntriesPassingTest:^BOOL(id key, id obj, BOOL *stop) {
+    return [obj isKindOfClass:cls];
+  }] count];
 }
 
 - (void)dealloc {
