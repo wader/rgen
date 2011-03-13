@@ -180,6 +180,10 @@
   }  
 }
 
+- (void)forEachProperty:(void (^)(Property *property))block {
+  [self forEachPropertyOfClass:[Property class] block:block];
+}
+
 - (NSUInteger)countPropertiesOfClass:(Class)cls {
   NSUInteger i = 0;
   

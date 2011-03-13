@@ -60,6 +60,7 @@
 - (ClassProperty *)lookupPropertyPathFromDir:(NSArray *)dirComponents;
 - (void)forEachPropertyOfClass:(Class)cls
 			 block:(void (^)(Property *property))block;
+- (void)forEachProperty:(void (^)(Property *property))block;
 - (NSUInteger)countPropertiesOfClass:(Class)cls;
 
 @end
