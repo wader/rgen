@@ -2,9 +2,7 @@
 
 Resource code generator for iOS development inspired by the resource handling for Android.
 
-<code>rgen</code> makes it possible to:
-
-Load images like this
+#### Load images like this
 
 	imageView.image = I.images.cuteSeal;
 
@@ -12,7 +10,7 @@ instead of this
 
 	imageView.image = [UIImage imageNamed:@"images/cute-seal.png"];
 
-Specify resource paths to files and directories like this
+#### Specify resource paths like this
 
 	[NSDictionary dictionaryWithContentsOfFile:P.files.dogsPlist];
 
@@ -22,7 +20,7 @@ instead of this
 	 [[[NSBundle mainBundle] resourcePath]
 	  stringByAppendingPathComponent:@"files/dogs.plist"]];
 
-And get localization string keys like this
+#### Name localization string keys like this
 
 	NSLocalizedString(S.cats, nil)
 
@@ -34,7 +32,7 @@ This is very nice for several reasons
 
 *  Less error-prone as you get compile time errors for missing images,
    files and string keys.
-*  Code completion
+*  Code completion for resources
 *  Less and nicer looking code
 
 ## Install
@@ -46,8 +44,12 @@ Compile from source:
 	$ xcodebuild
 	$ cp build/Release/rgen /to/somewhere
 
-If don't want to compile there is a binary for download compiled for i386
-and Mac OS X 10.6.
+Note that if you compile with Xcode 4 from the IDE the binary will probably
+not end up in the build directory. Instead try "Show in finder" on the rgen
+binary under "Products".
+
+If don't want to compile yourself there is a binary for download compiled for
+Mac OS X 10.6 i386 that will work on both 32 and 64 bit systems.
 
 ## Usage
 
