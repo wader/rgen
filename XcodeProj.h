@@ -1,5 +1,5 @@
 /*
- * XCodeProj.h, Xcode project specific PBX structures
+ * XcodeProj.h, Xcode project specific PBX structures
  *
  * Copyright (c) 2011 <mattias.wadman@gmail.com>
  *
@@ -34,7 +34,7 @@
 @interface XCodeProjException : NSException
 @end
 
-@interface XCodeProj : NSObject {
+@interface XcodeProj : NSObject {
 @private
   PBXFile *pbxFile;
   NSMutableDictionary *nodeRefs;
@@ -74,7 +74,7 @@
 // abstract class with common properites for file and group
 @interface XCodeNode : NSObject {
 @private
-  XCodeProj *xcodeProj;
+  XcodeProj *xcodeProj;
   NSString *objectId;
   XCodeGroup *parent;
   NSString *name;
@@ -82,7 +82,7 @@
   NSString *path;
 }
 
-@property(nonatomic, retain) XCodeProj *xcodeProj;
+@property(nonatomic, retain) XcodeProj *xcodeProj;
 @property(nonatomic, retain) NSString *objectId;
 @property(nonatomic, assign) XCodeGroup *parent;
 @property(nonatomic, retain) NSString *name;
@@ -90,7 +90,7 @@
 @property(nonatomic, retain) NSString *path;
 
 - (id)initFromPBXDictionary:(PBXDictionary *)pbxDict
-                  xcodeProj:(XCodeProj *)anXCodeProj
+                  xcodeProj:(XcodeProj *)anXCodeProj
                      parent:(XCodeGroup *)anParent;
 - (NSString *)absolutePath;
 - (void)dump;

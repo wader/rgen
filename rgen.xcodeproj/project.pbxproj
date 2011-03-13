@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		8DD76F9A0486AA7600D96B5E /* rgen.m in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* rgen.m */; settings = {ATTRIBUTES = (); }; };
 		8DD76F9C0486AA7600D96B5E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08FB779EFE84155DC02AAC07 /* Foundation.framework */; };
+		CD3A2423132D42E100BB7D1E /* XcodeProj.m in Sources */ = {isa = PBXBuildFile; fileRef = CD3A2422132D42DF00BB7D1E /* XcodeProj.m */; };
 		CD4E3D7113271B0B006148D5 /* StringKeysProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CD4E3D7013271B0B006148D5 /* StringKeysProperty.m */; };
 		CDF2D579130D93D20037E85E /* PBXFile.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2D578130D93D20037E85E /* PBXFile.m */; };
 		CDF2D594130D950C0037E85E /* ResourcesGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2D593130D950C0037E85E /* ResourcesGenerator.m */; };
@@ -21,7 +22,6 @@
 		CDF2E5B9131AC4610037E85E /* ImagesProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2E5B8131AC4610037E85E /* ImagesProperty.m */; };
 		CDF2E600131AC76D0037E85E /* PathsProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2E5FF131AC76D0037E85E /* PathsProperty.m */; };
 		CDF2E603131AC7AF0037E85E /* PathProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2E602131AC7AF0037E85E /* PathProperty.m */; };
-		CDF2ED211323A6DD0037E85E /* XCodeProj.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2ED201323A6DD0037E85E /* XCodeProj.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -40,6 +40,8 @@
 		08FB7796FE84155DC02AAC07 /* rgen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = rgen.m; sourceTree = "<group>"; };
 		08FB779EFE84155DC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8DD76FA10486AA7600D96B5E /* rgen */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = rgen; sourceTree = BUILT_PRODUCTS_DIR; };
+		CD3A2421132D42DD00BB7D1E /* XcodeProj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XcodeProj.h; sourceTree = "<group>"; };
+		CD3A2422132D42DF00BB7D1E /* XcodeProj.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XcodeProj.m; sourceTree = "<group>"; };
 		CD4E3D6F13271B0B006148D5 /* StringKeysProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringKeysProperty.h; sourceTree = "<group>"; };
 		CD4E3D7013271B0B006148D5 /* StringKeysProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StringKeysProperty.m; sourceTree = "<group>"; };
 		CDF2D577130D93D20037E85E /* PBXFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBXFile.h; sourceTree = "<group>"; };
@@ -65,8 +67,6 @@
 		CDF2E601131AC7AF0037E85E /* PathProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathProperty.h; sourceTree = "<group>"; };
 		CDF2E602131AC7AF0037E85E /* PathProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PathProperty.m; sourceTree = "<group>"; };
 		CDF2E760131BD9570037E85E /* rgen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rgen.h; sourceTree = "<group>"; };
-		CDF2ED1F1323A6DD0037E85E /* XCodeProj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XCodeProj.h; sourceTree = "<group>"; };
-		CDF2ED201323A6DD0037E85E /* XCodeProj.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XCodeProj.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,8 +99,8 @@
 				CDF2E760131BD9570037E85E /* rgen.h */,
 				CDF2D577130D93D20037E85E /* PBXFile.h */,
 				CDF2D578130D93D20037E85E /* PBXFile.m */,
-				CDF2ED1F1323A6DD0037E85E /* XCodeProj.h */,
-				CDF2ED201323A6DD0037E85E /* XCodeProj.m */,
+				CD3A2421132D42DD00BB7D1E /* XcodeProj.h */,
+				CD3A2422132D42DF00BB7D1E /* XcodeProj.m */,
 				CDF2D592130D950C0037E85E /* ResourcesGenerator.h */,
 				CDF2D593130D950C0037E85E /* ResourcesGenerator.m */,
 				CDF2E5AE131AC3970037E85E /* Property.h */,
@@ -212,8 +212,8 @@
 				CDF2E5B9131AC4610037E85E /* ImagesProperty.m in Sources */,
 				CDF2E600131AC76D0037E85E /* PathsProperty.m in Sources */,
 				CDF2E603131AC7AF0037E85E /* PathProperty.m in Sources */,
-				CDF2ED211323A6DD0037E85E /* XCodeProj.m in Sources */,
 				CD4E3D7113271B0B006148D5 /* StringKeysProperty.m in Sources */,
+				CD3A2423132D42E100BB7D1E /* XcodeProj.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -43,7 +43,7 @@
   BOOL optionIpad2xImageSuffx;
   
 @private
-  XCodeProj *xcodeProj;
+  XcodeProj *xcodeProj;
   ImagesProperty *imagesRoot;
   PathsProperty *pathsRoot;
   StringKeysProperty *stringKeysRoot;

@@ -1,5 +1,5 @@
 /*
- * XCodeProj.h, read Xcode project specific PBX structures
+ * XcodeProj.h, read Xcode project specific PBX structures
  *
  * Copyright (c) 2011 <mattias.wadman@gmail.com>
  *
@@ -31,7 +31,7 @@
 @implementation XCodeProjException
 @end
 
-@implementation XCodeProj
+@implementation XcodeProj
 @synthesize pbxFile;
 @synthesize nodeRefs;
 @synthesize mainGroup;
@@ -332,7 +332,7 @@
 @synthesize sourceTree;
 
 - (id)initFromPBXDictionary:(PBXDictionary *)pbxDict
-                  xcodeProj:(XCodeProj *)anXCodeProj
+                  xcodeProj:(XcodeProj *)anXCodeProj
                      parent:(XCodeGroup *)anParent {
   self = [super init];
   if (self == nil) {
@@ -409,7 +409,7 @@
 @synthesize children;
 
 - (id)initFromPBXDictionary:(PBXDictionary *)pbxDict
-                  xcodeProj:(XCodeProj *)anXCodeProj
+                  xcodeProj:(XcodeProj *)anXCodeProj
                      parent:(XCodeGroup *)anParent {
   self = [super initFromPBXDictionary:pbxDict
                             xcodeProj:anXCodeProj

@@ -38,7 +38,7 @@ static NSString *const LocalizableStringName = @"Localizable.strings";
 @end
 
 @interface ResourcesGenerator ()
-@property(nonatomic, retain) XCodeProj *xcodeProj;
+@property(nonatomic, retain) XcodeProj *xcodeProj;
 @property(nonatomic, retain) ImagesProperty *imagesRoot;
 @property(nonatomic, retain) PathsProperty *pathsRoot;
 @property(nonatomic, retain) StringKeysProperty *stringKeysRoot;
@@ -77,7 +77,7 @@ static NSString *const LocalizableStringName = @"Localizable.strings";
     return nil;
   }
   
-  self.xcodeProj = [[[XCodeProj alloc]
+  self.xcodeProj = [[[XcodeProj alloc]
 		     initWithPath:aPath
 		     environment:[[NSProcessInfo processInfo] environment]]
 		    autorelease];
