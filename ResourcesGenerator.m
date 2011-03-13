@@ -300,11 +300,12 @@ static NSString *const LocalizableStringName = @"Localizable.strings";
 		  name:filename
 		  path:[NSString pathWithComponents:
 			[dirComponents arrayByAddingObject:filename]]];
-	[self addPath:dirComponents
-		 name:filename
-		 path:[NSString pathWithComponents:
-		       [dirComponents arrayByAddingObject:filename]]];
       }
+      
+      [self addPath:dirComponents
+               name:filename
+               path:[NSString pathWithComponents:
+                     [dirComponents arrayByAddingObject:filename]]];
     }
   } else {
     trace(@"%@: Loading group file \"%@\"", targetName, name); 
@@ -321,12 +322,11 @@ static NSString *const LocalizableStringName = @"Localizable.strings";
 
 - (void)loadResourcesForTarget:(NSString *)targetName {
   __block BOOL targetFound = (targetName == nil);
- 
+  
   /*
    // TODO: autodetect sdk
    [self.xcodeProj forEachBuildSetting:^(NSString *buildConfigurationName,
    NSDictionary *buildSettings) {
-   
    NSLog(@"name=%@ settings=%@", buildConfigurationName, buildSettings);
    }];
    */
