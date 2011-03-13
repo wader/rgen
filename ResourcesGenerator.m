@@ -32,6 +32,8 @@
 #import "NSString+rgen.h"
 #import "NSCharacterSet+rgen.h"
 
+static NSString *const LocalizableStringName = @"Localizable.strings";
+
 @implementation ResourcesGeneratorException
 @end
 
@@ -297,7 +299,7 @@
       NSArray *dirComponents = [[NSArray arrayWithObject:name]
 				arrayByAddingObjectsFromArray:subpathComponents];
       
-      if ([filename isEqualToString:@"Localizable.strings"]) {
+      if ([filename isEqualToString:LocalizableStringName]) {
 	[self addLocalizableStrings:[NSString pathWithComponents:
 				     [NSArray arrayWithObjects:
 				      absPath,
