@@ -7,21 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8DD76F9A0486AA7600D96B5E /* rgen.m in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* rgen.m */; settings = {ATTRIBUTES = (); }; };
 		8DD76F9C0486AA7600D96B5E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08FB779EFE84155DC02AAC07 /* Foundation.framework */; };
-		CD3A2423132D42E100BB7D1E /* XcodeProj.m in Sources */ = {isa = PBXBuildFile; fileRef = CD3A2422132D42DF00BB7D1E /* XcodeProj.m */; };
-		CD4E3D7113271B0B006148D5 /* StringKeysProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CD4E3D7013271B0B006148D5 /* StringKeysProperty.m */; };
-		CDF2D579130D93D20037E85E /* PBXFile.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2D578130D93D20037E85E /* PBXFile.m */; };
-		CDF2D594130D950C0037E85E /* ResourcesGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2D593130D950C0037E85E /* ResourcesGenerator.m */; };
-		CDF2DDF91317FE910037E85E /* ClassGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2DDF81317FE910037E85E /* ClassGenerator.m */; };
-		CDF2E10A131964E40037E85E /* NSString+rgen.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2E109131964E40037E85E /* NSString+rgen.m */; };
-		CDF2E565131A95A30037E85E /* NSCharacterSet+rgen.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2E564131A95A30037E85E /* NSCharacterSet+rgen.m */; };
-		CDF2E5B0131AC3970037E85E /* Property.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2E5AF131AC3970037E85E /* Property.m */; };
-		CDF2E5B3131AC3D50037E85E /* ImageProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2E5B2131AC3D50037E85E /* ImageProperty.m */; };
-		CDF2E5B6131AC41E0037E85E /* ClassProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2E5B5131AC41E0037E85E /* ClassProperty.m */; };
-		CDF2E5B9131AC4610037E85E /* ImagesProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2E5B8131AC4610037E85E /* ImagesProperty.m */; };
-		CDF2E600131AC76D0037E85E /* PathsProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2E5FF131AC76D0037E85E /* PathsProperty.m */; };
-		CDF2E603131AC7AF0037E85E /* PathProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CDF2E602131AC7AF0037E85E /* PathProperty.m */; };
+		CD3A2463132F84C600BB7D1E /* ClassGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = CD3A2448132F84C600BB7D1E /* ClassGenerator.m */; };
+		CD3A2464132F84C600BB7D1E /* ClassProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CD3A244A132F84C600BB7D1E /* ClassProperty.m */; };
+		CD3A2465132F84C600BB7D1E /* ImageProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CD3A244C132F84C600BB7D1E /* ImageProperty.m */; };
+		CD3A2466132F84C600BB7D1E /* ImagesProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CD3A244E132F84C600BB7D1E /* ImagesProperty.m */; };
+		CD3A2467132F84C600BB7D1E /* NSCharacterSet+rgen.m in Sources */ = {isa = PBXBuildFile; fileRef = CD3A2450132F84C600BB7D1E /* NSCharacterSet+rgen.m */; };
+		CD3A2468132F84C600BB7D1E /* NSString+rgen.m in Sources */ = {isa = PBXBuildFile; fileRef = CD3A2452132F84C600BB7D1E /* NSString+rgen.m */; };
+		CD3A2469132F84C600BB7D1E /* PathProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CD3A2454132F84C600BB7D1E /* PathProperty.m */; };
+		CD3A246A132F84C600BB7D1E /* PathsProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CD3A2456132F84C600BB7D1E /* PathsProperty.m */; };
+		CD3A246B132F84C600BB7D1E /* PBXFile.m in Sources */ = {isa = PBXBuildFile; fileRef = CD3A2458132F84C600BB7D1E /* PBXFile.m */; };
+		CD3A246C132F84C600BB7D1E /* Property.m in Sources */ = {isa = PBXBuildFile; fileRef = CD3A245A132F84C600BB7D1E /* Property.m */; };
+		CD3A246D132F84C600BB7D1E /* ResourcesGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = CD3A245C132F84C600BB7D1E /* ResourcesGenerator.m */; };
+		CD3A246E132F84C600BB7D1E /* rgen.m in Sources */ = {isa = PBXBuildFile; fileRef = CD3A245E132F84C600BB7D1E /* rgen.m */; };
+		CD3A246F132F84C600BB7D1E /* StringKeysProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = CD3A2460132F84C600BB7D1E /* StringKeysProperty.m */; };
+		CD3A2470132F84C600BB7D1E /* XcodeProj.m in Sources */ = {isa = PBXBuildFile; fileRef = CD3A2462132F84C600BB7D1E /* XcodeProj.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -37,36 +37,36 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		08FB7796FE84155DC02AAC07 /* rgen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = rgen.m; sourceTree = "<group>"; };
 		08FB779EFE84155DC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8DD76FA10486AA7600D96B5E /* rgen */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = rgen; sourceTree = BUILT_PRODUCTS_DIR; };
-		CD3A2421132D42DD00BB7D1E /* XcodeProj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XcodeProj.h; sourceTree = "<group>"; };
-		CD3A2422132D42DF00BB7D1E /* XcodeProj.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XcodeProj.m; sourceTree = "<group>"; };
-		CD4E3D6F13271B0B006148D5 /* StringKeysProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringKeysProperty.h; sourceTree = "<group>"; };
-		CD4E3D7013271B0B006148D5 /* StringKeysProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StringKeysProperty.m; sourceTree = "<group>"; };
-		CDF2D577130D93D20037E85E /* PBXFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBXFile.h; sourceTree = "<group>"; };
-		CDF2D578130D93D20037E85E /* PBXFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBXFile.m; sourceTree = "<group>"; };
-		CDF2D592130D950C0037E85E /* ResourcesGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourcesGenerator.h; sourceTree = "<group>"; };
-		CDF2D593130D950C0037E85E /* ResourcesGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourcesGenerator.m; sourceTree = "<group>"; };
-		CDF2DDF71317FE910037E85E /* ClassGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClassGenerator.h; sourceTree = "<group>"; };
-		CDF2DDF81317FE910037E85E /* ClassGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClassGenerator.m; sourceTree = "<group>"; };
-		CDF2E108131964E40037E85E /* NSString+rgen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+rgen.h"; sourceTree = "<group>"; };
-		CDF2E109131964E40037E85E /* NSString+rgen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+rgen.m"; sourceTree = "<group>"; };
-		CDF2E563131A95A30037E85E /* NSCharacterSet+rgen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSCharacterSet+rgen.h"; sourceTree = "<group>"; };
-		CDF2E564131A95A30037E85E /* NSCharacterSet+rgen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSCharacterSet+rgen.m"; sourceTree = "<group>"; };
-		CDF2E5AE131AC3970037E85E /* Property.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Property.h; sourceTree = "<group>"; };
-		CDF2E5AF131AC3970037E85E /* Property.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Property.m; sourceTree = "<group>"; };
-		CDF2E5B1131AC3D50037E85E /* ImageProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageProperty.h; sourceTree = "<group>"; };
-		CDF2E5B2131AC3D50037E85E /* ImageProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageProperty.m; sourceTree = "<group>"; };
-		CDF2E5B4131AC41E0037E85E /* ClassProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClassProperty.h; sourceTree = "<group>"; };
-		CDF2E5B5131AC41E0037E85E /* ClassProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClassProperty.m; sourceTree = "<group>"; };
-		CDF2E5B7131AC4610037E85E /* ImagesProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImagesProperty.h; sourceTree = "<group>"; };
-		CDF2E5B8131AC4610037E85E /* ImagesProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImagesProperty.m; sourceTree = "<group>"; };
-		CDF2E5FE131AC76D0037E85E /* PathsProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathsProperty.h; sourceTree = "<group>"; };
-		CDF2E5FF131AC76D0037E85E /* PathsProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PathsProperty.m; sourceTree = "<group>"; };
-		CDF2E601131AC7AF0037E85E /* PathProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathProperty.h; sourceTree = "<group>"; };
-		CDF2E602131AC7AF0037E85E /* PathProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PathProperty.m; sourceTree = "<group>"; };
-		CDF2E760131BD9570037E85E /* rgen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rgen.h; sourceTree = "<group>"; };
+		CD3A2447132F84C600BB7D1E /* ClassGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClassGenerator.h; sourceTree = "<group>"; };
+		CD3A2448132F84C600BB7D1E /* ClassGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClassGenerator.m; sourceTree = "<group>"; };
+		CD3A2449132F84C600BB7D1E /* ClassProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClassProperty.h; sourceTree = "<group>"; };
+		CD3A244A132F84C600BB7D1E /* ClassProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClassProperty.m; sourceTree = "<group>"; };
+		CD3A244B132F84C600BB7D1E /* ImageProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageProperty.h; sourceTree = "<group>"; };
+		CD3A244C132F84C600BB7D1E /* ImageProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageProperty.m; sourceTree = "<group>"; };
+		CD3A244D132F84C600BB7D1E /* ImagesProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImagesProperty.h; sourceTree = "<group>"; };
+		CD3A244E132F84C600BB7D1E /* ImagesProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImagesProperty.m; sourceTree = "<group>"; };
+		CD3A244F132F84C600BB7D1E /* NSCharacterSet+rgen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSCharacterSet+rgen.h"; sourceTree = "<group>"; };
+		CD3A2450132F84C600BB7D1E /* NSCharacterSet+rgen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSCharacterSet+rgen.m"; sourceTree = "<group>"; };
+		CD3A2451132F84C600BB7D1E /* NSString+rgen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+rgen.h"; sourceTree = "<group>"; };
+		CD3A2452132F84C600BB7D1E /* NSString+rgen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+rgen.m"; sourceTree = "<group>"; };
+		CD3A2453132F84C600BB7D1E /* PathProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathProperty.h; sourceTree = "<group>"; };
+		CD3A2454132F84C600BB7D1E /* PathProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PathProperty.m; sourceTree = "<group>"; };
+		CD3A2455132F84C600BB7D1E /* PathsProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathsProperty.h; sourceTree = "<group>"; };
+		CD3A2456132F84C600BB7D1E /* PathsProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PathsProperty.m; sourceTree = "<group>"; };
+		CD3A2457132F84C600BB7D1E /* PBXFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBXFile.h; sourceTree = "<group>"; };
+		CD3A2458132F84C600BB7D1E /* PBXFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBXFile.m; sourceTree = "<group>"; };
+		CD3A2459132F84C600BB7D1E /* Property.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Property.h; sourceTree = "<group>"; };
+		CD3A245A132F84C600BB7D1E /* Property.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Property.m; sourceTree = "<group>"; };
+		CD3A245B132F84C600BB7D1E /* ResourcesGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourcesGenerator.h; sourceTree = "<group>"; };
+		CD3A245C132F84C600BB7D1E /* ResourcesGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResourcesGenerator.m; sourceTree = "<group>"; };
+		CD3A245D132F84C600BB7D1E /* rgen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rgen.h; sourceTree = "<group>"; };
+		CD3A245E132F84C600BB7D1E /* rgen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = rgen.m; sourceTree = "<group>"; };
+		CD3A245F132F84C600BB7D1E /* StringKeysProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringKeysProperty.h; sourceTree = "<group>"; };
+		CD3A2460132F84C600BB7D1E /* StringKeysProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StringKeysProperty.m; sourceTree = "<group>"; };
+		CD3A2461132F84C600BB7D1E /* XcodeProj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XcodeProj.h; sourceTree = "<group>"; };
+		CD3A2462132F84C600BB7D1E /* XcodeProj.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XcodeProj.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,47 +84,12 @@
 		08FB7794FE84155DC02AAC07 /* rgen */ = {
 			isa = PBXGroup;
 			children = (
-				08FB7795FE84155DC02AAC07 /* Source */,
+				CD3A2446132F84C600BB7D1E /* rgen */,
 				C6859EA2029092E104C91782 /* Documentation */,
 				08FB779DFE84155DC02AAC07 /* External Frameworks and Libraries */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
 			);
 			name = rgen;
-			sourceTree = "<group>";
-		};
-		08FB7795FE84155DC02AAC07 /* Source */ = {
-			isa = PBXGroup;
-			children = (
-				08FB7796FE84155DC02AAC07 /* rgen.m */,
-				CDF2E760131BD9570037E85E /* rgen.h */,
-				CDF2D577130D93D20037E85E /* PBXFile.h */,
-				CDF2D578130D93D20037E85E /* PBXFile.m */,
-				CD3A2421132D42DD00BB7D1E /* XcodeProj.h */,
-				CD3A2422132D42DF00BB7D1E /* XcodeProj.m */,
-				CDF2D592130D950C0037E85E /* ResourcesGenerator.h */,
-				CDF2D593130D950C0037E85E /* ResourcesGenerator.m */,
-				CDF2E5AE131AC3970037E85E /* Property.h */,
-				CDF2E5AF131AC3970037E85E /* Property.m */,
-				CDF2E5B4131AC41E0037E85E /* ClassProperty.h */,
-				CDF2E5B5131AC41E0037E85E /* ClassProperty.m */,
-				CDF2E5B1131AC3D50037E85E /* ImageProperty.h */,
-				CDF2E5B2131AC3D50037E85E /* ImageProperty.m */,
-				CDF2E5B7131AC4610037E85E /* ImagesProperty.h */,
-				CDF2E5B8131AC4610037E85E /* ImagesProperty.m */,
-				CDF2E5FE131AC76D0037E85E /* PathsProperty.h */,
-				CDF2E5FF131AC76D0037E85E /* PathsProperty.m */,
-				CDF2E601131AC7AF0037E85E /* PathProperty.h */,
-				CDF2E602131AC7AF0037E85E /* PathProperty.m */,
-				CD4E3D6F13271B0B006148D5 /* StringKeysProperty.h */,
-				CD4E3D7013271B0B006148D5 /* StringKeysProperty.m */,
-				CDF2DDF71317FE910037E85E /* ClassGenerator.h */,
-				CDF2DDF81317FE910037E85E /* ClassGenerator.m */,
-				CDF2E108131964E40037E85E /* NSString+rgen.h */,
-				CDF2E109131964E40037E85E /* NSString+rgen.m */,
-				CDF2E563131A95A30037E85E /* NSCharacterSet+rgen.h */,
-				CDF2E564131A95A30037E85E /* NSCharacterSet+rgen.m */,
-			);
-			name = Source;
 			sourceTree = "<group>";
 		};
 		08FB779DFE84155DC02AAC07 /* External Frameworks and Libraries */ = {
@@ -148,6 +113,41 @@
 			children = (
 			);
 			name = Documentation;
+			sourceTree = "<group>";
+		};
+		CD3A2446132F84C600BB7D1E /* rgen */ = {
+			isa = PBXGroup;
+			children = (
+				CD3A245D132F84C600BB7D1E /* rgen.h */,
+				CD3A245E132F84C600BB7D1E /* rgen.m */,
+				CD3A245B132F84C600BB7D1E /* ResourcesGenerator.h */,
+				CD3A245C132F84C600BB7D1E /* ResourcesGenerator.m */,
+				CD3A2449132F84C600BB7D1E /* ClassProperty.h */,
+				CD3A244A132F84C600BB7D1E /* ClassProperty.m */,
+				CD3A244B132F84C600BB7D1E /* ImageProperty.h */,
+				CD3A244C132F84C600BB7D1E /* ImageProperty.m */,
+				CD3A244D132F84C600BB7D1E /* ImagesProperty.h */,
+				CD3A244E132F84C600BB7D1E /* ImagesProperty.m */,
+				CD3A2453132F84C600BB7D1E /* PathProperty.h */,
+				CD3A2454132F84C600BB7D1E /* PathProperty.m */,
+				CD3A2455132F84C600BB7D1E /* PathsProperty.h */,
+				CD3A2456132F84C600BB7D1E /* PathsProperty.m */,
+				CD3A2459132F84C600BB7D1E /* Property.h */,
+				CD3A245A132F84C600BB7D1E /* Property.m */,
+				CD3A245F132F84C600BB7D1E /* StringKeysProperty.h */,
+				CD3A2460132F84C600BB7D1E /* StringKeysProperty.m */,
+				CD3A2447132F84C600BB7D1E /* ClassGenerator.h */,
+				CD3A2448132F84C600BB7D1E /* ClassGenerator.m */,
+				CD3A2451132F84C600BB7D1E /* NSString+rgen.h */,
+				CD3A2452132F84C600BB7D1E /* NSString+rgen.m */,
+				CD3A244F132F84C600BB7D1E /* NSCharacterSet+rgen.h */,
+				CD3A2450132F84C600BB7D1E /* NSCharacterSet+rgen.m */,
+				CD3A2457132F84C600BB7D1E /* PBXFile.h */,
+				CD3A2458132F84C600BB7D1E /* PBXFile.m */,
+				CD3A2461132F84C600BB7D1E /* XcodeProj.h */,
+				CD3A2462132F84C600BB7D1E /* XcodeProj.m */,
+			);
+			path = rgen;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -200,20 +200,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8DD76F9A0486AA7600D96B5E /* rgen.m in Sources */,
-				CDF2D579130D93D20037E85E /* PBXFile.m in Sources */,
-				CDF2D594130D950C0037E85E /* ResourcesGenerator.m in Sources */,
-				CDF2DDF91317FE910037E85E /* ClassGenerator.m in Sources */,
-				CDF2E10A131964E40037E85E /* NSString+rgen.m in Sources */,
-				CDF2E565131A95A30037E85E /* NSCharacterSet+rgen.m in Sources */,
-				CDF2E5B0131AC3970037E85E /* Property.m in Sources */,
-				CDF2E5B3131AC3D50037E85E /* ImageProperty.m in Sources */,
-				CDF2E5B6131AC41E0037E85E /* ClassProperty.m in Sources */,
-				CDF2E5B9131AC4610037E85E /* ImagesProperty.m in Sources */,
-				CDF2E600131AC76D0037E85E /* PathsProperty.m in Sources */,
-				CDF2E603131AC7AF0037E85E /* PathProperty.m in Sources */,
-				CD4E3D7113271B0B006148D5 /* StringKeysProperty.m in Sources */,
-				CD3A2423132D42E100BB7D1E /* XcodeProj.m in Sources */,
+				CD3A2463132F84C600BB7D1E /* ClassGenerator.m in Sources */,
+				CD3A2464132F84C600BB7D1E /* ClassProperty.m in Sources */,
+				CD3A2465132F84C600BB7D1E /* ImageProperty.m in Sources */,
+				CD3A2466132F84C600BB7D1E /* ImagesProperty.m in Sources */,
+				CD3A2467132F84C600BB7D1E /* NSCharacterSet+rgen.m in Sources */,
+				CD3A2468132F84C600BB7D1E /* NSString+rgen.m in Sources */,
+				CD3A2469132F84C600BB7D1E /* PathProperty.m in Sources */,
+				CD3A246A132F84C600BB7D1E /* PathsProperty.m in Sources */,
+				CD3A246B132F84C600BB7D1E /* PBXFile.m in Sources */,
+				CD3A246C132F84C600BB7D1E /* Property.m in Sources */,
+				CD3A246D132F84C600BB7D1E /* ResourcesGenerator.m in Sources */,
+				CD3A246E132F84C600BB7D1E /* rgen.m in Sources */,
+				CD3A246F132F84C600BB7D1E /* StringKeysProperty.m in Sources */,
+				CD3A2470132F84C600BB7D1E /* XcodeProj.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
