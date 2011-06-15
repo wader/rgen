@@ -73,8 +73,6 @@ Mac OS X 10.6 i386 that will work on both 32 and 64 bit systems.
 	  --ipad2x          Support @2x as 1.0 scale image on iPad
 	  -v, --verbose     Verbose output
 
-### Features
-
 If no `Output path` is specified code will be generated to
 `Resources.m` and `Resources.h` in the current dirctory.
 
@@ -107,8 +105,8 @@ build without `rgen` is installed.
 `$PROJECT_FILE_PATH` and `$SRCROOT` will be assigned
 by Xcode.
 
-	RGEN=/path/to/rgen
-	which -s $RGEN && $RGEN -IPS $PROJECT_FILE_PATH $SRCROOT/Classes/Resources
+	RGEN="/path/to/rgen"
+	which -s "$RGEN" && "$RGEN" -IPS "$PROJECT_FILE_PATH" "$SRCROOT/Classes/Resources"
 
 Now build the target and two new files, in this case
 `Classes/Resources.m` and `Classes/Resources.h` will be
@@ -121,11 +119,51 @@ to your `*_Prefix.pch` file. `rgen` makes sure not to touch
 the generated files if nothing has changed since last run to not trigger
 unnecessary rebuilds.
 
+### Multi target setup
+
+Every target should generate their own resource code and header file to make
+sure you get compile errors if you accidently use resources not available to
+a target.
+
+Each target should have a build script, for example:
+
+TargetA
+
+	RGEN="/Users/mattias/src/rgen/build/Release/rgen"
+	which -s "$RGEN" && "$RGEN" -IPS "$PROJECT_FILE_PATH" "$SRCROOT/Classes/TargetA" "$TARGET_NAME"
+
+TargetB
+	
+	RGEN="/Users/mattias/src/rgen/build/Release/rgen"
+	which -s "$RGEN" && "$RGEN" -IPS "$PROJECT_FILE_PATH" "$SRCROOT/Classes/TargetB" "$TARGET_NAME"
+
+Now the files `TargetA.m`, `TargetA.m`, `TargetB.m` and `TargetB.h` will be
+generated. Build each target and then add the files to the corresponding
+target of your project.
+
+Unfortunately the C preprocessor does not support comparing strings
+(`#if TARGET_NAME == "TargetA"` etc) so if you not already have some define
+to distinguish between your targets you should add a define under
+"Preprocessor marcos" in your build settings. A solution is to define TARGETA
+to some dummy value for target TargetA and TARGETB for target TargetB.
+
+Now add imports to some shared header file (`*_Prefix.pch` is a good place).
+
+	#if defined(TARGETA)
+	#import "TargetA.h"
+	#elif defined(TARGETB)
+	#import "TargetB.h"
+	#endif
+
+Done!
+
 ### Run from terminal
 
-Should work fine as long as your project does not have weird source trees paths.
-rgen uses various exported environment variables when running in a build script
-but can fallback to guessing paths based on project path.
+Should work fine as long as your project does not have unsupported source
+trees paths.
+rgen uses various exported environment variables when running in a build
+script to figure out paths but can fallback to guessing paths based on
+project path.
 
 Example:
 `rgen -IPS path/to/app.xcodeproj path/to/Classes/ResourcesTargetA TargetA`
@@ -139,14 +177,11 @@ keys found for target `TargetA`
 *  Support custome source tree paths
 *  Support Mac OS X applications. Autodetect via SDK (iphoneos/macosx) and
    generate NSImage code etc
-*  Read other .strings files then just Localizable.strings
+*  Read other .strings files (more then just Localizable.strings)
 *  Detect class name collisions
 *  Support document paths somehow. Specify list of known paths etc
 *  Rebuild dependencies seams to be calculated before starting build
    so you might need to build twice to use updated resources files
 *  Xcode plugin?
-*  RGEN path as user setting for shared project files. Make sure rgen is in path or
-use .xcconfig files? 
-*  Document multi target setup. Generate different resources files per target,
-   use define and #ifdef import
-
+*  RGEN path as user setting for shared project files. Make sure rgen is in
+   path or use .xcconfig files? 
