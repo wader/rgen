@@ -43,15 +43,18 @@
 @end
 
 @interface MethodGenerator : NSObject {
+  NSString *comment;
   NSString *signature;
   IndentedLines *lines;
 }
 
+@property(nonatomic, retain) NSString *comment;
 @property(nonatomic, retain) NSString *signature;
 @property(nonatomic, retain) IndentedLines *lines;
 
+- (id)initWithSignature:(NSString *)aSignature comment:(NSString *)aComment;
 - (id)initWithSignature:(NSString *)aSignature;
-- (void)addLineIndent:(NSUInteger)aIndent format:(NSString *)format, ...;
+- (void)addLineIndent:(NSUInteger)aIndent format:(NSString *)aFormat, ...;
 @end
 
 @interface ClassGenerator : NSObject {
@@ -84,9 +87,12 @@
 - (void)addSynthesizerName:(NSString *)aName
 		      line:(NSString *)aFormatLine, ...;
 - (MethodGenerator *)addMethodName:(NSString *)aName
-		       declaration:(BOOL)declaration
+                           comment:(NSString *)aComment
+		       declaration:(BOOL)isDeclaration
 			 signature:(NSString *)aFormatSignature, ...;
-
+- (MethodGenerator *)addMethodName:(NSString *)aName
+		       declaration:(BOOL)isDeclaration
+			 signature:(NSString *)aFormatSignature, ...;
 - (NSString *)header;
 - (NSString *)implementation;
 

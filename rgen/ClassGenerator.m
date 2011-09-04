@@ -76,19 +76,25 @@ static NSString *const oneIndent = @"  ";
 @end
 
 @implementation MethodGenerator
+@synthesize comment;
 @synthesize signature;
 @synthesize lines;
 
-- (id)initWithSignature:(NSString *)aSignature {
+- (id)initWithSignature:(NSString *)aSignature comment:(NSString *)aComment {
   self = [super init];
   if (self == nil) {
     return nil;
   }
   
+  self.comment = aComment;
   self.signature = aSignature;
   self.lines = [[[IndentedLines alloc] init] autorelease];
   
   return self;
+}
+
+- (id)initWithSignature:(NSString *)aSignature {
+  return [self initWithSignature:aSignature comment:nil];
 }
 
 - (NSString *)description {
@@ -100,18 +106,19 @@ static NSString *const oneIndent = @"  ";
 	  self.lines];
 }
 
-- (void)addLineIndent:(NSUInteger)aIndent format:(NSString *)format, ... {
+- (void)addLineIndent:(NSUInteger)aIndent format:(NSString *)aFormat, ... {
   IndentLine *line = [[[IndentLine alloc] init] autorelease];
   line.indent = aIndent;
   va_list va;
-  va_start(va, format);
-  line.text = [[[NSString alloc] initWithFormat:format arguments:va]
+  va_start(va, aFormat);
+  line.text = [[[NSString alloc] initWithFormat:aFormat arguments:va]
 	       autorelease];
   va_end(va);
   [self.lines.indentedLines addObject:line];
 }
 
 - (void)dealloc {
+  self.comment = nil;
   self.signature = nil;
   self.lines = nil;
   
@@ -177,10 +184,12 @@ static NSString *const oneIndent = @"  ";
 		      line:(NSString *)aFormatLine, ... {
   va_list va;
   va_start(va, aFormatLine);
-  [self.declarations setObject:[[[NSString alloc]
-				 initWithFormat:aFormatLine
-				 arguments:va]
-				autorelease]
+  [self.declarations setObject:[[[MethodGenerator alloc]
+                                 initWithSignature:[[[NSString alloc]
+                                                     initWithFormat:aFormatLine
+                                                     arguments:va]
+                                                    autorelease]]
+                                autorelease]
 			forKey:aName];
   va_end(va);
 }
@@ -198,26 +207,53 @@ static NSString *const oneIndent = @"  ";
 }
 
 - (MethodGenerator *)addMethodName:(NSString *)aName
-		       declaration:(BOOL)declaration
-			 signature:(NSString *)aFormatSignature, ... {
-  va_list va;
-  va_start(va, aFormatSignature);
-  NSString *signature = [[[NSString alloc]
-			  initWithFormat:aFormatSignature
-			  arguments:va]
-			 autorelease];
-  va_end(va);
-  
-  MethodGenerator *method = [[[MethodGenerator alloc] initWithSignature:signature]
+                           comment:(NSString *)aComment
+		       declaration:(BOOL)isDeclaration
+			 signature:(NSString *)aFormatSignature
+                            vaList:(va_list)va {
+  MethodGenerator *method = [[[MethodGenerator alloc]
+                              initWithSignature:[[[NSString alloc]
+                                                  initWithFormat:aFormatSignature
+                                                  arguments:va]
+                                                 autorelease]
+                              comment:aComment]
 			     autorelease];
   [self.methods setObject:method forKey:aName];
   
-  if (declaration) {
-    [self.declarations setObject:signature forKey:aName];
+  if (isDeclaration) {
+    [self.declarations setObject:method forKey:aName];
   }
   
   return method;
 }
+
+- (MethodGenerator *)addMethodName:(NSString *)aName
+                           comment:(NSString *)aComment
+		       declaration:(BOOL)isDeclaration
+			 signature:(NSString *)aFormatSignature, ... {
+  va_list va;
+  va_start(va, aFormatSignature);
+  MethodGenerator *method = [self addMethodName:aName
+                                        comment:aComment
+                                    declaration:isDeclaration
+                                      signature:aFormatSignature
+                                         vaList:va];
+  va_end(va);
+  return method;
+}
+
+- (MethodGenerator *)addMethodName:(NSString *)aName
+		       declaration:(BOOL)isDeclaration
+			 signature:(NSString *)aFormatSignature, ... {
+  va_list va;
+  va_start(va, aFormatSignature);
+  MethodGenerator *method = [self addMethodName:aName
+                                        comment:nil
+                                    declaration:isDeclaration
+                                      signature:aFormatSignature
+                                         vaList:va];
+  va_end(va);
+  return method;}
 
 - (NSString *)header {
   NSMutableString *s = [NSMutableString string];
@@ -248,8 +284,11 @@ static NSString *const oneIndent = @"  ";
   if ([self.declarations count] > 0) {
     for(id key in [[self.declarations allKeys]
 		   sortedArrayUsingSelector:@selector(compare:)]) {
-      NSString *line = [self.declarations objectForKey:key];
-      [s appendFormat:@"%@;\n", line];
+      MethodGenerator *method = [self.declarations objectForKey:key];
+      if (method.comment != nil) {
+        [s appendFormat:@"%@\n", method.comment];
+      }
+      [s appendFormat:@"%@;\n", method.signature];
     }
     [s appendString:@"\n"];
   }

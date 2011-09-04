@@ -46,7 +46,7 @@
     [ipadSuffixes addObject:@"@2x"];
   }
   
-  MethodGenerator *iMethod = [[[MethodGenerator alloc] 
+  MethodGenerator *iMethod = [[[MethodGenerator alloc]
 			       initWithSignature:@"static UIImage *i(NSString *path)"]
 			      autorelease];
   if ([ipadSuffixes count] > 0) {
@@ -143,10 +143,12 @@
   if (generator.optionLoadImages) {
     MethodGenerator *loadImagesMethod = [classGenerator
 					 addMethodName:@"2loadImages"
+                                         comment:@"//! Load and retain images recursively"
 					 declaration:YES
 					 signature:@"- (void)loadImages"];
     MethodGenerator *releaseImagesMethod = [classGenerator
 					    addMethodName:@"3releaseImages"
+                                            comment:@"//! Release images recursively"
 					    declaration:YES
 					    signature:@"- (void)releaseImages"];
     [self forEachProperty:^(Property *property) {
