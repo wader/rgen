@@ -119,7 +119,7 @@
       
       [classGenerator
        addPropertyName:pathsProperty.name
-       line:@"@property(nonatomic, readonly) %@ *%@; // %@",
+       line:@"@property(nonatomic, readonly) %@ *%@; //!< %@",
        pathsProperty.className,
        pathsProperty.name,
        pathsProperty.path];

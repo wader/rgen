@@ -34,7 +34,7 @@
        generator:(ResourcesGenerator *)generator {
   [classGenerator
    addPropertyName:self.name
-   line:@"@property(nonatomic, readonly) NSString *%@; // %@",
+   line:@"@property(nonatomic, readonly) NSString *%@; //!< %@",
    self.name,
    self.path];
   

@@ -35,7 +35,7 @@
        generator:(ResourcesGenerator *)generator {
   [classGenerator
    addPropertyName:self.name
-   line:@"@property(nonatomic, readonly) UIImage *%@; // %@",
+   line:@"@property(nonatomic, readonly) UIImage *%@; //!< %@",
    self.name,
    self.path];
   

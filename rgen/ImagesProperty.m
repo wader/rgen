@@ -120,7 +120,7 @@
       
       [classGenerator
        addPropertyName:imagesProperty.name
-       line:@"@property(nonatomic, readonly) %@ *%@; // %@",
+       line:@"@property(nonatomic, readonly) %@ *%@; //!< %@",
        imagesProperty.className,
        imagesProperty.name,
        imagesProperty.path];

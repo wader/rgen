@@ -60,7 +60,7 @@
     
     [classGenerator
      addPropertyName:property.name
-     line:@"@property(nonatomic, readonly) NSString *%@; // %@",
+     line:@"@property(nonatomic, readonly) NSString *%@; //!< %@",
      property.name,
      property.path]; // path is used for string key
     
