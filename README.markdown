@@ -48,6 +48,10 @@ This is very nice for several reasons
 
 ## Install
 
+Homebrew:
+
+	$ brew install --HEAD https://raw.github.com/wader/rgen/master/homebrew/rgen.rb
+
 Compile from source:
 
 	$ git clone git://github.com/wader/rgen.git
