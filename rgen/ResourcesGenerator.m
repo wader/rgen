@@ -341,18 +341,19 @@ static NSString *const LocalizableStringName = @"Localizable.strings";
       
       if ([xcodeNode isKindOfClass:[XCodeGroup class]]) {
         for (XCodeNode *groupXCodeNode in ((XCodeGroup *)xcodeNode).children) {
-          if ([groupXCodeNode isKindOfClass:[XCodeFile class]] &&
-              [groupXCodeNode.path isEqualToString:LocalizableStringName]) {
-            NSString *path = [groupXCodeNode absolutePath];
-            if (path == nil) {
-              [self raiseFormat:
-               @"%@: Could resolve path to localizable string path=@% sourceTree=%@",
-               buildTargetName, groupXCodeNode.path, groupXCodeNode.sourceTree];
-            }
-            
-            [self addLocalizableStrings:[groupXCodeNode absolutePath]
-                             targetName:buildTargetName];
-          }
+          if ([groupXCodeNode isKindOfClass:[XCodeFile class]])
+            if(groupXCodeNode.path.length >= LocalizableStringName.length &&
+               [[groupXCodeNode.path substringFromIndex:groupXCodeNode.path.length-LocalizableStringName.length] isEqualToString:LocalizableStringName]) {
+              NSString *path = [groupXCodeNode absolutePath];
+              if (path == nil) {
+                [self raiseFormat:
+                 @"%@: Could resolve path to localizable string path=@% sourceTree=%@",
+                 buildTargetName, groupXCodeNode.path, groupXCodeNode.sourceTree];
+              }
+              
+              [self addLocalizableStrings:[groupXCodeNode absolutePath]
+															 targetName:buildTargetName];
+						}
         }
       } else {
         [self loadFileReference:(XCodeFile *)xcodeNode targetName:buildTargetName];

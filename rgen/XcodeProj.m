@@ -173,14 +173,14 @@
 
 - (void)forEachBuildResource:(void (^)(NSString *buildTargetName,
 				       XCodeNode *xcodeNode))block {
-  [self loadMainGroup]; 
+  [self loadMainGroup];
   
   NSArray *targets = [self.pbxFile.rootDictionary refDictArrayForKey:@"targets"];
   if (targets == nil) {
     [self raiseFormat:@"Failed to read targets array"];
   }
   
-  for (PBXDictionary *target in targets) {    
+  for (PBXDictionary *target in targets) {
     NSString *name = [target objectForKey:@"name"];
     if (name == nil || ![name isKindOfClass:[NSString class]]) {
       [self raiseFormat:@"Failed to read target name"];
@@ -195,37 +195,48 @@
     for (PBXDictionary *buildPhase in buildPhases) {
       NSString *buildIsa = [buildPhase objectForKey:@"isa"];
       if (buildIsa == nil || ![buildIsa isKindOfClass:[NSString class]]) {
-	[self raiseFormat:
-	 @"Failed to read buildIsa for buildPhase for target \"%@\"",name];
+        [self raiseFormat:
+         @"Failed to read buildIsa for buildPhase for target \"%@\"",name];
       }
       
       if (![buildIsa isEqualToString:@"PBXResourcesBuildPhase"]) {
-	continue;
+        continue;
       }
       
       NSArray *files = [buildPhase refDictArrayForKey:@"files"];
       if (files == nil) {
-	[self raiseFormat:
-	 @"Failed to read files array for resource build phase for target \"%@\"",
-	 name];
+        [self raiseFormat:
+         @"Failed to read files array for resource build phase for target \"%@\"",
+         name];
       }
       
       for (PBXDictionary *file in files) {
-	PBXDictionary *fileRef = [file refDictForKey:@"fileRef"];
-	if (fileRef == nil) {
-	  [self raiseFormat:
-	   @"Failed to read fileRef for file in resource build phase for target \"%@\"",
-	   name];
-	}
+        PBXDictionary *fileRef = [file refDictForKey:@"fileRef"];
+        if (fileRef == nil) {
+          [self raiseFormat:
+           @"Failed to read fileRef for file in resource build phase for target \"%@\"",
+           name];
+        }
         
-        XCodeFile *xcodeNode = [self.nodeRefs objectForKey:fileRef.objectId];
-        if (xcodeNode == nil) {
-	  [self raiseFormat:
-	   @"Could not find file reference %@ for build file", fileRef.objectId];
-	}
-        
-	block(name, xcodeNode);
-      }      
+        // in multilingual projects, "fileRef" can refer to a PBXVariantGroup
+        // if the file has multiple variants per language
+        // each child of the VariantGroup is a PBXFileReference
+        NSString *fileRefIsa = [fileRef objectForKey:@"isa"];
+        if ([fileRefIsa isEqualToString:@"PBXVariantGroup"])	{
+					XCodeGroup *variantGroup = [self.nodeRefs objectForKey:fileRef.objectId];
+          block(name, variantGroup);
+				}
+				else {
+					XCodeFile *xcodeNode = [self.nodeRefs objectForKey:fileRef.objectId];
+					if (xcodeNode == nil) {
+            [self raiseFormat:
+             @"Could not find file reference %@ for build file", fileRef.objectId];
+						continue;
+					}
+          
+					block(name, xcodeNode);
+				}
+      }
     }
   }
 }
