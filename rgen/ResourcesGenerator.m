@@ -341,8 +341,7 @@ static NSString *const LocalizableStringName = @"Localizable.strings";
       
       if ([xcodeNode isKindOfClass:[XCodeGroup class]]) {
         for (XCodeNode *groupXCodeNode in ((XCodeGroup *)xcodeNode).children) {
-          if ([groupXCodeNode isKindOfClass:[XCodeFile class]] &&
-              [groupXCodeNode.path isEqualToString:LocalizableStringName]) {
+          if ([groupXCodeNode isKindOfClass:[XCodeFile class]] && [groupXCodeNode.path hasSuffix:LocalizableStringName]) {
             NSString *path = [groupXCodeNode absolutePath];
             if (path == nil) {
               [self raiseFormat:
