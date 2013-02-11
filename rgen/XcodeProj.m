@@ -222,20 +222,24 @@
         // if the file has multiple variants per language
         // each child of the VariantGroup is a PBXFileReference
         NSString *fileRefIsa = [fileRef objectForKey:@"isa"];
-        if ([fileRefIsa isEqualToString:@"PBXVariantGroup"])	{
-					XCodeGroup *variantGroup = [self.nodeRefs objectForKey:fileRef.objectId];
+        if ([fileRefIsa isEqualToString:@"PBXVariantGroup"]) {
+          XCodeGroup *variantGroup = [self.nodeRefs objectForKey:fileRef.objectId];
+          if (variantGroup == nil) {
+            [self raiseFormat:
+             @"Could not find variant group %@ for build file", fileRef.objectId];
+            continue;
+          }
           block(name, variantGroup);
-				}
-				else {
-					XCodeFile *xcodeNode = [self.nodeRefs objectForKey:fileRef.objectId];
-					if (xcodeNode == nil) {
+        }
+        else {
+          XCodeFile *xcodeNode = [self.nodeRefs objectForKey:fileRef.objectId];
+          if (xcodeNode == nil) {
             [self raiseFormat:
              @"Could not find file reference %@ for build file", fileRef.objectId];
-						continue;
-					}
-          
-					block(name, xcodeNode);
-				}
+            continue;
+          }
+          block(name, xcodeNode);
+        }
       }
     }
   }
