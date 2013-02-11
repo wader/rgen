@@ -310,6 +310,11 @@ static NSString *const LocalizableStringName = @"Localizable.strings";
   } else {
     trace(@"%@: Loading group file \"%@\"", targetName, name); 
     
+    if ([[name pathExtension] isEqualToString:@"strings"]) {
+      [self addLocalizableStrings:absPath
+                       targetName:targetName];
+    }
+    
     [self addImage:[NSArray array]
 	      name:name
 	      path:name];
